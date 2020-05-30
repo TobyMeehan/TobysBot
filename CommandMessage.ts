@@ -27,6 +27,7 @@ class CommandMessage {
         this.message = message;
         let args = message.content.slice(prefix.length).trim().split(" ");
         this.command = args[0];
+        args = args.slice(1);
 
         for (const arg of args) {
             this.arguments.push(new CommandArgument(arg));
