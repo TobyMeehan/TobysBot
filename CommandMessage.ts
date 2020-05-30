@@ -21,9 +21,10 @@ class CommandMessage {
     /**
      * The message object representing the command.
      */
-    message: Message | undefined;
+    message: Message;
 
     constructor(prefix: string, message: Message) {
+        this.message = message;
         let args = message.content.slice(prefix.length).trim().split(" ");
         this.command = args[0];
 
