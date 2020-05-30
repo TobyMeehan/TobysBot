@@ -1,13 +1,13 @@
 import ICommand from "../ICommand";
 import CommandMessage from "../CommandMessage";
-import { GuildMember, TextChannel } from "discord.js";
+import { GuildMember, TextChannel, Base } from "discord.js";
 import Bot from "../Bot";
 import CommandArgument from "../CommandArgument";
 
 abstract class AnnounceCommandBase implements ICommand {
     abstract aliases: string[];
 
-    execute(command: CommandMessage): void {
+    async execute(command: CommandMessage): Promise<void> {
         if (!this.isAuthorised(command.message?.member)) {
             command.message.reply("You do not have access to this command, blame it on the Duggernment.");
             return;
@@ -25,7 +25,8 @@ abstract class AnnounceCommandBase implements ICommand {
         }
 
         const announceRole = command.message.guild?.roles.cache.get(Bot.configuration.announceRoleId);
-        announceMessage = `${announceRole}, ${announceMessage}`;
+
+        announceMessage = `${announceRole?.toString()}, ${announceMessage}`;
 
         const announceChannel = command.message.guild?.channels.cache.get(Bot.configuration.announceChannelId) as TextChannel;
 
