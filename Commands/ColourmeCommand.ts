@@ -27,12 +27,15 @@ class ColourmeCommand implements ICommand {
         let colourRole = command.message.guild?.roles.cache.find(r => r.name === hexCode) 
         
         if (!colourRole) {
-            colourRole = await command.message.guild?.roles.add({
-                name: hexCode,
-                color: hexCode,
-                hoist: false,
-                mentionable: false
-            }).setPosition(command.message.guild.roles.cache.array().length - 2);
+            colourRole = await command.message.guild?.roles.create({
+                data: {
+                    name: hexCode,
+                    color: hexCode,
+                    hoist: false,
+                    mentionable: false,
+                    position: command.message.guild.roles.cache.array().length - 1
+                }
+            });
         }
 
         if (colourRole) {
