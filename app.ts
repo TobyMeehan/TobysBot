@@ -5,7 +5,7 @@ import CommandMessage from "./CommandMessage";
 
 import Commands from "./Commands/CommandRegistry";
 
-Bot.debugMode = true;
+Bot.debugMode = false;
 Bot.login();
 
 const prefix = "\\";

@@ -4,7 +4,7 @@
   "description": "Toby's Discord Bot",
   "main": "build/app.js",
   "scripts": {
-    "start": "node build/app.js",
+    "start": "node app.js",
     "test": "tsc && node build/app.js",
     "build": "tsc"
   },
