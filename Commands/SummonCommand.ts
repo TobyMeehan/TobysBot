@@ -1,7 +1,9 @@
 import ICommand from "../ICommand";
 import CommandMessage from "../CommandMessage";
 import Bot from "../Bot";
+import CommandRegistry from "../CommandRegistry";
 
+@CommandRegistry.register
 class SummonCommand implements ICommand {
     aliases: string[] = ["summon"];
 

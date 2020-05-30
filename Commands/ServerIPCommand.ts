@@ -1,7 +1,9 @@
 import ICommand from "../ICommand";
 import CommandMessage from "../CommandMessage";
 import Bot from "../Bot";
+import CommandRegistry from "../CommandRegistry";
 
+@CommandRegistry.register
 class ServerIPCommand implements ICommand {
     aliases: string[] = ["serverip"];
 

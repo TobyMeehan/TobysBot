@@ -1,7 +1,9 @@
 import ICommand from "../ICommand";
 import CommandMessage from "../CommandMessage";
 import { Role } from "discord.js";
+import CommandRegistry from "../CommandRegistry";
 
+@CommandRegistry.register
 class ColourmeCommand implements ICommand {
     aliases: string[] = ["colourme"];
 
