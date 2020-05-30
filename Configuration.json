@@ -1,5 +1,7 @@
 {
     "prefix": "\\",
     "serverip": "tobymeehan.com",
-    "developerId": "253552918030974977"
+    "developerId": "253552918030974977",
+    "announceChannelId": "679796173330055169",
+    "announceRoleId": "680076271216099369"
 }
