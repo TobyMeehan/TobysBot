@@ -18,6 +18,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Create Authentication File
+      uses: finnp/create-file-action@1.0.0
+      env:
+        FILE_NAME: Authentication.json
+        FILE_DATA: ${{ secrets.AUTHENTICATION }}
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
