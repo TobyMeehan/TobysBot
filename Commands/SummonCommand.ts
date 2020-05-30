@@ -24,7 +24,7 @@ class SummonCommand implements ICommand {
                 command.message.reply("Consider yourself summoned.");
                 break;
             default:
-                command.message.channel.send(`${user}, ${command.message.author} would like you to join them in their adventure.`);
+                command.message.channel.send(`${user?.toString()}, ${command.message.author.toString()} would like you to join them in their adventure.`);
                 break;
         }
 
