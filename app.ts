@@ -1,13 +1,13 @@
 import { Client } from "discord.js";
 import Bot from "./Bot";
 import Authentication from "./Authentication.json";
-import CommandRegistry from "./CommandRegistry";
 import CommandMessage from "./CommandMessage";
 
-Bot.client = new Client();
-Bot.client.login(Authentication.token);
+import Commands from "./Commands/CommandRegistry";
 
-const commands = CommandRegistry.getImplementations().map(x => new x());
+Bot.debugMode = true;
+Bot.login();
+
 const prefix = "\\";
 
 Bot.client.on("ready", () => {
@@ -21,5 +21,5 @@ Bot.client.on("message", message => {
     }
 
     const command = new CommandMessage(prefix, message);
-    commands.find(c => c.aliases.includes(command.command))?.execute(command);
+    Commands.find(c => c.aliases.includes(command.command))?.execute(command);
 });

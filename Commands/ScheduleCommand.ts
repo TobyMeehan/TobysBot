@@ -4,9 +4,7 @@ import AnnounceCommandBase from "./AnnounceCommandBase";
 import CommandArgument from "../CommandArgument";
 import { TextChannel } from "discord.js";
 import Bot from "../Bot";
-import CommandRegistry from "../CommandRegistry";
 
-@CommandRegistry.register
 class ScheduleCommand extends AnnounceCommandBase {
     aliases: string[] = [ "schedule", "s" ];
 

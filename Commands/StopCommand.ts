@@ -1,6 +1,6 @@
-import ICommand from "./ICommand";
-import CommandMessage from "./CommandMessage";
-import Bot from "./Bot";
+import ICommand from "../ICommand";
+import CommandMessage from "../CommandMessage";
+import Bot from "../Bot";
 
 class StopCommand implements ICommand {
     aliases: string[] = ["stop"];
