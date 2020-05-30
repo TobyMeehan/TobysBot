@@ -1,0 +1,27 @@
+{
+  "name": "tobysbot",
+  "version": "1.0.0",
+  "description": "Toby's Discord Bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TobyMeehan/TobysBot.git"
+  },
+  "author": "Toby Meehan",
+  "license": "GPL-3.0-only",
+  "bugs": {
+    "url": "https://github.com/TobyMeehan/TobysBot/issues"
+  },
+  "homepage": "https://github.com/TobyMeehan/TobysBot#readme",
+  "dependencies": {
+    "@discordjs/opus": "^0.3.2",
+    "discord.js": "^12.2.0"
+  },
+  "devDependencies": {
+    "tslint": "^6.1.2",
+    "typescript": "^3.9.3"
+  }
+}
