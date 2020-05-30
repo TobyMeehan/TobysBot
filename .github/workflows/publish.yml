@@ -5,9 +5,7 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    branches: [ master ]  
 
 jobs:
   publish:
@@ -25,7 +23,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
-    - run: npm publish
+    - run: npm run build
       
     - name: FTP Deploy
       uses: SamKirkland/FTP-Deploy-Action@3.1.1
