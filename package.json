@@ -2,8 +2,9 @@
   "name": "tobysbot",
   "version": "1.0.0",
   "description": "Toby's Discord Bot",
-  "main": "index.js",
+  "main": "build/app.js",
   "scripts": {
+    "start": "tsc && node build/app.js",
     "test": "test"
   },
   "repository": {
