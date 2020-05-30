@@ -51,16 +51,18 @@ jobs:
         # Destination path
         path: ./build
     - name: Publish with FTP
-      uses: SamKirkland/FTP-Deploy-Action@3.1.1
+      uses: sebastianpopp/ftp-action@v2.0.0
       with:
-        # Deployment destination server & path. Formatted as protocol://domain.com:port/full/destination/path/
-        ftp-server: ${{ secrets.FTP_SERVER }}
-        # FTP account username
-        ftp-username: ${{ secrets.FTP_ACCOUNT_USERNAME }}
-        # FTP account password
-        ftp-password: ${{ secrets.FTP_ACCOUNT_PASSWORD }}
-        # The local folder to copy, defaults to root project folder
-        local-dir: ./build
-        # Passes through options into git-ftp
-        #git-ftp-args: # optional
+        # FTP host
+        host: ${{ secrets.FTP_SERVER }}
+        # FTP user
+        user: ${{ secrets.FTP_ACCOUNT_USERNAME }}
+        # FTP password
+        password: ${{ secrets.FTP_ACCOUNT_PASSWORD }}
+        # Force SSL encryption
+        forceSsl: false
+        # Local directory
+        localDir: ./build
+        # Remote directory
+        remoteDir: /bot
       
