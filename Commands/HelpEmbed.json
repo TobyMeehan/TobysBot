@@ -1,0 +1,41 @@
+{
+    "embed": {
+        "description": "For more information, https://github.com/TobyMeehan/TobysBot",
+        "color": 6619136,
+        "url": "https://github.com/TobyMeehan/TobysBot",
+        "author": {
+            "name": "Help",
+            "icon_url": "https://tobymeehan.com/content/img/logodiscord.png",
+            "url": "https://github.com/TobyMeehan/TobysBot"
+        },
+        "footer": {
+            "icon_url": "https://tobymeehan.com/content/img/logodiscord.png",
+            "text": "Yui sucks lol"
+        },
+        "thumbnail": {
+            "url": "https://tobymeehan.com/content/img/logodiscord.png"
+        },
+        "fields": [
+            {
+                "name": "Commands:",
+                "value": "All publicly useable commands."
+            },
+            {
+                "name": "``\\pop <user>``",
+                "value": "Calls the user a pop pop head."
+            },
+            {
+                "name": "``\\colourme (#xxxxxx|clear)``",
+                "value": "Applies a role of the same colour to you, or removes any colour roles you have."
+            },
+            {
+                "name": "``\\summon <user>``",
+                "value": "Summons the user to your activity."
+            },
+            {
+                "name": "``\\serverip``",
+                "value": "Displays the current in-use IP address for the minecraft server."
+            }
+        ]
+    }
+}
