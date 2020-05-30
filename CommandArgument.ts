@@ -5,11 +5,13 @@ class CommandArgument {
     content: string = "";
     mention: User | undefined;
 
-    constructor (argument: string) {
+    constructor(argument: string) {
         this.content = argument;
+
+        this.mention = this.getUserFromMention(argument);
     }
 
-    private getUserFromMention(mention: string) : User | undefined {
+    private getUserFromMention(mention: string): User | undefined {
         if (mention.startsWith('<@') && mention.endsWith('>')) {
             mention = mention.slice(2, -1);
         }
