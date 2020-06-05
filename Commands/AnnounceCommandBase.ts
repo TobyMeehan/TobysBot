@@ -36,7 +36,7 @@ abstract class AnnounceCommandBase implements ICommand {
     abstract announce(announceMessage: string, announceChannel: TextChannel, command: CommandMessage) : void;
 
     private isAuthorised(member: GuildMember | null | undefined) : boolean {
-        return (member?.hasPermission("ADMINISTRATOR") && member?.id === Bot.configuration.developerId) ?? false;
+        return (member?.hasPermission("ADMINISTRATOR") || member?.id === Bot.configuration.developerId) ?? false;
     }
 
     private getMessage(id: string): string | undefined {
