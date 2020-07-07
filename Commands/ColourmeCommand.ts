@@ -11,23 +11,27 @@ class ColourmeCommand implements ICommand {
             return;
         }
 
-        await command.message.member?.roles.remove(command.message.member.roles.cache.filter(r => r.name.startsWith("#")));
-
-        if (command.arguments[0].content === "clear") {
-            return;
-        }
-
         const hexCode = command.arguments[0].content;
 
-        if (!(/^#[0-9a-f]{6}?$/i.test(hexCode))) {
+        if (!(/^#[0-9a-f]{6}?$/i.test(hexCode)) || hexCode != "clear") { // check if hexcode is a valid colour
             command.message.reply("Invalid hex colour. Use the format #xxxxxx.");
             return;
         }
 
-        let colourRole = command.message.guild?.roles.cache.find(r => r.name === hexCode) 
-        
-        if (!colourRole) {
-            colourRole = await command.message.guild?.roles.create({
+        const colourRoles = command.message.guild?.roles.cache.filter(r => r.name.startsWith("#"));
+
+        if (colourRoles) {
+            command.message.member?.roles.remove(colourRoles);
+        }
+
+        if (hexCode === "clear") {
+            return;
+        }
+
+        let role = colourRoles?.find(r => r.name === hexCode);
+
+        if (!role) {
+            role = await command.message.guild?.roles.create({
                 data: {
                     name: hexCode,
                     color: hexCode,
@@ -38,8 +42,8 @@ class ColourmeCommand implements ICommand {
             });
         }
 
-        if (colourRole) {
-            command.message.member?.roles.add(colourRole);
+        if (role) {
+            command.message.member?.roles.add(role);
         }
     }
 }
