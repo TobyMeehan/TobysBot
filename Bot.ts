@@ -21,6 +21,8 @@ class Bot {
     static login() {
         Bot.client.login(Bot.token);
     }
+
+    static uptime = 290;
 }
 
 export = Bot;

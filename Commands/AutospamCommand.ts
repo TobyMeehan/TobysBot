@@ -3,6 +3,7 @@ import CommandMessage from "../CommandMessage";
 import Bot from "../Bot";
 import { User } from "discord.js";
 import CommandArgument from "../CommandArgument";
+import Timeout from "../Timeout";
 
 class AutospamCommand implements ICommand {
     aliases: string[] = ["autosquare"]
@@ -36,7 +37,7 @@ class AutospamCommand implements ICommand {
         while (this.spams.get(user.id)) {
             await user.send("square");
             console.log(`Sent square to ${user.username}`);
-            await this.sleep(1000);
+            await Timeout.sleep(1000);
         }
     }
 
@@ -50,10 +51,6 @@ class AutospamCommand implements ICommand {
         this.spams.delete(user.id);
 
         console.log(`Autospam stopped to ${user.username}`);
-    }
-
-    sleep(ms: number) {
-        return new Promise(x => setTimeout(x, ms));
     }
 }
 
