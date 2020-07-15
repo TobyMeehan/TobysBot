@@ -7,20 +7,20 @@ import ShutUpDuggan from "./Commands/ShutUpDuggan";
 import * as https from "https";
 import Timeout from "./Timeout";
 
-Bot.debugMode = true;
+Bot.prefix = "\\";
+Bot.debugMode = false;
 Bot.login();
-
-const prefix = "\\";
 
 let keepAlive = true;
 
 Bot.client.on("ready", async () => {
-    Bot.client.user?.setActivity(prefix, { type: "LISTENING" });
+    Bot.client.user?.setActivity(Bot.prefix, { type: "LISTENING" });
 
     while (keepAlive) {
         Bot.uptime++;
 
-        if (Bot.uptime % 300 === 0) { // send every 5 mins
+        if (Bot.uptime % (5 * 60) === 0) { // send every 5 mins
+            Bot.toggleActivity();
             https.get("https://bot.tobymeehan.com");
         }
 
@@ -30,11 +30,11 @@ Bot.client.on("ready", async () => {
 
 Bot.client.on("message", message => {
 
-    if (!message.content.startsWith(prefix)) {
+    if (!message.content.startsWith(Bot.prefix)) {
         return;
     }
 
-    const command = new CommandMessage(prefix, message);
+    const command = new CommandMessage(Bot.prefix, message);
     Commands.find(c => c.aliases.includes(command.command))?.execute(command);
 });
 
@@ -51,6 +51,6 @@ Bot.client.on("guildMemberSpeaking", async (member, speaking) => {
         return;
     }
 
-    command?.execute(new CommandMessage(prefix, message));
+    command?.execute(new CommandMessage(Bot.prefix, message));
 });
 
