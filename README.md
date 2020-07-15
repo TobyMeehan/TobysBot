@@ -14,3 +14,9 @@ Summons the user to your activity.
 
 ### `\serverip`
 Displays the current in-use IP address for the minecraft server.
+
+### `\uptime`
+Returns the amount of time the bot has been online.
+
+### `\toggle`
+Toggles the bot's Discord activity.

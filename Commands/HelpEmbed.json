@@ -35,6 +35,14 @@
             {
                 "name": "``\\serverip``",
                 "value": "Displays the current in-use IP address for the minecraft server."
+            },
+            {
+                "name": "``\\uptime``",
+                "value": "Returns the amount of time I have been online."
+            },
+            {
+                "name": "``\\toggle``",
+                "value": "Toggles my Discord activity."
             }
         ]
     }
