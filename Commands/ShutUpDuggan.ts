@@ -2,6 +2,7 @@ import { VoiceConnection } from "discord.js";
 import ICommand from "../ICommand";
 import CommandMessage from "../CommandMessage";
 import Bot from "../Bot";
+import Random from "../Random";
 
 class ShutUpDuggan implements ICommand {
     aliases: string[] = ["shutupduggan", "sud"]
@@ -25,15 +26,7 @@ class ShutUpDuggan implements ICommand {
     }
 
     pickFilename(): string {
-        const random = Math.random() * 200;
-
-        switch (true) {
-            case random < 100: return "";
-            case random < 110: return "SHUTUPDUGGAN.mp3";
-            case random < 200: return "shut_up_duggan.mp3";
-        }
-
-        return "";
+        return Random.select("", "SHUTUPDUGGAN.mp3", "shut_up_duggan.mp3");
     }
 }
 
