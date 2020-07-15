@@ -12,6 +12,7 @@ import LeaveCommand from "./LeaveCommand";
 import ShutUpDuggan from "./ShutUpDuggan";
 import AutospamCommand from "./AutospamCommand";
 import UptimeCommand from "./UptimeCommand";
+import ToggleCommand from "./ToggleCommand";
 
 const Commands : ICommand[] = [
     new AnnounceCommand(),
@@ -26,7 +27,8 @@ const Commands : ICommand[] = [
     new LeaveCommand(),
     new ShutUpDuggan(),
     new AutospamCommand(),
-    new UptimeCommand()
+    new UptimeCommand(),
+    new ToggleCommand()
 ]
 
 export = Commands;
