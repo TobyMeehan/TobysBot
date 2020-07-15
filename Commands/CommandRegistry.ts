@@ -10,6 +10,7 @@ import StopCommand from "./StopCommand";
 import JoinCommand from "./JoinCommand";
 import LeaveCommand from "./LeaveCommand";
 import ShutUpDuggan from "./ShutUpDuggan";
+import AutospamCommand from "./AutospamCommand";
 
 const Commands : ICommand[] = [
     new AnnounceCommand(),
@@ -22,7 +23,8 @@ const Commands : ICommand[] = [
     new SummonCommand(),
     new JoinCommand(),
     new LeaveCommand(),
-    new ShutUpDuggan()
+    new ShutUpDuggan(),
+    new AutospamCommand()
 ]
 
 export = Commands;
