@@ -1,7 +1,7 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: Node.js CI
+name: Deploy
 
 on:
   push:
@@ -13,10 +13,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [10.x, 12.x, 14.x]
-
     steps:
     - uses: actions/checkout@v2
     - name: Create Authentication File
@@ -27,9 +23,9 @@ jobs:
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm ci
-    - run: npm run build
+        node-version: 12.x
+    - name: Build
+      run: npm run build
     - name: Upload Build
       uses: actions/upload-artifact@v2
       with:
@@ -37,19 +33,6 @@ jobs:
         name: build
         # A file, directory or wildcard pattern that describes what to upload
         path: ./build/
-      
-  publish:
-    name: Publish
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-    - name: Download Build
-      uses: actions/download-artifact@v2
-      with:
-        # Artifact name
-        name: build
-        # Destination path
-        path: ./build
     - name: Publish with FTP
       uses: sebastianpopp/ftp-action@v2.0.0
       with:
@@ -65,4 +48,28 @@ jobs:
         localDir: ./build
         # Remote directory
         remoteDir: /bot
-      
+    - name: HTTP Request Action
+      # You may pin to the exact commit or the version.
+      # uses: fjogeleit/http-request-action@3634ea0063747172ea475d8dafb6596eab2a1e11
+      uses: fjogeleit/http-request-action@v1.4.1
+      with:
+        # Request URL
+        url: https://bot.tobymeehan.com
+        # Request Method
+        method: GET
+        # Content Type
+        # contentType: # optional, default is application/json
+        # Request Body as JSON String
+        # data: # optional, default is {} 
+        # Auth Username
+        # username: # optional
+        # Auth Password
+        # password: # optional
+        # Request Timeout in Sec
+        # timeout: # optional, default is 5000
+        # Bearer Authentication Token
+        # bearerToken: # optional
+        # Custom HTTP Headers
+        # customHeaders: # optional
+        # Prevent this Action to fail if the request respond without an response
+        preventFailureOnNoResponse: true
