@@ -20,3 +20,6 @@ Returns the amount of time the bot has been online.
 
 ### `\toggle`
 Toggles the bot's Discord activity.
+
+### `\typical`
+Demonstrates some typical behaviour.

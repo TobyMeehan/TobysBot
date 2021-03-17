@@ -43,6 +43,10 @@
             {
                 "name": "``\\toggle``",
                 "value": "Toggles my Discord activity."
+            },
+            {
+                "name": "``\\typical``",
+                "value": "Demonstrates some typical behaviour."
             }
         ]
     }
