@@ -29,7 +29,7 @@ class Bot {
         const uptimeActivity = `${this.getUptimeString(new Date(Bot.uptime * 1000))} without an incident.`;
         const githubActivity = `https://github.com/TobyMeehan/TobysBot`;
 
-        const activity = Random.select(prefixActivity, uptimeActivity, githubActivity);
+        const activity = Random.select([prefixActivity, uptimeActivity, githubActivity]);
 
         switch (activity) {
             case prefixActivity:
