@@ -1,31 +1,33 @@
-# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
-
-name: Deploy
+name: Publish
 
 on:
   push:
-    branches: [ master ]  
+    branches: [ master ]
+  workflow_dispatch:
 
 jobs:
-  build:
-    name: Build
+  publish:
+    name: Publish
 
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
+    
     - name: Create Authentication File
       uses: finnp/create-file-action@1.0.0
       env:
         FILE_NAME: Authentication.json
         FILE_DATA: ${{ secrets.AUTHENTICATION }}
-    - name: Use Node.js ${{ matrix.node-version }}
+    
+    - name: Setup Node.js
       uses: actions/setup-node@v1
       with:
         node-version: 12.x
+    
     - name: Build
       run: npm run build
+    
     - name: Upload Build
       uses: actions/upload-artifact@v2
       with:
@@ -33,6 +35,7 @@ jobs:
         name: build
         # A file, directory or wildcard pattern that describes what to upload
         path: ./build/
+    
     - name: Publish with FTP
       uses: sebastianpopp/ftp-action@v2.0.0
       with:
@@ -48,7 +51,8 @@ jobs:
         localDir: ./build
         # Remote directory
         remoteDir: /bot
-    - name: HTTP Request Action
+    
+    - name: Start Bot
       # You may pin to the exact commit or the version.
       # uses: fjogeleit/http-request-action@3634ea0063747172ea475d8dafb6596eab2a1e11
       uses: fjogeleit/http-request-action@v1.4.1
