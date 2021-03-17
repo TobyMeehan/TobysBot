@@ -26,7 +26,7 @@ class ShutUpDuggan implements ICommand {
     }
 
     pickFilename(): string {
-        return Random.select("", "SHUTUPDUGGAN.mp3", "shut_up_duggan.mp3");
+        return Random.select(["", "SHUTUPDUGGAN.mp3", "shut_up_duggan.mp3"]);
     }
 }
 

@@ -1,5 +1,5 @@
 class Random {
-    static select(...items: string[]): string {
+    static select<T>(items: T[]): T {
         return items[Math.floor(Math.random() * (items.length - 1))];
     }
 
