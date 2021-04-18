@@ -12,6 +12,8 @@ class StopCommand implements ICommand {
 
         await command.message.channel.send("Stopping process. cya");
 
+        Bot.client.destroy();
+
         process.exit();
     }
 }
