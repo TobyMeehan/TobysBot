@@ -47,6 +47,10 @@
             {
                 "name": "``\\typical``",
                 "value": "Demonstrates some typical behaviour."
+            },
+            {
+                "name": "``\\rule34 <query>``",
+                "value": "Finds a naughty image related to your query."
             }
         ]
     }
