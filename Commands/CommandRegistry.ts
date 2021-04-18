@@ -14,6 +14,7 @@ import AutospamCommand from "./AutospamCommand";
 import UptimeCommand from "./UptimeCommand";
 import ToggleCommand from "./ToggleCommand";
 import TypicalCommand from "./TypicalCommand";
+import Rule34Command from "./Rule34Command";
 
 const Commands : ICommand[] = [
     new AnnounceCommand(),
@@ -30,7 +31,8 @@ const Commands : ICommand[] = [
     new AutospamCommand(),
     new UptimeCommand(),
     new ToggleCommand(),
-    new TypicalCommand()
+    new TypicalCommand(),
+    new Rule34Command()
 ]
 
 export = Commands;

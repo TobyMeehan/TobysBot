@@ -21,6 +21,7 @@
   "dependencies": {
     "@discordjs/opus": "^0.3.2",
     "@types/node": "^14.0.6",
+    "api-rule34-xxx": "^1.0.3",
     "discord.js": "^12.2.0"
   },
   "devDependencies": {

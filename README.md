@@ -23,3 +23,6 @@ Toggles the bot's Discord activity.
 
 ### `\typical`
 Demonstrates some typical behaviour.
+
+### `\rule34`
+Yuck.
