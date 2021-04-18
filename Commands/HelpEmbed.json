@@ -5,15 +5,11 @@
         "url": "https://github.com/TobyMeehan/TobysBot",
         "author": {
             "name": "Help",
-            "icon_url": "https://tobymeehan.com/content/img/logodiscord.png",
+            "icon_url": "https://cdn.discordapp.com/avatars/681894889851715623/935f3e2a6de7ada45763a435db19ed57.png",
             "url": "https://github.com/TobyMeehan/TobysBot"
         },
         "footer": {
-            "icon_url": "https://tobymeehan.com/content/img/logodiscord.png",
             "text": "Yui sucks lol"
-        },
-        "thumbnail": {
-            "url": "https://tobymeehan.com/content/img/logodiscord.png"
         },
         "fields": [
             {
