@@ -10,6 +10,8 @@ class SummonCommand implements ICommand {
             command.message.reply("Consider yourself summoned.");
         }
 
+        const author = command.message.author;
+        const member = command.message.member;
         const user = command.arguments[0].mention;
 
         if (!user) {
@@ -20,11 +22,22 @@ class SummonCommand implements ICommand {
             case Bot.client.user?.id:
                 command.message.channel.send("Do not worry, I am here.");
                 break;
-            case command.message.author.id:
+            case author.id:
                 command.message.reply("Consider yourself summoned.");
                 break;
             default:
-                command.message.channel.send(`${user?.toString()}, ${command.message.author.toString()} would like you to join them in their adventure.`);
+                if (author.presence.activities.length ?? 0 > 0) {
+                    const activity = author.presence.activities[0];
+                    command.message.channel.send(`${user?.toString()}, ${author.toString()} wants you to join them in ${activity.name}.`);
+                    break;
+                }
+
+                if (member?.voice) {
+                    command.message.channel.send(`${user?.toString()}, ${author.toString()} wants you to join them in \`${member.voice.channel?.name}\``);
+                    break;
+                }
+
+                command.message.channel.send(`${user?.toString()}, ${author.toString()} wants you to join them in whatever they are doing.`);
                 break;
         }
 
