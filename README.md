@@ -26,3 +26,6 @@ Demonstrates some typical behaviour.
 
 ### `\rule34`
 Yuck.
+
+### `\wordcloud`
+Creates a word cloud using the text channel's history.
