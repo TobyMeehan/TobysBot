@@ -15,6 +15,7 @@ import UptimeCommand from "./UptimeCommand";
 import ToggleCommand from "./ToggleCommand";
 import TypicalCommand from "./TypicalCommand";
 import Rule34Command from "./Rule34Command";
+import WordcloudCommand from "./WordcloudCommand";
 
 const Commands : ICommand[] = [
     new AnnounceCommand(),
@@ -32,7 +33,8 @@ const Commands : ICommand[] = [
     new UptimeCommand(),
     new ToggleCommand(),
     new TypicalCommand(),
-    new Rule34Command()
+    new Rule34Command(),
+    new WordcloudCommand()
 ]
 
 export = Commands;
