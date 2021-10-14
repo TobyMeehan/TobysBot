@@ -13,7 +13,7 @@ namespace TobysBot.Discord.Audio
         Task LeaveAsync(IGuild guild);
 
         // Track controls
-        Task<ITrack> PlayAsync(string query, IVoiceChannel channel);
+        Task<ITrack> PlayAsync(string query, IVoiceChannel channel, ITextChannel textChannel);
         Task PauseAsync(IGuild guild);
         Task StopAsync(IGuild guild);
 
@@ -23,6 +23,7 @@ namespace TobysBot.Discord.Audio
 
 
         // Information
+        Task<IVoiceChannel> GetCurrentChannelAsync(IGuild guild);
         Task<ITrack> GetCurrentTrackAsync(IGuild guild);
         Task<IQueue> GetQueueAsync(IGuild guild);
     }
