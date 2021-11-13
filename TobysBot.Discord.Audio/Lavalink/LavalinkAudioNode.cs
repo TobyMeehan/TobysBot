@@ -13,20 +13,46 @@ namespace TobysBot.Discord.Audio.Lavalink
     public class LavalinkAudioNode : IAudioNode
     {
         private readonly LavaNode _node;
+        private readonly IQueue _queue;
 
-        public LavalinkAudioNode(LavaNode node)
+        public LavalinkAudioNode(LavaNode node, IQueue queue)
         {
             _node = node;
+            _queue = queue;
         }
 
-        // Voice channel
-        public async Task JoinAsync(IVoiceChannel channel, ITextChannel textChannel)
+        private LavaPlayer ThrowIfNoPlayer(IGuild guild)
         {
-            IVoiceChannel currentChannel = await GetCurrentChannelAsync(channel.Guild);
-
-            if (currentChannel?.Id != channel.Id)
+            if (!_node.TryGetPlayer(guild, out LavaPlayer player))
             {
-                await _node.LeaveAsync(currentChannel);
+                throw new Exception("No player is connected to the guild.");
+            }
+
+            return player;
+        }
+
+        private async Task<LavaTrack> LoadTrackAsync(ITrack track)
+        {
+            SearchResponse search = await _node.SearchAsync(SearchType.Direct, track.Url);
+
+            if (search.Status != SearchStatus.TrackLoaded)
+            {
+                throw new Exception("Error loading track.");
+            }
+
+            return search.Tracks.First();
+        }
+
+        public async Task JoinAsync(IVoiceChannel channel, ITextChannel textChannel = null)
+        {
+            if (_node.TryGetPlayer(channel.Guild, out LavaPlayer player))
+            {
+                if (player.VoiceChannel != channel)
+                {
+                    await _node.LeaveAsync(player.VoiceChannel);
+
+                    textChannel ??= player.TextChannel;
+                }
             }
 
             await _node.JoinAsync(channel, textChannel);
@@ -42,71 +68,92 @@ namespace TobysBot.Discord.Audio.Lavalink
             await _node.LeaveAsync(player.VoiceChannel);
         }
 
-        // Track controls
-        public async Task<ITrack> PlayAsync(string query, IVoiceChannel channel, ITextChannel textChannel)
+
+        public async Task<ITrack> EnqueueAsync(IPlayable source, IGuild guild)
         {
-            await JoinAsync(channel, textChannel);
+            LavaPlayer player = ThrowIfNoPlayer(guild);
 
-            LavaPlayer player = _node.GetPlayer(channel.Guild);
+            SearchResponse search = await _node.SearchAsync(SearchType.Direct, source.Url);
 
-            var search = Uri.IsWellFormedUriString(query, UriKind.Absolute) ?
-                    await _node.SearchAsync(SearchType.Direct, query)
-                    : await _node.SearchYouTubeAsync(query);
+            List<ITrack> tracks = new List<ITrack>();
 
-            if (search.Status == SearchStatus.NoMatches)
+            if (source is ITrack track)
             {
-                throw new Exception("No matches for query.");
+                if (search.Status != SearchStatus.TrackLoaded)
+                {
+                    throw new Exception("Error loading track.");
+                }
+
+                tracks.Add(track);
             }
 
-            LavaTrack track = search.Tracks.FirstOrDefault();
-
-            if (player.IsPlaying()) // TODO: use better queue
+            if (source is IPlaylist playlist)
             {
-                player.Queue.Enqueue(track);
-            }
-            else
-            {
-                await player.PlayAsync(track);
+                if (search.Status != SearchStatus.PlaylistLoaded)
+                {
+                    throw new Exception("Error loading playlist.");
+                }
+
+                tracks.AddRange(playlist);
             }
 
-            return new LavalinkTrack(track);
+            if (!player.HasTrack())
+            {
+                await player.PlayAsync(search.Tracks.First());
+
+                tracks.RemoveAt(0);
+            }
+
+            if (tracks.Any())
+            {
+                await _queue.EnqueueAsync(guild, tracks);
+            }
+
+            return new LavalinkTrack(player.Track);
         }
 
         public async Task PauseAsync(IGuild guild)
         {
-            if (!_node.TryGetPlayer(guild, out LavaPlayer player))
-            {
-                return;
-            }
+            LavaPlayer player = ThrowIfNoPlayer(guild);
 
             await player.PauseAsync();
         }
 
-        public async Task StopAsync(IGuild guild)
+        public async Task ResumeAsync(IGuild guild)
         {
-            if (!_node.TryGetPlayer(guild, out LavaPlayer player))
-            {
-                return;
-            }
+            LavaPlayer player = ThrowIfNoPlayer(guild);
+
+            await player.ResumeAsync();
+        }
+
+        public async Task<ITrack> SkipAsync(IGuild guild)
+        {
+            LavaPlayer player = ThrowIfNoPlayer(guild);
+
+            ITrack nextTrack = await _queue.DequeueAsync(guild);
+
+            await player.PlayAsync(await LoadTrackAsync(nextTrack));
+
+            return nextTrack;
+        }
+
+        public async Task ClearAsync(IGuild guild)
+        {
+            LavaPlayer player = ThrowIfNoPlayer(guild);
+
+            await _queue.ClearAsync(guild);
 
             await player.StopAsync();
-
-            // TODO: go to start of queue
         }
 
-        // Queue
-        public Task<ITrack> SkipAsync(IGuild guild)
+        public async Task StopAsync(IGuild guild)
         {
-            throw new NotImplementedException();
-        }
+            LavaPlayer player = ThrowIfNoPlayer(guild);
 
-        public Task ClearAsync(IGuild guild)
-        {
-            throw new NotImplementedException();
+            await player.StopAsync();
         }
 
 
-        // Information
         public Task<IVoiceChannel> GetCurrentChannelAsync(IGuild guild)
         {
             if (!_node.TryGetPlayer(guild, out LavaPlayer player))
@@ -124,7 +171,7 @@ namespace TobysBot.Discord.Audio.Lavalink
                 return Task.FromResult<ITrack>(null);
             }
 
-            if (!player.IsPlaying())
+            if (!player.HasTrack())
             {
                 return Task.FromResult<ITrack>(null);
             }
@@ -132,9 +179,9 @@ namespace TobysBot.Discord.Audio.Lavalink
             return Task.FromResult<ITrack>(new LavalinkTrack(player.Track));
         }
 
-        public Task<IQueue> GetQueueAsync(IGuild guild)
+        public async Task<IEnumerable<ITrack>> GetQueueAsync(IGuild guild)
         {
-            throw new NotImplementedException();
+            return await _queue.GetAsync(guild);
         }
     }
 }

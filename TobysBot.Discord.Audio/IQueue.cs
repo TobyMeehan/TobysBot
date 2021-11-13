@@ -12,9 +12,9 @@ namespace TobysBot.Discord.Audio
         /// Adds the specified track or playlist to the queue for the specified guild.
         /// </summary>
         /// <param name="guild"></param>
-        /// <param name="source"></param>
+        /// <param name="tracks"></param>
         /// <returns></returns>
-        Task EnqueueAsync(IGuild guild, IPlayable source);
+        Task EnqueueAsync(IGuild guild, IEnumerable<ITrack> tracks);
 
         /// <summary>
         /// Gets the queue for the specified guild.
