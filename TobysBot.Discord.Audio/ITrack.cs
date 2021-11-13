@@ -4,12 +4,12 @@ using System.Text;
 
 namespace TobysBot.Discord.Audio
 {
-    public interface ITrack
+    public interface ITrack : IPlayable
     {
         string Id { get; }
-        string Author { get; }
-        string Title { get; }
         TimeSpan Duration { get; }
-        string Url { get; }
+        string Title { get; }
+        string Author { get; }
+
     }
 }
