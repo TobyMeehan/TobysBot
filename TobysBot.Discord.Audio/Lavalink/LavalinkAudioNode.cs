@@ -153,6 +153,28 @@ namespace TobysBot.Discord.Audio.Lavalink
             await player.StopAsync();
         }
 
+        public IPlayerStatus Status(IGuild guild)
+        {
+            if (!_node.TryGetPlayer(guild, out LavaPlayer player))
+            {
+                return new NotPlayingStatus();
+            }
+
+            switch (player.PlayerState)
+            {
+                case PlayerState.Playing:
+                    return new PlayingStatus(new LavalinkTrack(player.Track), player.Track.Position,
+                        player.Track.Duration);
+                
+                case PlayerState.Paused:
+                    return new PausedStatus(new LavalinkTrack(player.Track), player.Track.Position,
+                        player.Track.Duration);
+                
+                default:
+                    return new NotPlayingStatus();
+            }
+        }
+
 
         public Task<IVoiceChannel> GetCurrentChannelAsync(IGuild guild)
         {

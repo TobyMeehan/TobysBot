@@ -75,6 +75,8 @@ namespace TobysBot.Discord.Audio
 
         // Status
 
+        IPlayerStatus Status(IGuild guild);
+        
         /// <summary>
         /// Gets the voice channel the player for the specified guild is connected to.
         /// </summary>
