@@ -7,5 +7,7 @@ namespace TobysBot.Discord.Audio
     public interface IPlayable
     {
         string Url { get; }
+        
+        string Title { get; }
     }
 }
