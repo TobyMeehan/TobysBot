@@ -23,19 +23,19 @@ namespace TobysBot.Discord.Client.TextCommands
         {
             _client.MessageReceived += HandleCommandAsync;
 
-            await _commands.AddModulesAsync(assembly: Assembly.GetEntryAssembly(), services: _serviceProvider);
+            await _commands.AddModulesAsync(assembly: Assembly.GetExecutingAssembly(), services: _serviceProvider);
         }
 
         private async Task HandleCommandAsync(SocketMessage arg)
         {
-            if (!(arg is SocketUserMessage message))
+            if (arg is not SocketUserMessage message)
             {
                 return;
             }
 
             int argPos = 0;
 
-            if (!(message.HasCharPrefix('\\', ref argPos) ||
+            if (!(message.HasCharPrefix('!', ref argPos) ||
                   message.HasMentionPrefix(_client.CurrentUser, ref argPos)) ||
                 message.Author.IsBot)
             {
