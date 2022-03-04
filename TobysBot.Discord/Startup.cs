@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Discord;
+using TobysBot.Discord.Client.Configuration;
 
 namespace TobysBot.Discord
 {
@@ -24,6 +26,20 @@ namespace TobysBot.Discord
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
+
+            services.AddDiscordClient(options =>
+                {
+                    options.Token = Configuration.GetSection("Discord")["Token"];
+                })
+                .AddLavaNode(options =>
+                {
+                    options.SelfDeaf = false;
+
+                    options.Hostname = "lava.link";
+                    options.Port = 80;
+
+                    options.LogSeverity = LogSeverity.Verbose;
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

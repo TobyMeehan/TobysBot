@@ -18,6 +18,17 @@ namespace TobysBot.Discord
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    if (hostingContext.HostingEnvironment.IsDevelopment())
+                    {
+                        config.AddJsonFile("secrets.Development.json", true);
+                    }
+                    else
+                    {
+                        config.AddJsonFile("secrets.json", true);
+                    }
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
