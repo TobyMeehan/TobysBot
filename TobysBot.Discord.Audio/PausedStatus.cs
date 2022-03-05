@@ -2,10 +2,19 @@ using System;
 
 namespace TobysBot.Discord.Audio
 {
-    public class PausedStatus : PlayingStatus
+    public class PausedStatus : ITrackStatus
     {
-        public PausedStatus(ITrack track, TimeSpan position, TimeSpan duration) : base(track, position, duration)
+        public PausedStatus(ITrack track, TimeSpan position, TimeSpan duration)
         {
+            CurrentTrack = track;
+            Position = position;
+            Duration = duration;
         }
+        
+        public ITrack CurrentTrack { get; }
+        
+        public TimeSpan Position { get; }
+        
+        public TimeSpan Duration { get; }
     }
 }

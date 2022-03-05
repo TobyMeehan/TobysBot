@@ -1,7 +1,9 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using TobysBot.Discord.Audio;
+using TobysBot.Discord.Client.TextCommands.Extensions.Music;
 
 namespace TobysBot.Discord.Client.TextCommands.Modules
 {
@@ -38,7 +40,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         {
             if (!IsUserInVoiceChannel(out IVoiceState voiceState))
             {
-                await ReplyAsync("JOIN VOICE");
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildJoinVoiceEmbed());
                 return false;
             }
 
@@ -51,7 +53,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         {
             if (!IsUserInSameVoiceChannel(out IVoiceState voiceState))
             {
-                await ReplyAsync("JOIN SAME VOICE");
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildJoinSameVoiceEmbed());
                 return false;
             }
 
@@ -68,9 +70,8 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Alias("disconnect", "fuckoff")]
         public async Task LeaveAsync()
         {
-            if (!IsUserInSameVoiceChannel(out IVoiceState voiceState))
+            if (!await EnsureUserInSameVoiceAsync())
             {
-                await ReplyAsync("JOIN SAME VOICE");
                 return;
             }
 
@@ -97,13 +98,13 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
 
             if (result is null)
             {
-                await ReplyAsync("NO RESULT FOUND");
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildTrackNotFoundEmbed(query));
                 return;
             }
 
-            await _node.EnqueueAsync(result, Context.Guild);
+            var track = await _node.EnqueueAsync(result, Context.Guild);
 
-            await ReplyAsync($"PLAYING {result.Title}");
+            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildPlayTrackEmbed(track));
         }
 
         private async Task ResumeAsync()

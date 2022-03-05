@@ -2,7 +2,7 @@ using System;
 
 namespace TobysBot.Discord.Audio
 {
-    public class PlayingStatus : IPlayerStatus
+    public class PlayingStatus : ITrackStatus
     {
         public PlayingStatus(ITrack track, TimeSpan position, TimeSpan duration)
         {
