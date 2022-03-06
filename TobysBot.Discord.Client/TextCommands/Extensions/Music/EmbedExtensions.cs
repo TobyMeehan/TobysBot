@@ -51,6 +51,12 @@ public static class EmbedExtensions
         if (currentTrack is null)
         {
             sb.AppendLine($"**--** No track playing.");
+
+            if (queue.Next().Any())
+            {
+                sb.AppendLine($"**{i++}.** [{queue.CurrentTrack.Title}]({queue.CurrentTrack.Url})" +
+                              $" `{queue.CurrentTrack.Duration.ToTimeString()}`");
+            }
         }
         else
         {

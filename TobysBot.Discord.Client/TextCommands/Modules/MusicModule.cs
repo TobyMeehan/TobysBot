@@ -165,7 +165,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
 
             var status = _node.Status(Context.Guild);
 
-            if (status is not PausedStatus)
+            if (status is PlayingStatus)
             {
                 return;
             }

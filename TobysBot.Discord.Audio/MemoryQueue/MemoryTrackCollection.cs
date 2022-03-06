@@ -50,8 +50,13 @@ namespace TobysBot.Discord.Audio.MemoryQueue
             return CurrentTrack;
         }
 
-        public void AddRange(IEnumerable<ITrack> tracks)
+        public void AddRange(IEnumerable<ITrack> tracks, bool advanceToTracks = false)
         {
+            if (advanceToTracks)
+            {
+                _currentIndex = _tracks.Count;
+            }
+            
             _tracks.AddRange(tracks);
         }
 

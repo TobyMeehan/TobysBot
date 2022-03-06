@@ -14,7 +14,7 @@ namespace TobysBot.Discord.Audio
         /// <param name="guild"></param>
         /// <param name="tracks"></param>
         /// <returns></returns>
-        Task EnqueueAsync(IGuild guild, IEnumerable<ITrack> tracks);
+        Task EnqueueAsync(IGuild guild, IEnumerable<ITrack> tracks, bool advanceToTracks = false);
 
         /// <summary>
         /// Gets the queue for the specified guild.

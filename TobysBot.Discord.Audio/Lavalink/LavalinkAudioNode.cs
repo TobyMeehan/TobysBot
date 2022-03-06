@@ -135,8 +135,10 @@ namespace TobysBot.Discord.Audio.Lavalink
 
                 tracks.AddRange(playlist);
             }
+
+            var playerState = player.PlayerState;
             
-            if (!player.HasTrack())
+            if (playerState is not (PlayerState.Playing or PlayerState.Paused))
             {
                 try
                 {
@@ -148,7 +150,7 @@ namespace TobysBot.Discord.Audio.Lavalink
                 }
             }
             
-            await _queue.EnqueueAsync(guild, tracks);
+            await _queue.EnqueueAsync(guild, tracks, advanceToTracks: playerState is PlayerState.Stopped);
 
             return new LavalinkTrack(player.Track);
         }
@@ -164,7 +166,25 @@ namespace TobysBot.Discord.Audio.Lavalink
         {
             LavaPlayer player = ThrowIfNoPlayer(guild);
 
-            await player.ResumeAsync();
+            if (player.PlayerState is PlayerState.Paused)
+            {
+                await player.ResumeAsync();
+            }
+
+            if (player.PlayerState is PlayerState.Stopped)
+            {
+                var queue = await GetQueueAsync(guild);
+
+                var track = queue?.CurrentTrack;
+
+                if (track is null)
+                {
+                    return;
+                }
+                
+                await player.PlayAsync(await LoadTrackAsync(track));
+            }
+            
         }
 
         public async Task<ITrack> SkipAsync(IGuild guild)

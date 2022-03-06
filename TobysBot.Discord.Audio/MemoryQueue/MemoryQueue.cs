@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 
@@ -8,7 +9,7 @@ namespace TobysBot.Discord.Audio.MemoryQueue
     {
         private readonly Dictionary<IGuild, MemoryTrackCollection> _queue = new Dictionary<IGuild, MemoryTrackCollection>();
 
-        public Task EnqueueAsync(IGuild guild, IEnumerable<ITrack> tracks)
+        public Task EnqueueAsync(IGuild guild, IEnumerable<ITrack> tracks, bool advanceToTracks = false)
         {
             if (!_queue.TryGetValue(guild, out var queue))
             {
@@ -16,7 +17,7 @@ namespace TobysBot.Discord.Audio.MemoryQueue
                 _queue.Add(guild, queue);
             }
             
-            queue.AddRange(tracks);
+            queue.AddRange(tracks, advanceToTracks);
             
             return Task.CompletedTask;
         }
