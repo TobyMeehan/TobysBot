@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Victoria;
 using Victoria.Enums;
+using Victoria.EventArgs;
 using Victoria.Responses.Search;
 
 namespace TobysBot.Discord.Audio.Lavalink
@@ -19,6 +20,42 @@ namespace TobysBot.Discord.Audio.Lavalink
         {
             _node = node;
             _queue = queue;
+            
+            _node.OnTrackEnded += NodeOnTrackEnded;
+            _node.OnTrackException += NodeOnTrackException;
+            _node.OnTrackStuck += NodeOnTrackStuck;
+        }
+
+        private async Task NodeOnTrackStuck(TrackStuckEventArgs arg)
+        {
+            Console.WriteLine("Track stuck!");
+            await arg.Player.PlayAsync(arg.Track);
+        }
+
+        private async Task NodeOnTrackException(TrackExceptionEventArgs arg)
+        {
+            Console.WriteLine(arg.ErrorMessage);
+
+            var queue = await GetQueueAsync(arg.Player.VoiceChannel.Guild);
+            
+            await arg.Player.PlayAsync(await LoadTrackAsync(queue.CurrentTrack));
+        }
+
+        private async Task NodeOnTrackEnded(TrackEndedEventArgs arg)
+        {
+            if (arg.Reason != TrackEndReason.Finished)
+            {
+                return;
+            }
+
+            var track = await _queue.AdvanceAsync(arg.Player.VoiceChannel.Guild);
+
+            if (track is null)
+            {
+                return;
+            }
+
+            await arg.Player.PlayAsync(await LoadTrackAsync(track));
         }
 
         private LavaPlayer ThrowIfNoPlayer(IGuild guild)
@@ -37,7 +74,7 @@ namespace TobysBot.Discord.Audio.Lavalink
 
             if (search.Status != SearchStatus.TrackLoaded)
             {
-                throw new Exception("Error loading track.");
+                throw new Exception(search.Exception.Message);
             }
 
             return search.Tracks.First();
@@ -49,9 +86,11 @@ namespace TobysBot.Discord.Audio.Lavalink
             {
                 if (player.VoiceChannel != channel)
                 {
-                    await _node.LeaveAsync(player.VoiceChannel);
+                    await _node.MoveChannelAsync(channel);
 
                     textChannel ??= player.TextChannel;
+                    
+                    return;
                 }
             }
 

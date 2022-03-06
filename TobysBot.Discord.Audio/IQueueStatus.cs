@@ -9,5 +9,7 @@ namespace TobysBot.Discord.Audio
         IEnumerable<ITrack> Next();
 
         ITrack CurrentTrack { get; }
+        
+        bool LoopEnabled { get; }
     }
 }

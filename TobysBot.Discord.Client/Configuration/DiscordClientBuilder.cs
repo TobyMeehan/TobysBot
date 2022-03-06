@@ -35,6 +35,7 @@ public class DiscordClientBuilder
         Services.AddTransient<IQueue, MemoryQueue>();
 
         Services.AddTransient<IDiscordReadyEventListener, LavalinkHostedService>();
+        Services.AddTransient<IAudioEventListener, AudioEventListener>();
         Services.AddHostedService<LavalinkHostedService>();
   
         return this;

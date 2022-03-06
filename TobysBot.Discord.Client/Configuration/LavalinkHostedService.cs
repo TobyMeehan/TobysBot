@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using TobysBot.Discord.Audio;
+using TobysBot.Discord.Audio.Lavalink;
 using Victoria;
 
 namespace TobysBot.Discord.Client.Configuration;
@@ -11,11 +14,13 @@ public class LavalinkHostedService : IHostedService, IDiscordReadyEventListener
 {
     private readonly LavaNode _node;
     private readonly ILogger<LavalinkHostedService> _logger;
+    private readonly IEnumerable<IAudioEventListener> _audioEventListeners;
 
-    public LavalinkHostedService(LavaNode node, ILogger<LavalinkHostedService> logger)
+    public LavalinkHostedService(LavaNode node, ILogger<LavalinkHostedService> logger, IEnumerable<IAudioEventListener> audioEventListeners)
     {
         _node = node;
         _logger = logger;
+        _audioEventListeners = audioEventListeners;
     }
     
     public async Task OnDiscordReady()
@@ -26,6 +31,50 @@ public class LavalinkHostedService : IHostedService, IDiscordReadyEventListener
     public Task StartAsync(CancellationToken cancellationToken)
     {
         _node.OnLog += NodeOnLog;
+
+        _node.OnTrackEnded += async args =>
+        {
+            ITrack track = new LavalinkTrack(args.Track);
+            ITextChannel textChannel = args.Player.TextChannel;
+
+            foreach (var listener in _audioEventListeners)
+            {
+                await listener.OnTrackEnded(track, textChannel);
+            }
+        };
+
+        _node.OnTrackException += async args =>
+        {
+            ITrack track = new LavalinkTrack(args.Track);
+            ITextChannel textChannel = args.Player.TextChannel;
+
+            foreach (var listener in _audioEventListeners)
+            {
+                await listener.OnTrackException(track, textChannel, args.ErrorMessage);
+            }
+        };
+
+        _node.OnTrackStarted += async args =>
+        {
+            ITrack track = new LavalinkTrack(args.Track);
+            ITextChannel textChannel = args.Player.TextChannel;
+
+            foreach (var listener in _audioEventListeners)
+            {
+                await listener.OnTrackStarted(track, textChannel);
+            }
+        };
+
+        _node.OnTrackStuck += async args =>
+        {
+            ITrack track = new LavalinkTrack(args.Track);
+            ITextChannel textChannel = args.Player.TextChannel;
+
+            foreach (var listener in _audioEventListeners)
+            {
+                await listener.OnTrackStuck(track, textChannel, args.Threshold);
+            }
+        };
 
         return Task.CompletedTask;
     }
