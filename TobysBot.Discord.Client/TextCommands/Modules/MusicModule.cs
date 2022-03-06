@@ -35,7 +35,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return false;
             }
 
-            return voiceState.VoiceChannel == Context.Guild.CurrentUser.VoiceChannel;
+            return voiceState.VoiceChannel.Id == Context.Guild.CurrentUser.VoiceChannel?.Id;
         }
 
         private async Task<bool> EnsureUserInVoiceAsync()
@@ -96,7 +96,22 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return;
             }
 
-            var result = await _source.SearchAsync(query);
+            IPlayable result;
+            
+            try
+            {
+                result = await _source.SearchAsync(query);
+            }
+            catch (Exception ex)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription($"Error running query: `{ex.Message}`")
+                    .Build()
+                );
+                
+                return;
+            }
 
             if (result is null)
             {
@@ -114,7 +129,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             {
                 await Context.Message.ReplyAsync(embed: new EmbedBuilder()
                     .WithContext(EmbedContext.Error)
-                    .WithDescription($"Error loading track: {ex.Message}")
+                    .WithDescription($"Error loading track: `{ex.Message}`")
                     .Build()
                 );
                 
@@ -138,10 +153,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             if (playlist is not null)
             {
                 await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildPlayPlaylistEmbed(playlist));
-                return;
             }
-            
-            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildPlayTrackEmbed(track));
         }
 
         private async Task ResumeAsync()
@@ -193,8 +205,6 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             {
                 return;
             }
-
-            await ReplyAsync(embed: new EmbedBuilder().BuildPlayTrackEmbed(track));
         }
 
         [Command("np")]
@@ -226,14 +236,15 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             }
 
             var status = _node.Status(Context.Guild);
+            var queue = await _node.GetQueueAsync(Context.Guild);
 
-            if (status is not ITrackStatus trackStatus)
+            var trackStatus = status as ITrackStatus;
+            
+            if (trackStatus is null && queue is null)
             {
                 await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
                 return;
             }
-            
-            var queue = await _node.GetQueueAsync(Context.Guild);
 
             await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildQueueEmbed(queue, trackStatus));
         }

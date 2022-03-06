@@ -16,6 +16,7 @@ namespace TobysBot.Discord.Audio.Lavalink
                 select new LavalinkTrack(track);
             
             Url = url;
+            Title = title;
         }
         
         public string Url { get; }

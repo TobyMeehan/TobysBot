@@ -35,8 +35,9 @@ namespace TobysBot.Discord
                 {
                     options.SelfDeaf = false;
 
-                    options.Hostname = "lava.link";
-                    options.Port = 80;
+                    options.Hostname = "losingtime.dpaste.org";
+                    options.Port = 2124;
+                    options.Authorization = "SleepingOnTrains";
 
                     options.LogSeverity = LogSeverity.Verbose;
                 });

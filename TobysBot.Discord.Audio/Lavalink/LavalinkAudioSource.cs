@@ -21,20 +21,16 @@ namespace TobysBot.Discord.Audio.Lavalink
                 ? await _node.SearchAsync(SearchType.Direct, query)
                 : await _node.SearchYouTubeAsync(query);
 
-            switch (result.Status)
+            return result.Status switch
             {
-                case SearchStatus.SearchResult:
-                    return new LavalinkTrack(result.Tracks.FirstOrDefault());
-                
-                case SearchStatus.TrackLoaded:
-                    return new LavalinkTrack(result.Tracks.FirstOrDefault());
-                
-                case SearchStatus.PlaylistLoaded:
-                    return new LavalinkPlaylist(result.Tracks, query, result.Playlist.Name, result.Playlist.SelectedTrack);
-                
-                default:
-                    return null;
-            }
+                SearchStatus.SearchResult => new LavalinkTrack(result.Tracks.FirstOrDefault()),
+                SearchStatus.TrackLoaded => new LavalinkTrack(result.Tracks.FirstOrDefault()),
+                SearchStatus.PlaylistLoaded => new LavalinkPlaylist(result.Tracks, query, result.Playlist.Name,
+                    result.Playlist.SelectedTrack),
+                SearchStatus.NoMatches => null,
+                SearchStatus.LoadFailed => throw new Exception(result.Exception.Message),
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
     }
 }

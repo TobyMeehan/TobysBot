@@ -45,20 +45,25 @@ public static class EmbedExtensions
         foreach (var track in queue.Previous())
         {
             sb.AppendLine($"**{i++}.** [{track.Title}]({track.Url})" +
-                                 $"`{track.Duration.ToTimeString()}`");
+                                 $" `{track.Duration.ToTimeString()}`");
         }
 
-        sb.AppendLine($"**--** `{currentTrack.ToString()?.ToUpper()}` **--**");
-        
-        sb.AppendLine($"**{i++}.** [{queue.CurrentTrack.Title}]({queue.CurrentTrack.Url})" +
-                      $"`{currentTrack.Position.ToTimeString()}`/`{currentTrack.Duration.ToTimeString()}`");
-
-        foreach (var track in queue.Next())
+        if (currentTrack is null)
         {
-            sb.AppendLine($"**{i++}.** [{track.Title}]({track.Url})" +
-                          $"`{track.Duration.ToTimeString()}`");
+            sb.AppendLine($"**--** No track playing.");
         }
-
+        else
+        {
+            sb.AppendLine($"**{i++}. ({currentTrack.ToString()})** [{queue.CurrentTrack.Title}]({queue.CurrentTrack.Url})" +
+                          $" `{currentTrack.Position.ToTimeString()}`/`{currentTrack.Duration.ToTimeString()}`");
+            
+            foreach (var track in queue.Next())
+            {
+                sb.AppendLine($"**{i++}.** [{track.Title}]({track.Url})" +
+                              $" `{track.Duration.ToTimeString()}`");
+            }
+        }
+        
         return embed
             .WithContext(EmbedContext.Information)
             .WithDescription(sb.ToString())
