@@ -16,5 +16,10 @@ namespace TobysBot.Discord.Audio
         public TimeSpan Position { get; }
         
         public TimeSpan Duration { get; }
+
+        public override string ToString()
+        {
+            return "Playing";
+        }
     }
 }

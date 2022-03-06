@@ -21,17 +21,17 @@ namespace TobysBot.Discord.Audio
         /// </summary>
         /// <param name="guild"></param>
         /// <returns></returns>
-        Task<IEnumerable<ITrack>> GetAsync(IGuild guild);
+        Task<IQueueStatus> GetAsync(IGuild guild);
 
         /// <summary>
-        /// Removes the first item from the queue and returns it.
+        /// Advances to the next track in the queue and returns the current track.
         /// </summary>
         /// <param name="guild"></param>
         /// <returns></returns>
-        Task<ITrack> DequeueAsync(IGuild guild);
+        Task<ITrack> AdvanceAsync(IGuild guild);
 
         /// <summary>
-        /// Returns the first item in the queue without removing it.
+        /// Returns the next track in the queue without advancing.
         /// </summary>
         /// <param name="guild"></param>
         /// <returns></returns>

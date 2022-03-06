@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using TobysBot.Discord.Audio;
 using TobysBot.Discord.Audio.Lavalink;
+using TobysBot.Discord.Audio.MemoryQueue;
 using TobysBot.Discord.Client.TextCommands;
 using Victoria;
 
@@ -31,7 +32,7 @@ public class DiscordClientBuilder
         Services.AddLavaNode(configureOptions);
         Services.AddSingleton<IAudioNode, LavalinkAudioNode>();
         Services.AddSingleton<IAudioSource, LavalinkAudioSource>();
-        Services.AddTransient<IQueue, LavalinkQueue>();
+        Services.AddTransient<IQueue, MemoryQueue>();
 
         Services.AddTransient<IDiscordReadyEventListener, LavalinkHostedService>();
         Services.AddHostedService<LavalinkHostedService>();

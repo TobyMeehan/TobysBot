@@ -96,6 +96,6 @@ namespace TobysBot.Discord.Audio
         /// </summary>
         /// <param name="guild"></param>
         /// <returns></returns>
-        Task<IEnumerable<ITrack>> GetQueueAsync(IGuild guild);
+        Task<IQueueStatus> GetQueueAsync(IGuild guild);
     }
 }

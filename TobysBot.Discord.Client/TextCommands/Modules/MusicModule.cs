@@ -1,8 +1,10 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using TobysBot.Discord.Audio;
+using TobysBot.Discord.Client.TextCommands.Extensions;
 using TobysBot.Discord.Client.TextCommands.Extensions.Music;
 
 namespace TobysBot.Discord.Client.TextCommands.Modules
@@ -102,8 +104,43 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return;
             }
 
-            var track = await _node.EnqueueAsync(result, Context.Guild);
+            ITrack track;
+            
+            try
+            {
+                track = await _node.EnqueueAsync(result, Context.Guild);
+            }
+            catch (Exception ex)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription($"Error loading track: {ex.Message}")
+                    .Build()
+                );
+                
+                return;
+            }
 
+            var playlist = result as IPlaylist;
+
+            if (track.Url != result.Url) // result was queued
+            {
+                if (playlist is not null)
+                {
+                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildQueuePlaylistEmbed(playlist));
+                    return;
+                }
+
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildQueueTrackEmbed(result as ITrack));
+                return;
+            }
+
+            if (playlist is not null)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildPlayPlaylistEmbed(playlist));
+                return;
+            }
+            
             await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildPlayTrackEmbed(track));
         }
 
@@ -140,6 +177,65 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             }
 
             await _node.PauseAsync(Context.Guild);
+        }
+
+        [Command("skip")]
+        public async Task SkipAsync()
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var track = await _node.SkipAsync(Context.Guild);
+
+            if (track is null)
+            {
+                return;
+            }
+
+            await ReplyAsync(embed: new EmbedBuilder().BuildPlayTrackEmbed(track));
+        }
+
+        [Command("np")]
+        public async Task NowPlayingAsync()
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var status = _node.Status(Context.Guild);
+
+            if (status is not ITrackStatus trackStatus)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                return;
+            }
+
+            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildTrackStatusEmbed(trackStatus));
+        }
+
+        [Command("queue")]
+        [Alias("q")]
+        public async Task QueueAsync()
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var status = _node.Status(Context.Guild);
+
+            if (status is not ITrackStatus trackStatus)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                return;
+            }
+            
+            var queue = await _node.GetQueueAsync(Context.Guild);
+
+            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildQueueEmbed(queue, trackStatus));
         }
     }
 }

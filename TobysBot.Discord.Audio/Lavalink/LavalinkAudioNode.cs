@@ -81,7 +81,7 @@ namespace TobysBot.Discord.Audio.Lavalink
             {
                 if (search.Status != SearchStatus.TrackLoaded)
                 {
-                    throw new Exception("Error loading track.");
+                    throw new Exception(search.Exception.Message);
                 }
 
                 tracks.Add(track);
@@ -91,23 +91,25 @@ namespace TobysBot.Discord.Audio.Lavalink
             {
                 if (search.Status != SearchStatus.PlaylistLoaded)
                 {
-                    throw new Exception("Error loading playlist.");
+                    throw new Exception(search.Exception.Message);
                 }
 
                 tracks.AddRange(playlist);
             }
-
+            
             if (!player.HasTrack())
             {
-                await player.PlayAsync(search.Tracks.First());
-
-                tracks.RemoveAt(0);
+                try
+                {
+                    await player.PlayAsync(search.Tracks.First());
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
             }
-
-            if (tracks.Any())
-            {
-                await _queue.EnqueueAsync(guild, tracks);
-            }
+            
+            await _queue.EnqueueAsync(guild, tracks);
 
             return new LavalinkTrack(player.Track);
         }
@@ -130,10 +132,17 @@ namespace TobysBot.Discord.Audio.Lavalink
         {
             LavaPlayer player = ThrowIfNoPlayer(guild);
 
-            ITrack nextTrack = await _queue.DequeueAsync(guild);
+            ITrack nextTrack = await _queue.AdvanceAsync(guild);
 
-            await player.PlayAsync(await LoadTrackAsync(nextTrack));
-
+            if (nextTrack is null)
+            {
+                await player.StopAsync();
+            }
+            else
+            {
+                await player.PlayAsync(await LoadTrackAsync(nextTrack));
+            }
+            
             return nextTrack;
         }
 
@@ -160,19 +169,14 @@ namespace TobysBot.Discord.Audio.Lavalink
                 return new NotPlayingStatus();
             }
 
-            switch (player.PlayerState)
+            return player.PlayerState switch
             {
-                case PlayerState.Playing:
-                    return new PlayingStatus(new LavalinkTrack(player.Track), player.Track.Position,
-                        player.Track.Duration);
-                
-                case PlayerState.Paused:
-                    return new PausedStatus(new LavalinkTrack(player.Track), player.Track.Position,
-                        player.Track.Duration);
-                
-                default:
-                    return new NotPlayingStatus();
-            }
+                PlayerState.Playing => new PlayingStatus(new LavalinkTrack(player.Track), player.Track.Position,
+                    player.Track.Duration),
+                PlayerState.Paused => new PausedStatus(new LavalinkTrack(player.Track), player.Track.Position,
+                    player.Track.Duration),
+                _ => new NotPlayingStatus()
+            };
         }
 
 
@@ -201,7 +205,7 @@ namespace TobysBot.Discord.Audio.Lavalink
             return Task.FromResult<ITrack>(new LavalinkTrack(player.Track));
         }
 
-        public async Task<IEnumerable<ITrack>> GetQueueAsync(IGuild guild)
+        public async Task<IQueueStatus> GetQueueAsync(IGuild guild)
         {
             return await _queue.GetAsync(guild);
         }

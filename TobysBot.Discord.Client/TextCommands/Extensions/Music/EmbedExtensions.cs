@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Discord;
 using TobysBot.Discord.Audio;
 
@@ -32,6 +34,37 @@ public static class EmbedExtensions
             .Build();
     }
 
+    public static Embed BuildQueueEmbed(this EmbedBuilder embed, IQueueStatus queue, ITrackStatus currentTrack)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.AppendLine("**Queue**");
+
+        int i = 1;
+
+        foreach (var track in queue.Previous())
+        {
+            sb.AppendLine($"**{i++}.** [{track.Title}]({track.Url})" +
+                                 $"`{track.Duration.ToTimeString()}`");
+        }
+
+        sb.AppendLine($"**--** `{currentTrack.ToString()?.ToUpper()}` **--**");
+        
+        sb.AppendLine($"**{i++}.** [{queue.CurrentTrack.Title}]({queue.CurrentTrack.Url})" +
+                      $"`{currentTrack.Position.ToTimeString()}`/`{currentTrack.Duration.ToTimeString()}`");
+
+        foreach (var track in queue.Next())
+        {
+            sb.AppendLine($"**{i++}.** [{track.Title}]({track.Url})" +
+                          $"`{track.Duration.ToTimeString()}`");
+        }
+
+        return embed
+            .WithContext(EmbedContext.Information)
+            .WithDescription(sb.ToString())
+            .Build();
+    }
+
     public static Embed BuildPlayTrackEmbed(this EmbedBuilder embed, ITrack track)
     {
         return embed
@@ -54,6 +87,14 @@ public static class EmbedExtensions
     {
         return embed
             .WithDescription($"Queued [{track.Title}]({track.Url})")
+            .WithContext(EmbedContext.Action)
+            .Build();
+    }
+
+    public static Embed BuildQueuePlaylistEmbed(this EmbedBuilder embed, IPlaylist playlist)
+    {
+        return embed
+            .WithDescription($"Queued {playlist.Count()} tracks from [{playlist.Title}]({playlist.Url})")
             .WithContext(EmbedContext.Action)
             .Build();
     }
