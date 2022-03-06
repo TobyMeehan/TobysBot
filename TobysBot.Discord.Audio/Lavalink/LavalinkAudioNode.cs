@@ -198,6 +198,8 @@ namespace TobysBot.Discord.Audio.Lavalink
         {
             LavaPlayer player = ThrowIfNoPlayer(guild);
 
+            await _queue.ResetAsync(guild);
+            
             await player.StopAsync();
         }
 

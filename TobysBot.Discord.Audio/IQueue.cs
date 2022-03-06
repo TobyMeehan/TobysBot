@@ -43,5 +43,12 @@ namespace TobysBot.Discord.Audio
         /// <param name="guild"></param>
         /// <returns></returns>
         Task ClearAsync(IGuild guild);
+
+        /// <summary>
+        /// Returns to the start of the queue.
+        /// </summary>
+        /// <param name="guild"></param>
+        /// <returns></returns>
+        Task ResetAsync(IGuild guild);
     }
 }

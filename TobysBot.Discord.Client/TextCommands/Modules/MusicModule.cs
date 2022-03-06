@@ -207,6 +207,28 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             }
         }
 
+        [Command("stop")]
+        public async Task StopAsync()
+        {
+            if (!await EnsureUserInVoiceAsync())
+            {
+                return;
+            }
+
+            await _node.StopAsync(Context.Guild);
+        }
+
+        [Command("clear")]
+        public async Task ClearAsync()
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            await _node.ClearAsync(Context.Guild);
+        }
+
         [Command("np")]
         public async Task NowPlayingAsync()
         {

@@ -58,6 +58,11 @@ namespace TobysBot.Discord.Audio.MemoryQueue
         public void Clear()
         {
             _tracks.Clear();
+            Reset();
+        }
+
+        public void Reset()
+        {
             _currentIndex = 0;
         }
         

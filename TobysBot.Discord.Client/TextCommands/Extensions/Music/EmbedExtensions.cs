@@ -56,12 +56,12 @@ public static class EmbedExtensions
         {
             sb.AppendLine($"**{i++}. ({currentTrack.ToString()})** [{queue.CurrentTrack.Title}]({queue.CurrentTrack.Url})" +
                           $" `{currentTrack.Position.ToTimeString()}`/`{currentTrack.Duration.ToTimeString()}`");
-            
-            foreach (var track in queue.Next())
-            {
-                sb.AppendLine($"**{i++}.** [{track.Title}]({track.Url})" +
-                              $" `{track.Duration.ToTimeString()}`");
-            }
+        }
+        
+        foreach (var track in queue.Next())
+        {
+            sb.AppendLine($"**{i++}.** [{track.Title}]({track.Url})" +
+                          $" `{track.Duration.ToTimeString()}`");
         }
         
         return embed
