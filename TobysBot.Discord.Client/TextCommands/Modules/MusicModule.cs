@@ -13,7 +13,14 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
     {
         private readonly IAudioNode _node;
         private readonly IAudioSource _source;
-
+        
+        private IEmote LoopEmote => new Emoji("🔁");
+        private IEmote PauseEmote => new Emoji("⏸");
+        private IEmote PlayEmote => new Emoji("▶");
+        private IEmote SkipEmote => new Emoji("⏭");
+        private IEmote StopEmote => new Emoji("⏹");
+        private IEmote ClearEmote => new Emoji("⏏");
+        
         public MusicModule(IAudioNode node, IAudioSource source)
         {
             _node = node;
@@ -136,24 +143,27 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return;
             }
 
-            var playlist = result as IPlaylist;
-
-            if (track.Url != result.Url) // result was queued
+            if (result is IPlaylist playlist)
             {
-                if (playlist is not null)
+                if (track.Url != playlist.First().Url)
                 {
                     await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildQueuePlaylistEmbed(playlist));
-                    return;
                 }
+                else
+                {
+                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildPlayPlaylistEmbed(playlist));
+                }
+                
+                return;
+            }
 
+            if (track.Url != result.Url)
+            {
                 await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildQueueTrackEmbed(result as ITrack));
                 return;
             }
 
-            if (playlist is not null)
-            {
-                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildPlayPlaylistEmbed(playlist));
-            }
+            await Context.Message.AddReactionAsync(PlayEmote);
         }
 
         private async Task ResumeAsync()
@@ -171,6 +181,8 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             }
             
             await _node.ResumeAsync(Context.Guild);
+            
+            await Context.Message.AddReactionAsync(PlayEmote);
         }
 
         [Command("pause")]
@@ -189,6 +201,8 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             }
 
             await _node.PauseAsync(Context.Guild);
+            
+            await Context.Message.AddReactionAsync(PauseEmote);
         }
 
         [Command("skip")]
@@ -201,10 +215,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
 
             var track = await _node.SkipAsync(Context.Guild);
 
-            if (track is null)
-            {
-                return;
-            }
+            await Context.Message.AddReactionAsync(SkipEmote);
         }
 
         [Command("stop")]
@@ -216,6 +227,8 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             }
 
             await _node.StopAsync(Context.Guild);
+            
+            await Context.Message.AddReactionAsync(StopEmote);
         }
 
         [Command("clear")]
@@ -227,6 +240,8 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             }
 
             await _node.ClearAsync(Context.Guild);
+            
+            await Context.Message.AddReactionAsync(ClearEmote);
         }
 
         [Command("np")]
