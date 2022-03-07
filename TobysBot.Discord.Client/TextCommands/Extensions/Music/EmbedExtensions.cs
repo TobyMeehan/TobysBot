@@ -22,14 +22,20 @@ public static class EmbedExtensions
         return progress.Remove(percent, 1).Insert(percent, "⬤");
     }
     
-    public static Embed BuildTrackStatusEmbed(this EmbedBuilder embed, ITrackStatus status)
+    public static Embed BuildTrackStatusEmbed(this EmbedBuilder embed, ITrackStatus status, IQueueStatus queueStatus)
     {
         var track = status.CurrentTrack;
 
         return embed
             .WithDescription($"[{track.Title}]({track.Url}) \n" +
-                             $"{GetProgress(status.Position, status.Duration)} \n" +
-                             $"{status.Position.ToTimeString()} / {status.Duration.ToTimeString()}")
+                             $"`{status.Position.ToTimeString()}` " +
+                             $"{GetProgress(status.Position, status.Duration)} " +
+                             $"`{status.Duration.ToTimeString()}` \n" +
+                             $"{(status is PausedStatus ? "⏸" : "▶")}" +
+                             $"{(queueStatus.LoopEnabled is DisabledLoopSetting ? $" {status.ToString()}" : "")}" +
+                             $"{(queueStatus.LoopEnabled is TrackLoopSetting ? " 🔂 Looping the **current track**.": "")}" +
+                             $"{(queueStatus.LoopEnabled is QueueLoopSetting ? " 🔁 Looping the **queue**." : "")}" +
+                             $"")
             .WithContext(EmbedContext.Information)
             .Build();
     }
@@ -37,8 +43,6 @@ public static class EmbedExtensions
     public static Embed BuildQueueEmbed(this EmbedBuilder embed, IQueueStatus queue, ITrackStatus currentTrack)
     {
         StringBuilder sb = new StringBuilder();
-
-        sb.AppendLine("**Queue**");
 
         int i = 1;
 
@@ -60,14 +64,29 @@ public static class EmbedExtensions
         }
         else
         {
-            sb.AppendLine($"**{i++}. ({currentTrack.ToString()})** [{queue.CurrentTrack.Title}]({queue.CurrentTrack.Url})" +
-                          $" `{currentTrack.Position.ToTimeString()}`/`{currentTrack.Duration.ToTimeString()}`");
+            sb.AppendLine($"**{i++}. " +
+                          $"({(currentTrack is PausedStatus ? "⏸" : "▶")}" +
+                          $"{(queue.LoopEnabled is TrackLoopSetting ? " 🔂": "")})** " +
+                          $"[{queue.CurrentTrack.Title}]({queue.CurrentTrack.Url}) " +
+                          $"`{currentTrack.Position.ToTimeString()}`/`{currentTrack.Duration.ToTimeString()}`");
         }
         
         foreach (var track in queue.Next())
         {
             sb.AppendLine($"**{i++}.** [{track.Title}]({track.Url})" +
                           $" `{track.Duration.ToTimeString()}`");
+        }
+
+        if (queue.LoopEnabled is QueueLoopSetting)
+        {
+            sb.AppendLine();
+            sb.AppendLine("🔁 Looping the **queue**.");
+        }
+
+        if (queue.LoopEnabled is TrackLoopSetting)
+        {
+            sb.AppendLine();
+            sb.AppendLine("🔂 Looping the **current track**.");
         }
         
         return embed
@@ -89,7 +108,9 @@ public static class EmbedExtensions
         var track = playlist.First();
 
         return embed
-            .WithDescription($"Now playing [{track.Title}[({track.Url}) from [{playlist.Title}]({playlist.Url})")
+            .WithDescription($"Now playing [{track.Title}]({track.Url}) " +
+                             $"and {playlist.Count() - 1} others " +
+                             $"from [{playlist.Title}]({playlist.Url})")
             .WithContext(EmbedContext.Action)
             .Build();
     }
@@ -106,6 +127,30 @@ public static class EmbedExtensions
     {
         return embed
             .WithDescription($"Queued {playlist.Count()} tracks from [{playlist.Title}]({playlist.Url})")
+            .WithContext(EmbedContext.Action)
+            .Build();
+    }
+
+    public static Embed BuildLoopTrackEmbed(this EmbedBuilder embed)
+    {
+        return embed
+            .WithDescription($"Looping the **current track**.")
+            .WithContext(EmbedContext.Action)
+            .Build();
+    }
+
+    public static Embed BuildLoopQueueEmbed(this EmbedBuilder embed)
+    {
+        return embed
+            .WithDescription($"Looping the **queue**.")
+            .WithContext(EmbedContext.Action)
+            .Build();
+    }
+
+    public static Embed BuildLoopDisabledEmbed(this EmbedBuilder embed)
+    {
+        return embed
+            .WithDescription($"Looping is **disabled**.")
             .WithContext(EmbedContext.Action)
             .Build();
     }

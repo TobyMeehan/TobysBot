@@ -10,6 +10,6 @@ namespace TobysBot.Discord.Audio
 
         ITrack CurrentTrack { get; }
         
-        bool LoopEnabled { get; }
+        LoopSetting LoopEnabled { get; }
     }
 }

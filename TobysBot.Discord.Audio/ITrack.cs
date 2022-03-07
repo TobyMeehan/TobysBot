@@ -9,6 +9,5 @@ namespace TobysBot.Discord.Audio
         string Id { get; }
         TimeSpan Duration { get; }
         string Author { get; }
-
     }
 }

@@ -243,6 +243,52 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             
             await Context.Message.AddReactionAsync(ClearEmote);
         }
+        
+        [Command("loop")]
+        public async Task LoopAsync(string target = null)
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var queue = await _node.GetQueueAsync(Context.Guild);
+
+            if (!queue.Any())
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                return;
+            }
+
+            if (queue.LoopEnabled is EnabledLoopSetting)
+            {
+                await _node.SetLoopAsync(Context.Guild, new DisabledLoopSetting());
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildLoopDisabledEmbed());
+                return;
+            }
+            
+            if (target is not ("track" or "queue"))
+                if (queue.Count() == 1 && queue.CurrentTrack is not null)
+                {
+                    target = "track";
+                }
+                else
+                {
+                    target = "queue";
+                }
+
+            switch (target)
+            {
+                case "track":
+                    await _node.SetLoopAsync(Context.Guild, new TrackLoopSetting());
+                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildLoopTrackEmbed());
+                    return;
+                case "queue":
+                    await _node.SetLoopAsync(Context.Guild, new QueueLoopSetting());
+                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildLoopQueueEmbed());
+                    return;
+            }
+        }
 
         [Command("np")]
         public async Task NowPlayingAsync()
@@ -253,6 +299,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             }
 
             var status = _node.Status(Context.Guild);
+            var queue = await _node.GetQueueAsync(Context.Guild);
 
             if (status is not ITrackStatus trackStatus)
             {
@@ -260,7 +307,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return;
             }
 
-            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildTrackStatusEmbed(trackStatus));
+            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildTrackStatusEmbed(trackStatus, queue));
         }
 
         [Command("queue")]

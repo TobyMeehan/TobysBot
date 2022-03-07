@@ -70,5 +70,17 @@ namespace TobysBot.Discord.Audio.MemoryQueue
             
             return Task.CompletedTask;
         }
+
+        public Task SetLoopAsync(IGuild guild, LoopSetting setting)
+        {
+            if (!_queue.TryGetValue(guild, out var queue))
+            {
+                return Task.CompletedTask;
+            }
+
+            queue.LoopEnabled = setting;
+
+            return Task.CompletedTask;
+        }
     }
 }

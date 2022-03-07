@@ -50,5 +50,7 @@ namespace TobysBot.Discord.Audio
         /// <param name="guild"></param>
         /// <returns></returns>
         Task ResetAsync(IGuild guild);
+
+        Task SetLoopAsync(IGuild guild, LoopSetting setting);
     }
 }

@@ -6,7 +6,7 @@ namespace TobysBot.Discord.Audio.MemoryQueue
 {
     public class MemoryTrackCollection : IQueueStatus
     {
-        private readonly List<ITrack> _tracks = new List<ITrack>();
+        private readonly List<MemoryTrack> _tracks = new();
         private int _currentIndex = 0;
 
         public IEnumerable<ITrack> Previous()
@@ -19,21 +19,29 @@ namespace TobysBot.Discord.Audio.MemoryQueue
             return _tracks.Skip(_currentIndex + 1);
         }
 
-        public ITrack CurrentTrack => _tracks[_currentIndex];
-        
-        public bool LoopEnabled { get; set; }
+        public ITrack CurrentTrack
+        {
+            get
+            {
+                if (_currentIndex >= 0 && _currentIndex <= _tracks.Count)
+                {
+                    return _tracks[_currentIndex];
+                }
+
+                return null;
+            }
+        }
+
+        public LoopSetting LoopEnabled { get; set; } = new DisabledLoopSetting();
 
         private int NextIndex()
         {
-            if (_currentIndex + 1 >= _tracks.Count)
+            return LoopEnabled switch
             {
-                if (LoopEnabled)
-                {
-                    return 0;
-                }
-            }
-
-            return _currentIndex + 1;
+                TrackLoopSetting => _currentIndex,
+                QueueLoopSetting when _currentIndex + 1 >= _tracks.Count => 0,
+                _ => _currentIndex + 1
+            };
         }
         
         public ITrack NextTrack => NextIndex() >= _tracks.Count ? null : _tracks[NextIndex()];
@@ -57,7 +65,10 @@ namespace TobysBot.Discord.Audio.MemoryQueue
                 _currentIndex = _tracks.Count;
             }
             
-            _tracks.AddRange(tracks);
+            _tracks.AddRange(
+                from track in tracks
+                select new MemoryTrack(track)
+            );
         }
 
         public void Clear()
@@ -69,6 +80,7 @@ namespace TobysBot.Discord.Audio.MemoryQueue
         public void Reset()
         {
             _currentIndex = 0;
+            LoopEnabled = new DisabledLoopSetting();
         }
         
         public IEnumerator<ITrack> GetEnumerator()

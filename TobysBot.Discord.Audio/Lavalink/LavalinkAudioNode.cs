@@ -105,6 +105,7 @@ namespace TobysBot.Discord.Audio.Lavalink
             }
 
             await _node.LeaveAsync(player.VoiceChannel);
+            await _queue.ClearAsync(guild);
         }
 
 
@@ -191,6 +192,13 @@ namespace TobysBot.Discord.Audio.Lavalink
         {
             LavaPlayer player = ThrowIfNoPlayer(guild);
 
+            var queue = await GetQueueAsync(guild);
+
+            if (queue.LoopEnabled is TrackLoopSetting)
+            {
+                await SetLoopAsync(guild, new DisabledLoopSetting());
+            }
+
             ITrack nextTrack = await _queue.AdvanceAsync(guild);
 
             if (nextTrack is null)
@@ -269,6 +277,11 @@ namespace TobysBot.Discord.Audio.Lavalink
         public async Task<IQueueStatus> GetQueueAsync(IGuild guild)
         {
             return await _queue.GetAsync(guild);
+        }
+
+        public Task SetLoopAsync(IGuild guild, LoopSetting setting)
+        {
+            return _queue.SetLoopAsync(guild, setting);
         }
     }
 }
