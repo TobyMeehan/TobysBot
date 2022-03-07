@@ -92,7 +92,9 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Alias("p")]
         public async Task PlayAsync([Remainder] string query = null)
         {
-            if (query is null)
+            using (var typing = Context.Channel.EnterTypingState())
+            {
+                if (query is null)
             {
                 await ResumeAsync();
                 return;
@@ -164,6 +166,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             }
 
             await Context.Message.AddReactionAsync(PlayEmote);
+            }
         }
 
         private async Task ResumeAsync()
