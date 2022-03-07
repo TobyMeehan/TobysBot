@@ -28,6 +28,8 @@ namespace TobysBot.Discord
                     {
                         config.AddJsonFile("secrets.json", true);
                     }
+
+                    config.AddEnvironmentVariables("TOBYSBOT__");
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
