@@ -3,7 +3,7 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["TobysBot.Discord/TobysBot.Discord.csproj", "TobysBot.Discord/"]
 COPY ["TobysBot.Discord.Client/TobysBot.Discord.Client.csproj", "TobysBot.Discord.Client/"]
