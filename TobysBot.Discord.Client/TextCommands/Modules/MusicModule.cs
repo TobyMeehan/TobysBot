@@ -9,7 +9,7 @@ using TobysBot.Discord.Client.TextCommands.Extensions.Music;
 
 namespace TobysBot.Discord.Client.TextCommands.Modules
 {
-    public class MusicModule : ModuleBase<SocketCommandContext>
+    public class MusicModule : VoiceModuleBase
     {
         private readonly IAudioNode _node;
         private readonly IAudioSource _source;
@@ -21,53 +21,13 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         private IEmote StopEmote => new Emoji("⏹");
         private IEmote ClearEmote => new Emoji("⏏");
         
-        public MusicModule(IAudioNode node, IAudioSource source)
+        public MusicModule(IAudioNode node, IAudioSource source) : base(node)
         {
             _node = node;
             _source = source;
         }
 
         // Voice Channel
-        
-        private bool IsUserInVoiceChannel(out IVoiceState voiceState)
-        {
-            voiceState = Context.User as IVoiceState;
-            return voiceState?.VoiceChannel is not null;
-        }
-
-        private bool IsUserInSameVoiceChannel(out IVoiceState voiceState)
-        {
-            if (!IsUserInVoiceChannel(out voiceState))
-            {
-                return false;
-            }
-
-            return voiceState.VoiceChannel.Id == Context.Guild.CurrentUser.VoiceChannel?.Id;
-        }
-
-        private async Task<bool> EnsureUserInVoiceAsync()
-        {
-            if (!IsUserInVoiceChannel(out IVoiceState voiceState))
-            {
-                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildJoinVoiceEmbed());
-                return false;
-            }
-
-            await _node.JoinAsync(voiceState.VoiceChannel, Context.Channel as ITextChannel);
-
-            return true;
-        }
-
-        private async Task<bool> EnsureUserInSameVoiceAsync()
-        {
-            if (!IsUserInSameVoiceChannel(out IVoiceState voiceState))
-            {
-                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildJoinSameVoiceEmbed());
-                return false;
-            }
-
-            return true;
-        }
         
         [Command("join", RunMode = RunMode.Async)]
         public async Task JoinAsync()
@@ -247,49 +207,102 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             await Context.Message.AddReactionAsync(ClearEmote);
         }
         
-        [Command("loop")]
-        public async Task LoopAsync(string target = null)
+        [Group("loop")]
+        public class LoopModule : VoiceModuleBase
         {
-            if (!await EnsureUserInSameVoiceAsync())
-            {
-                return;
-            }
+            private readonly IAudioNode _node;
 
-            var queue = await _node.GetQueueAsync(Context.Guild);
-
-            if (!queue.Any())
+            public LoopModule(IAudioNode node) : base(node)
             {
-                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
-                return;
-            }
-
-            if (queue.LoopEnabled is EnabledLoopSetting)
-            {
-                await _node.SetLoopAsync(Context.Guild, new DisabledLoopSetting());
-                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildLoopDisabledEmbed());
-                return;
+                _node = node;
             }
             
-            if (target is not ("track" or "queue"))
-                if (queue.Count() == 1 && queue.CurrentTrack is not null)
+            [Command]
+            public async Task LoopAsync()
+            {
+                if (!await EnsureUserInSameVoiceAsync())
                 {
-                    target = "track";
-                }
-                else
-                {
-                    target = "queue";
+                    return;
                 }
 
-            switch (target)
-            {
-                case "track":
+                var queue = await _node.GetQueueAsync(Context.Guild);
+                
+                if (queue is null)
+                {
+                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                    return;
+                }
+
+                if (queue.LoopEnabled is EnabledLoopSetting)
+                {
+                    await _node.SetLoopAsync(Context.Guild, new DisabledLoopSetting());
+                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildLoopDisabledEmbed());
+                    return;
+                }
+                
+                if (queue.Count() == 1 && queue.CurrentTrack is not null)
+                {
                     await _node.SetLoopAsync(Context.Guild, new TrackLoopSetting());
                     await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildLoopTrackEmbed());
                     return;
-                case "queue":
-                    await _node.SetLoopAsync(Context.Guild, new QueueLoopSetting());
-                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildLoopQueueEmbed());
+                }
+                
+                await _node.SetLoopAsync(Context.Guild, new QueueLoopSetting());
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildLoopQueueEmbed());
+            }
+
+            [Command("track")]
+            public async Task TrackAsync()
+            {
+                if (!await EnsureUserInSameVoiceAsync())
+                {
                     return;
+                }
+
+                var queue = await _node.GetQueueAsync(Context.Guild);
+                
+                if (queue is null)
+                {
+                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                    return;
+                }
+
+                if (queue.LoopEnabled is TrackLoopSetting)
+                {
+                    await _node.SetLoopAsync(Context.Guild, new DisabledLoopSetting());
+                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildLoopDisabledEmbed());
+                    return;
+                }
+
+                await _node.SetLoopAsync(Context.Guild, new TrackLoopSetting());
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildLoopTrackEmbed());
+            }
+
+            [Command("queue")]
+            public async Task QueueAsync()
+            {
+                if (!await EnsureUserInSameVoiceAsync())
+                {
+                    return;
+                }
+
+                var queue = await _node.GetQueueAsync(Context.Guild);
+                
+                if (queue is null)
+                {
+                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                    return;
+                }
+
+                if (queue.LoopEnabled is QueueLoopSetting)
+                {
+                    await _node.SetLoopAsync(Context.Guild, new DisabledLoopSetting());
+                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildLoopDisabledEmbed());
+                    return;
+                }
+
+                await _node.SetLoopAsync(Context.Guild, new QueueLoopSetting());
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildLoopQueueEmbed());
             }
         }
 
