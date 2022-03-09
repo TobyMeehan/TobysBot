@@ -48,7 +48,14 @@ namespace TobysBot.Discord.Audio
         /// <param name="guild">Guild in which to resume player.</param>
         /// <returns></returns>
         Task ResumeAsync(IGuild guild);
-        
+
+        /// <summary>
+        /// Moves the player to the specified timespan.
+        /// </summary>
+        /// <param name="guild"></param>
+        /// <param name="timeSpan"></param>
+        /// <returns></returns>
+        Task SeekAsync(IGuild guild, TimeSpan timeSpan);
 
         // Queue
 

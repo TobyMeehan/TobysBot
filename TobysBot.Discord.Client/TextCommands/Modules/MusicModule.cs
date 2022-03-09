@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -19,6 +20,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         private IEmote PlayEmote => new Emoji("▶");
         private IEmote StopEmote => new Emoji("⏹");
         private IEmote ClearEmote => new Emoji("⏏");
+        private IEmote FastForwardEmote => new Emoji("⏩");
         
         public MusicModule(IAudioNode node, IAudioSource source) : base(node)
         {
@@ -164,6 +166,58 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             await _node.PauseAsync(Context.Guild);
             
             await Context.Message.AddReactionAsync(PauseEmote);
+        }
+
+        [Command("seek")]
+        public async Task SeekAsync(string position)
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var status = _node.Status(Context.Guild);
+
+            if (status is not ITrackStatus track)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                return;
+            }
+
+            string[] formats = {@"hh\:mm\:ss", @"mm\:ss"};
+            
+            if (!TimeSpan.TryParseExact(position, formats, null, TimeSpanStyles.None, out var timeSpan))
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("Could not parse a time from that.")
+                    .Build());
+                
+                return;
+            }
+
+            if (timeSpan > track.Duration)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("The track is not that long.")
+                    .Build());
+                
+                return;
+            }
+            
+            try
+            {
+                await _node.SeekAsync(Context.Guild, timeSpan);
+                await Context.Message.AddReactionAsync(FastForwardEmote);
+            }
+            catch (Exception ex)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription($"Failed to seek: `{ex.Message}`")
+                    .Build());
+            }
         }
 
         [Group("skip")]

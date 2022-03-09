@@ -188,6 +188,20 @@ namespace TobysBot.Discord.Audio.Lavalink
             
         }
 
+        public async Task SeekAsync(IGuild guild, TimeSpan timeSpan)
+        {
+            LavaPlayer player = ThrowIfNoPlayer(guild);
+
+            try
+            {
+                await player.SeekAsync(timeSpan);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
         public async Task<ITrack> SkipAsync(IGuild guild, int index = 0)
         {
             LavaPlayer player = ThrowIfNoPlayer(guild);
