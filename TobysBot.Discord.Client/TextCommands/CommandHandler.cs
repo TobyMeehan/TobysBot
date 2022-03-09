@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.Configuration;
 
 namespace TobysBot.Discord.Client.TextCommands
 {
@@ -10,12 +11,14 @@ namespace TobysBot.Discord.Client.TextCommands
     {
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
+        private readonly IConfiguration _config;
         private readonly IServiceProvider _serviceProvider;
 
-        public CommandHandler(DiscordSocketClient client, CommandService commands, IServiceProvider serviceProvider)
+        public CommandHandler(DiscordSocketClient client, CommandService commands, IConfiguration config, IServiceProvider serviceProvider)
         {
             _client = client;
             _commands = commands;
+            _config = config;
             _serviceProvider = serviceProvider;
         }
 
@@ -35,7 +38,7 @@ namespace TobysBot.Discord.Client.TextCommands
 
             int argPos = 0;
 
-            if (!(message.HasCharPrefix('\\', ref argPos) ||
+            if (!(message.HasStringPrefix(_config.GetSection("Discord")["Prefix"], ref argPos) ||
                   message.HasMentionPrefix(_client.CurrentUser, ref argPos)) ||
                 message.Author.IsBot)
             {

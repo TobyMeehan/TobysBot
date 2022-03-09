@@ -27,6 +27,8 @@ namespace TobysBot.Discord
         {
             services.AddRazorPages();
 
+            var lavalinkConfig = Configuration.GetSection("Lavalink");
+
             services.AddDiscordClient(options =>
                 {
                     options.Token = Configuration.GetSection("Discord")["Token"];
@@ -35,9 +37,9 @@ namespace TobysBot.Discord
                 {
                     options.SelfDeaf = false;
 
-                    options.Hostname = "losingtime.dpaste.org";
-                    options.Port = 2124;
-                    options.Authorization = "SleepingOnTrains";
+                    options.Hostname = lavalinkConfig["Hostname"];
+                    options.Port = lavalinkConfig.GetValue<ushort>("Port");
+                    options.Authorization = lavalinkConfig["Authorization"];
 
                     options.LogSeverity = LogSeverity.Verbose;
                 });
