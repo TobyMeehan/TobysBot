@@ -28,7 +28,7 @@ namespace TobysBot.Discord.Audio
         /// </summary>
         /// <param name="guild"></param>
         /// <returns></returns>
-        Task<ITrack> AdvanceAsync(IGuild guild);
+        Task<ITrack> AdvanceAsync(IGuild guild, int index = 0);
 
         /// <summary>
         /// Returns the next track in the queue without advancing.

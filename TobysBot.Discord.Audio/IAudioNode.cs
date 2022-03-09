@@ -57,7 +57,7 @@ namespace TobysBot.Discord.Audio
         /// </summary>
         /// <param name="guild"></param>
         /// <returns></returns>
-        Task<ITrack> SkipAsync(IGuild guild);
+        Task<ITrack> SkipAsync(IGuild guild, int index = 0);
 
         /// <summary>
         /// Clears the queue and stops player in the specified guild.

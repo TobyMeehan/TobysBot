@@ -32,14 +32,14 @@ namespace TobysBot.Discord.Audio.MemoryQueue
             return Task.FromResult<IQueueStatus>(queue);
         }
 
-        public Task<ITrack> AdvanceAsync(IGuild guild)
+        public Task<ITrack> AdvanceAsync(IGuild guild, int index = 0)
         {
             if (!_queue.TryGetValue(guild, out var queue))
             {
                 return null;
             }
             
-            return Task.FromResult<ITrack>(queue.Advance());
+            return Task.FromResult<ITrack>(queue.Advance(index-1));
         }
 
         public Task<ITrack> PeekAsync(IGuild guild)

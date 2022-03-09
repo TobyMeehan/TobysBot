@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,9 +47,21 @@ namespace TobysBot.Discord.Audio.MemoryQueue
         
         public ITrack NextTrack => NextIndex() >= _tracks.Count ? null : _tracks[NextIndex()];
 
-        public ITrack Advance()
+        public ITrack Advance(int index)
         {
-            _currentIndex = NextIndex();
+            if (index == -1)
+            {
+                _currentIndex = NextIndex();
+            }
+            else if (index >= _tracks.Count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index),
+                    "Index cannot be larger than the size of the queue.");
+            }
+            else
+            {
+                _currentIndex = index;
+            }
             
             if (_currentIndex >= _tracks.Count)
             {

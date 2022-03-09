@@ -188,7 +188,7 @@ namespace TobysBot.Discord.Audio.Lavalink
             
         }
 
-        public async Task<ITrack> SkipAsync(IGuild guild)
+        public async Task<ITrack> SkipAsync(IGuild guild, int index = 0)
         {
             LavaPlayer player = ThrowIfNoPlayer(guild);
 
@@ -199,7 +199,7 @@ namespace TobysBot.Discord.Audio.Lavalink
                 await SetLoopAsync(guild, new DisabledLoopSetting());
             }
 
-            ITrack nextTrack = await _queue.AdvanceAsync(guild);
+            ITrack nextTrack = await _queue.AdvanceAsync(guild, index);
 
             if (nextTrack is null)
             {

@@ -17,7 +17,6 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         private IEmote LoopEmote => new Emoji("🔁");
         private IEmote PauseEmote => new Emoji("⏸");
         private IEmote PlayEmote => new Emoji("▶");
-        private IEmote SkipEmote => new Emoji("⏭");
         private IEmote StopEmote => new Emoji("⏹");
         private IEmote ClearEmote => new Emoji("⏏");
         
@@ -52,9 +51,9 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Alias("p")]
         public async Task PlayAsync([Remainder] string query = null)
         {
-            using (var typing = Context.Channel.EnterTypingState())
-            {
-                if (query is null)
+            using var typing = Context.Channel.EnterTypingState();
+            
+            if (query is null)
             {
                 await ResumeAsync();
                 return;
@@ -126,7 +125,6 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             }
 
             await Context.Message.AddReactionAsync(PlayEmote);
-            }
         }
 
         private async Task ResumeAsync()
@@ -168,17 +166,56 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             await Context.Message.AddReactionAsync(PauseEmote);
         }
 
-        [Command("skip")]
-        public async Task SkipAsync()
+        [Group("skip")]
+        public class SkipModule : VoiceModuleBase
         {
-            if (!await EnsureUserInSameVoiceAsync())
+            
+            private IEmote SkipEmote => new Emoji("⏭");
+            
+            private readonly IAudioNode _node;
+
+            public SkipModule(IAudioNode node) : base(node)
             {
-                return;
+                _node = node;
             }
 
-            var track = await _node.SkipAsync(Context.Guild);
+            [Command]
+            public async Task SkipAsync()
+            {
+                if (!await EnsureUserInSameVoiceAsync())
+                {
+                    return;
+                }
 
-            await Context.Message.AddReactionAsync(SkipEmote);
+                var track = await _node.SkipAsync(Context.Guild);
+
+                await Context.Message.AddReactionAsync(SkipEmote);
+            }
+
+            [Command("to")]
+            public async Task ToAsync(int index)
+            {
+                if (!await EnsureUserInSameVoiceAsync())
+                {
+                    return;
+                }
+
+                var queue = await _node.GetQueueAsync(Context.Guild);
+
+                if (index < 1 || index > queue.Count())
+                {
+                    await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                        .WithContext(EmbedContext.Error)
+                        .WithDescription("There is not a track at that position in the queue.")
+                        .Build());
+                    
+                    return;
+                }
+
+                var track = await _node.SkipAsync(Context.Guild, index);
+
+                await Context.Message.AddReactionAsync(SkipEmote);
+            }
         }
 
         [Command("stop")]
