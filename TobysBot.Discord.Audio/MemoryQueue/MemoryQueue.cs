@@ -7,7 +7,7 @@ namespace TobysBot.Discord.Audio.MemoryQueue
 {
     public class MemoryQueue : IQueue
     {
-        private readonly Dictionary<IGuild, MemoryTrackCollection> _queue = new Dictionary<IGuild, MemoryTrackCollection>();
+        private readonly Dictionary<IGuild, MemoryTrackCollection> _queue = new();
 
         public Task EnqueueAsync(IGuild guild, IEnumerable<ITrack> tracks, bool advanceToTracks = false)
         {
@@ -32,24 +32,14 @@ namespace TobysBot.Discord.Audio.MemoryQueue
             return Task.FromResult<IQueueStatus>(queue);
         }
 
-        public Task<ITrack> AdvanceAsync(IGuild guild)
+        public Task<ITrack> AdvanceAsync(IGuild guild, int index = 0)
         {
             if (!_queue.TryGetValue(guild, out var queue))
             {
                 return null;
             }
             
-            return Task.FromResult<ITrack>(queue.Advance());
-        }
-
-        public Task<ITrack> PeekAsync(IGuild guild)
-        {
-            if (!_queue.TryGetValue(guild, out var queue))
-            {
-                return null;
-            }
-            
-            return Task.FromResult<ITrack>(queue.NextTrack);
+            return Task.FromResult<ITrack>(queue.Advance(index-1));
         }
 
         public Task ClearAsync(IGuild guild)
@@ -80,6 +70,30 @@ namespace TobysBot.Discord.Audio.MemoryQueue
 
             queue.LoopEnabled = setting;
 
+            return Task.CompletedTask;
+        }
+
+        public Task SetShuffleAsync(IGuild guild, ShuffleSetting setting)
+        {
+            if (!_queue.TryGetValue(guild, out var queue))
+            {
+                return Task.CompletedTask;
+            }
+
+            queue.ShuffleEnabled = setting;
+            
+            return Task.CompletedTask;
+        }
+
+        public Task ShuffleAsync(IGuild guild)
+        {
+            if (!_queue.TryGetValue(guild, out var queue))
+            {
+                return Task.CompletedTask;
+            }
+            
+            queue.Shuffle();
+            
             return Task.CompletedTask;
         }
     }

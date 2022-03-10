@@ -28,14 +28,7 @@ namespace TobysBot.Discord.Audio
         /// </summary>
         /// <param name="guild"></param>
         /// <returns></returns>
-        Task<ITrack> AdvanceAsync(IGuild guild);
-
-        /// <summary>
-        /// Returns the next track in the queue without advancing.
-        /// </summary>
-        /// <param name="guild"></param>
-        /// <returns></returns>
-        Task<ITrack> PeekAsync(IGuild guild);
+        Task<ITrack> AdvanceAsync(IGuild guild, int index = 0);
 
         /// <summary>
         /// Clears the queue for the specified guild.
@@ -52,5 +45,9 @@ namespace TobysBot.Discord.Audio
         Task ResetAsync(IGuild guild);
 
         Task SetLoopAsync(IGuild guild, LoopSetting setting);
+
+        Task SetShuffleAsync(IGuild guild, ShuffleSetting setting);
+
+        Task ShuffleAsync(IGuild guild);
     }
 }

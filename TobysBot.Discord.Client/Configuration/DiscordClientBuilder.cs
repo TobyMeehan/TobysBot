@@ -32,7 +32,8 @@ public class DiscordClientBuilder
         Services.AddLavaNode(configureOptions);
         Services.AddSingleton<IAudioNode, LavalinkAudioNode>();
         Services.AddSingleton<IAudioSource, LavalinkAudioSource>();
-        Services.AddTransient<IQueue, MemoryQueue>();
+        Services.AddSingleton<IQueue, MemoryQueue>();
+        Services.AddTransient<ILyricsProvider, GeniusLyricsProvider>();
 
         Services.AddTransient<IDiscordReadyEventListener, LavalinkHostedService>();
         Services.AddTransient<IAudioEventListener, AudioEventListener>();

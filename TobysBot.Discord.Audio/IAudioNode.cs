@@ -48,7 +48,14 @@ namespace TobysBot.Discord.Audio
         /// <param name="guild">Guild in which to resume player.</param>
         /// <returns></returns>
         Task ResumeAsync(IGuild guild);
-        
+
+        /// <summary>
+        /// Moves the player to the specified timespan.
+        /// </summary>
+        /// <param name="guild"></param>
+        /// <param name="timeSpan"></param>
+        /// <returns></returns>
+        Task SeekAsync(IGuild guild, TimeSpan timeSpan);
 
         // Queue
 
@@ -57,7 +64,7 @@ namespace TobysBot.Discord.Audio
         /// </summary>
         /// <param name="guild"></param>
         /// <returns></returns>
-        Task<ITrack> SkipAsync(IGuild guild);
+        Task<ITrack> SkipAsync(IGuild guild, int index = 0);
 
         /// <summary>
         /// Clears the queue and stops player in the specified guild.
@@ -99,5 +106,20 @@ namespace TobysBot.Discord.Audio
         Task<IQueueStatus> GetQueueAsync(IGuild guild);
 
         Task SetLoopAsync(IGuild guild, LoopSetting setting);
+
+        /// <summary>
+        /// Enables shuffle mode for the queue.
+        /// </summary>
+        /// <param name="guild"></param>
+        /// <param name="setting"></param>
+        /// <returns></returns>
+        Task SetShuffleAsync(IGuild guild, ShuffleSetting setting);
+
+        /// <summary>
+        /// Performs a one-time shuffle on the queue.
+        /// </summary>
+        /// <param name="guild"></param>
+        /// <returns></returns>
+        Task ShuffleAsync(IGuild guild);
     }
 }
