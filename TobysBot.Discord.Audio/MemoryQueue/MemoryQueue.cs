@@ -7,7 +7,7 @@ namespace TobysBot.Discord.Audio.MemoryQueue
 {
     public class MemoryQueue : IQueue
     {
-        private readonly Dictionary<IGuild, MemoryTrackCollection> _queue = new Dictionary<IGuild, MemoryTrackCollection>();
+        private readonly Dictionary<IGuild, MemoryTrackCollection> _queue = new();
 
         public Task EnqueueAsync(IGuild guild, IEnumerable<ITrack> tracks, bool advanceToTracks = false)
         {
@@ -40,16 +40,6 @@ namespace TobysBot.Discord.Audio.MemoryQueue
             }
             
             return Task.FromResult<ITrack>(queue.Advance(index-1));
-        }
-
-        public Task<ITrack> PeekAsync(IGuild guild)
-        {
-            if (!_queue.TryGetValue(guild, out var queue))
-            {
-                return null;
-            }
-            
-            return Task.FromResult<ITrack>(queue.NextTrack);
         }
 
         public Task ClearAsync(IGuild guild)

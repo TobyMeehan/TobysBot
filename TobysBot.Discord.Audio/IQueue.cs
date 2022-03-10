@@ -31,13 +31,6 @@ namespace TobysBot.Discord.Audio
         Task<ITrack> AdvanceAsync(IGuild guild, int index = 0);
 
         /// <summary>
-        /// Returns the next track in the queue without advancing.
-        /// </summary>
-        /// <param name="guild"></param>
-        /// <returns></returns>
-        Task<ITrack> PeekAsync(IGuild guild);
-
-        /// <summary>
         /// Clears the queue for the specified guild.
         /// </summary>
         /// <param name="guild"></param>

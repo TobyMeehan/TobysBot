@@ -7,93 +7,99 @@ namespace TobysBot.Discord.Audio.MemoryQueue
 {
     public class MemoryTrackCollection : IQueueStatus
     {
-        private readonly List<MemoryTrack> _tracks = new();
-        private int _currentIndex = 0;
+        private List<MemoryTrack> _tracks => _played.Append(_currentTrack).Concat(_queue).ToList();
+
+        private List<MemoryTrack> _played = new();
+        private List<MemoryTrack> _queue = new();
+        private MemoryTrack _currentTrack;
 
         public IEnumerable<ITrack> Previous()
         {
-            return _tracks.Take(_currentIndex);
+            return _played;
         }
 
         public IEnumerable<ITrack> Next()
         {
-            return _tracks.Skip(_currentIndex + 1);
+            return _queue;
         }
 
-        public ITrack CurrentTrack
-        {
-            get
-            {
-                if (_currentIndex >= 0 && _currentIndex <= _tracks.Count)
-                {
-                    return _tracks[_currentIndex];
-                }
-
-                return null;
-            }
-        }
+        public ITrack CurrentTrack => _currentTrack;
 
         public LoopSetting LoopEnabled { get; set; } = new DisabledLoopSetting();
 
-        private int NextIndex()
-        {
-            return LoopEnabled switch
-            {
-                TrackLoopSetting => _currentIndex,
-                QueueLoopSetting when _currentIndex + 1 >= _tracks.Count => 0,
-                _ => _currentIndex + 1
-            };
-        }
-        
-        public ITrack NextTrack => NextIndex() >= _tracks.Count ? null : _tracks[NextIndex()];
-
         public ITrack Advance(int index)
         {
-            if (index == -1)
+            if (index != -1)
             {
-                _currentIndex = NextIndex();
-            }
-            else if (index >= _tracks.Count)
-            {
-                throw new ArgumentOutOfRangeException(nameof(index),
-                    "Index cannot be larger than the size of the queue.");
-            }
-            else
-            {
-                _currentIndex = index;
+                if (index < 0 && index >= _tracks.Count)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(index));
+                }
+                
+                var previous = _tracks.Take(index);
+                var current = _tracks[index];
+                var next = _tracks.Skip(index);
+
+                _played = previous.ToList();
+                _currentTrack = current;
+                _queue = next.ToList();
+
+                return _currentTrack;
             }
             
-            if (_currentIndex >= _tracks.Count)
+            if (LoopEnabled is TrackLoopSetting)
             {
+                return _currentTrack;
+            }
+
+            if (!_queue.Any())
+            {
+                if (LoopEnabled is QueueLoopSetting)
+                {
+                    _currentTrack = _played.First();
+                    
+                    _queue.AddRange(_played.Skip(1));
+
+                    return _currentTrack;
+                }
+                
+                _played.Add(_currentTrack);
+                _currentTrack = null;
                 return null;
             }
             
-            return CurrentTrack;
+            _played.Add(_currentTrack);
+            _currentTrack = _queue.First();
+            _queue.RemoveAt(0);
+
+            return _currentTrack;
         }
 
         public void AddRange(IEnumerable<ITrack> tracks, bool advanceToTracks = false)
         {
             if (advanceToTracks)
             {
-                _currentIndex = _tracks.Count;
+                _played = _tracks.ToList();
+                _currentTrack = null;
+                _queue.Clear();
             }
-            
-            _tracks.AddRange(
-                from track in tracks
-                select new MemoryTrack(track)
-            );
-        }
 
-        public void Clear()
-        {
-            _tracks.Clear();
-            Reset();
+            _queue.AddRange(
+                from track in tracks
+                select new MemoryTrack(track));
+
+            if (_currentTrack is null)
+            {
+                _currentTrack = _queue.First();
+                _queue.RemoveAt(0);
+            }
         }
 
         public void Reset()
         {
-            _currentIndex = 0;
-            LoopEnabled = new DisabledLoopSetting();
+            _queue = _tracks;
+            _currentTrack = _queue.First();
+            _queue.RemoveAt(0);
         }
         
         public IEnumerator<ITrack> GetEnumerator()
