@@ -161,6 +161,36 @@ public static class EmbedExtensions
             .Build();
     }
 
+    public static Embed BuildLyricsEmbed(this EmbedBuilder embed, ITrack track, string lyrics)
+    {
+        var lines = lyrics.Split("\n");
+        
+        StringBuilder sb = new();
+
+        sb.AppendLine($"**{track.Title}**");
+        
+        foreach (var line in lines)
+        {
+            if (line.Contains('['))
+            {
+                sb.AppendLine();
+            }
+
+            if (sb.Length is > 1900 and < 2000)
+            {
+                sb.AppendLine("`...`");
+                break;
+            }
+
+            sb.AppendLine(line.Replace("[", "*").Replace("]", "*"));
+        }
+
+        return embed
+            .WithDescription(sb.ToString())
+            .WithContext(EmbedContext.Information)
+            .Build();
+    }
+
     public static Embed BuildTrackNotFoundEmbed(this EmbedBuilder embed, string query)
     {
         return embed

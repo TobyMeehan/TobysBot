@@ -14,7 +14,8 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
     {
         private readonly IAudioNode _node;
         private readonly IAudioSource _source;
-        
+        private readonly ILyricsProvider _lyrics;
+
         private IEmote LoopEmote => new Emoji("🔁");
         private IEmote PauseEmote => new Emoji("⏸");
         private IEmote PlayEmote => new Emoji("▶");
@@ -22,10 +23,11 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         private IEmote ClearEmote => new Emoji("⏏");
         private IEmote FastForwardEmote => new Emoji("⏩");
         
-        public MusicModule(IAudioNode node, IAudioSource source) : base(node)
+        public MusicModule(IAudioNode node, IAudioSource source, ILyricsProvider lyrics) : base(node)
         {
             _node = node;
             _source = source;
+            _lyrics = lyrics;
         }
 
         // Voice Channel
@@ -518,6 +520,49 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             }
 
             await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildQueueEmbed(queue, trackStatus));
+        }
+
+        [Command("lyrics", RunMode = RunMode.Async)]
+        [Alias("ly")]
+        public async Task LyricsAsync()
+        {
+            using var typing = Context.Channel.EnterTypingState();
+            
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var status = _node.Status(Context.Guild);
+
+            if (status is not ITrackStatus track)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                return;
+            }
+
+            string lyrics;
+
+            try
+            {
+                lyrics = await _lyrics.GetLyricsAsync(track.CurrentTrack);
+            }
+            catch (Exception)
+            {
+                lyrics = "";
+            }
+
+            if (string.IsNullOrWhiteSpace(lyrics))
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription($"No lyrics found for {track.CurrentTrack.Title}.")
+                    .Build());
+                
+                return;
+            }
+            
+            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildLyricsEmbed(track.CurrentTrack, lyrics));
         }
     }
 }

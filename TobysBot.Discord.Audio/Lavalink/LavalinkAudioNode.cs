@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TobysBot.Discord.Audio.Extensions;
 using Victoria;
 using Victoria.Enums;
 using Victoria.EventArgs;
@@ -38,7 +39,7 @@ namespace TobysBot.Discord.Audio.Lavalink
 
             var queue = await GetQueueAsync(arg.Player.VoiceChannel.Guild);
             
-            await arg.Player.PlayAsync(await LoadTrackAsync(queue.CurrentTrack));
+            await arg.Player.PlayAsync(await _node.LoadTrackAsync(queue.CurrentTrack));
         }
 
         private async Task NodeOnTrackEnded(TrackEndedEventArgs arg)
@@ -55,7 +56,7 @@ namespace TobysBot.Discord.Audio.Lavalink
                 return;
             }
 
-            await arg.Player.PlayAsync(await LoadTrackAsync(track));
+            await arg.Player.PlayAsync(await _node.LoadTrackAsync(track));
         }
 
         private LavaPlayer ThrowIfNoPlayer(IGuild guild)
@@ -66,18 +67,6 @@ namespace TobysBot.Discord.Audio.Lavalink
             }
 
             return player;
-        }
-
-        private async Task<LavaTrack> LoadTrackAsync(ITrack track)
-        {
-            SearchResponse search = await _node.SearchAsync(SearchType.Direct, track.Url);
-
-            if (search.Status != SearchStatus.TrackLoaded)
-            {
-                throw new Exception(search.Exception.Message);
-            }
-
-            return search.Tracks.First();
         }
 
         public async Task JoinAsync(IVoiceChannel channel, ITextChannel textChannel = null)
@@ -183,7 +172,7 @@ namespace TobysBot.Discord.Audio.Lavalink
                     return;
                 }
                 
-                await player.PlayAsync(await LoadTrackAsync(track));
+                await player.PlayAsync(await _node.LoadTrackAsync(track));
             }
             
         }
@@ -221,7 +210,7 @@ namespace TobysBot.Discord.Audio.Lavalink
             }
             else
             {
-                await player.PlayAsync(await LoadTrackAsync(nextTrack));
+                await player.PlayAsync(await _node.LoadTrackAsync(nextTrack));
             }
             
             return nextTrack;
