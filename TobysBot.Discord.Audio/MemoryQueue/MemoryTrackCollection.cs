@@ -7,8 +7,9 @@ namespace TobysBot.Discord.Audio.MemoryQueue
 {
     public class MemoryTrackCollection : IQueueStatus
     {
+        private readonly Random _rng = new();
+        
         private List<MemoryTrack> _tracks => _played.Append(_currentTrack).Concat(_queue).ToList();
-
         private List<MemoryTrack> _played = new();
         private List<MemoryTrack> _queue = new();
         private MemoryTrack _currentTrack;
@@ -40,7 +41,7 @@ namespace TobysBot.Discord.Audio.MemoryQueue
                 
                 var previous = _tracks.Take(index);
                 var current = _tracks[index];
-                var next = _tracks.Skip(index);
+                var next = _tracks.Skip(index + 1);
 
                 _played = previous.ToList();
                 _currentTrack = current;
@@ -62,6 +63,8 @@ namespace TobysBot.Discord.Audio.MemoryQueue
                     
                     _queue.AddRange(_played.Skip(1));
 
+                    _played.Clear();
+                    
                     return _currentTrack;
                 }
                 
@@ -72,9 +75,7 @@ namespace TobysBot.Discord.Audio.MemoryQueue
 
             if (ShuffleEnabled is EnabledShuffleSetting)
             {
-                Random rng = new();
-
-                int element = rng.Next(0, _queue.Count);
+                int element = _rng.Next(0, _queue.Count);
                 _played.Add(_currentTrack);
                 _currentTrack = _queue[element];
                 _queue.RemoveAt(element);
@@ -119,11 +120,10 @@ namespace TobysBot.Discord.Audio.MemoryQueue
         public void Shuffle()
         {
             int n = _queue.Count;
-            Random rng = new();
             
             while (n > 1) {  
                 n--;  
-                int k = rng.Next(n + 1);
+                int k = _rng.Next(n + 1);
                 (_queue[k], _queue[n]) = (_queue[n], _queue[k]);
             }
         }
