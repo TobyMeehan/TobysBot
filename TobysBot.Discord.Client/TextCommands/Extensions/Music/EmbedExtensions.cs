@@ -32,9 +32,9 @@ public static class EmbedExtensions
                              $"{GetProgress(status.Position, status.Duration)} " +
                              $"`{status.Duration.ToTimeString()}` \n" +
                              $"{(status is PausedStatus ? "⏸" : "▶")}" +
-                             $"{(queueStatus.LoopEnabled is DisabledLoopSetting ? $" {status.ToString()}" : "")}" +
-                             $"{(queueStatus.LoopEnabled is TrackLoopSetting ? " 🔂 Looping the **current track**.": "")}" +
-                             $"{(queueStatus.LoopEnabled is QueueLoopSetting ? " 🔁 Looping the **queue**." : "")}" +
+                             $"{(queueStatus.LoopEnabled is TrackLoopSetting ? " 🔂": "")}" +
+                             $"{(queueStatus.LoopEnabled is QueueLoopSetting ? " 🔁" : "")}" +
+                             $"{(queueStatus.ShuffleEnabled is EnabledShuffleSetting ? " 🔀" : "")}" +
                              $"")
             .WithContext(EmbedContext.Information)
             .Build();
@@ -87,6 +87,12 @@ public static class EmbedExtensions
         {
             sb.AppendLine();
             sb.AppendLine("🔂 Looping the **current track**.");
+        }
+
+        if (queue.ShuffleEnabled is EnabledShuffleSetting)
+        {
+            sb.AppendLine();
+            sb.AppendLine("🔀 Shuffle mode is **enabled**.");
         }
         
         return embed

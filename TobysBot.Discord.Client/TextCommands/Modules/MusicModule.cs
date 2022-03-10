@@ -277,6 +277,8 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         {
             private readonly IAudioNode _node;
 
+            private IEmote ShuffleEmote => new Emoji("🔀");
+            
             public Shuffle(IAudioNode node) : base(node)
             {
                 _node = node;
@@ -313,6 +315,11 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 }
 
                 await _node.SetShuffleAsync(Context.Guild, new EnabledShuffleSetting());
+
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Action)
+                    .WithDescription("Shuffle mode is **enabled**.")
+                    .Build());
             }
 
             [Command("off")]
@@ -324,6 +331,11 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 }
 
                 await _node.SetShuffleAsync(Context.Guild, new DisabledShuffleSetting());
+
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Action)
+                    .WithDescription("Shuffle mode is **disabled**.")
+                    .Build());
             }
 
             [Command("once")]
@@ -335,6 +347,8 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 }
 
                 await _node.ShuffleAsync(Context.Guild);
+
+                await Context.Message.AddReactionAsync(ShuffleEmote);
             }
         }
 
