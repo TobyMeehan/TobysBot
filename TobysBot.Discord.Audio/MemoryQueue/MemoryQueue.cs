@@ -72,5 +72,17 @@ namespace TobysBot.Discord.Audio.MemoryQueue
 
             return Task.CompletedTask;
         }
+
+        public Task SetShuffleAsync(IGuild guild, ShuffleSetting setting)
+        {
+            if (!_queue.TryGetValue(guild, out var queue))
+            {
+                return Task.CompletedTask;
+            }
+
+            queue.ShuffleEnabled = setting;
+            
+            return Task.CompletedTask;
+        }
     }
 }

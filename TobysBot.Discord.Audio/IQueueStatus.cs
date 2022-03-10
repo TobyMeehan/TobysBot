@@ -11,5 +11,7 @@ namespace TobysBot.Discord.Audio
         ITrack CurrentTrack { get; }
         
         LoopSetting LoopEnabled { get; }
+        
+        ShuffleSetting ShuffleEnabled { get; }
     }
 }

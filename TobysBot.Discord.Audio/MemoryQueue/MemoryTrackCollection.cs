@@ -27,6 +27,8 @@ namespace TobysBot.Discord.Audio.MemoryQueue
 
         public LoopSetting LoopEnabled { get; set; } = new DisabledLoopSetting();
 
+        public ShuffleSetting ShuffleEnabled { get; set; } = new DisabledShuffleSetting();
+
         public ITrack Advance(int index)
         {
             if (index != -1)
@@ -67,6 +69,18 @@ namespace TobysBot.Discord.Audio.MemoryQueue
                 _currentTrack = null;
                 return null;
             }
+
+            if (ShuffleEnabled is EnabledShuffleSetting)
+            {
+                Random rng = new();
+
+                int element = rng.Next(0, _queue.Count);
+                _played.Add(_currentTrack);
+                _currentTrack = _queue[element];
+                _queue.RemoveAt(element);
+
+                return _currentTrack;
+            }
             
             _played.Add(_currentTrack);
             _currentTrack = _queue.First();
@@ -100,6 +114,18 @@ namespace TobysBot.Discord.Audio.MemoryQueue
             _queue = _tracks;
             _currentTrack = _queue.First();
             _queue.RemoveAt(0);
+        }
+
+        public void Shuffle()
+        {
+            int n = _queue.Count;
+            Random rng = new();
+            
+            while (n > 1) {  
+                n--;  
+                int k = rng.Next(n + 1);
+                (_queue[k], _queue[n]) = (_queue[n], _queue[k]);
+            }
         }
         
         public IEnumerator<ITrack> GetEnumerator()
