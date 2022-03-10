@@ -106,5 +106,20 @@ namespace TobysBot.Discord.Audio
         Task<IQueueStatus> GetQueueAsync(IGuild guild);
 
         Task SetLoopAsync(IGuild guild, LoopSetting setting);
+
+        /// <summary>
+        /// Enables shuffle mode for the queue.
+        /// </summary>
+        /// <param name="guild"></param>
+        /// <param name="setting"></param>
+        /// <returns></returns>
+        Task SetShuffleAsync(IGuild guild, ShuffleSetting setting);
+
+        /// <summary>
+        /// Performs a one-time shuffle on the queue.
+        /// </summary>
+        /// <param name="guild"></param>
+        /// <returns></returns>
+        Task ShuffleAsync(IGuild guild);
     }
 }

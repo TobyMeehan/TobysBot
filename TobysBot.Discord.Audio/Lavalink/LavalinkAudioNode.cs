@@ -297,5 +297,15 @@ namespace TobysBot.Discord.Audio.Lavalink
         {
             return _queue.SetLoopAsync(guild, setting);
         }
+
+        public Task SetShuffleAsync(IGuild guild, ShuffleSetting setting)
+        {
+            return _queue.SetShuffleAsync(guild, setting);
+        }
+
+        public Task ShuffleAsync(IGuild guild)
+        {
+            return _queue.ShuffleAsync(guild);
+        }
     }
 }

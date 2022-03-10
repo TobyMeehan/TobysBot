@@ -45,5 +45,9 @@ namespace TobysBot.Discord.Audio
         Task ResetAsync(IGuild guild);
 
         Task SetLoopAsync(IGuild guild, LoopSetting setting);
+
+        Task SetShuffleAsync(IGuild guild, ShuffleSetting setting);
+
+        Task ShuffleAsync(IGuild guild);
     }
 }

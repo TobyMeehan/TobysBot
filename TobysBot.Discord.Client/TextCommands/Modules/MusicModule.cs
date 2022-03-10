@@ -271,6 +271,72 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 await Context.Message.AddReactionAsync(SkipEmote);
             }
         }
+        
+        [Group("shuffle")]
+        public class Shuffle : VoiceModuleBase
+        {
+            private readonly IAudioNode _node;
+
+            public Shuffle(IAudioNode node) : base(node)
+            {
+                _node = node;
+            }
+
+            [Command]
+            public async Task ShuffleAsync()
+            {
+                if (!await EnsureUserInSameVoiceAsync())
+                {
+                    return;
+                }
+
+                var queue = await _node.GetQueueAsync(Context.Guild);
+
+                switch (queue.ShuffleEnabled)
+                {
+                    case EnabledShuffleSetting:
+                        await ShuffleOffAsync();
+                        break;
+                        
+                    case DisabledShuffleSetting:
+                        await ShuffleOnAsync();
+                        break;
+                }
+            }
+
+            [Command("on")]
+            public async Task ShuffleOnAsync()
+            {
+                if (!await EnsureUserInSameVoiceAsync())
+                {
+                    return;
+                }
+
+                await _node.SetShuffleAsync(Context.Guild, new EnabledShuffleSetting());
+            }
+
+            [Command("off")]
+            public async Task ShuffleOffAsync()
+            {
+                if (!await EnsureUserInSameVoiceAsync())
+                {
+                    return;
+                }
+
+                await _node.SetShuffleAsync(Context.Guild, new DisabledShuffleSetting());
+            }
+
+            [Command("once")]
+            public async Task ShuffleOnceAsync()
+            {
+                if (!await EnsureUserInSameVoiceAsync())
+                {
+                    return;
+                }
+
+                await _node.ShuffleAsync(Context.Guild);
+            }
+        }
 
         [Command("stop")]
         public async Task StopAsync()
