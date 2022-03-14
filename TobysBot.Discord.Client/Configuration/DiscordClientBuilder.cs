@@ -29,7 +29,7 @@ public class DiscordClientBuilder
 
     public DiscordClientBuilder AddLavaNode(Action<LavaConfig> configureOptions = null)
     {
-        Services.AddLavaNode(configureOptions);
+        Services.AddLavaNode<XLavaPlayer>(configureOptions);
         Services.AddSingleton<IAudioNode, LavalinkAudioNode>();
         Services.AddSingleton<IAudioSource, LavalinkAudioSource>();
         Services.AddSingleton<IQueue, MemoryQueue>();

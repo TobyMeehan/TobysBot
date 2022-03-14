@@ -12,11 +12,11 @@ namespace TobysBot.Discord.Client.Configuration;
 
 public class LavalinkHostedService : IHostedService, IDiscordReadyEventListener
 {
-    private readonly LavaNode _node;
+    private readonly LavaNode<XLavaPlayer> _node;
     private readonly ILogger<LavalinkHostedService> _logger;
     private readonly IEnumerable<IAudioEventListener> _audioEventListeners;
 
-    public LavalinkHostedService(LavaNode node, ILogger<LavalinkHostedService> logger, IEnumerable<IAudioEventListener> audioEventListeners)
+    public LavalinkHostedService(LavaNode<XLavaPlayer> node, ILogger<LavalinkHostedService> logger, IEnumerable<IAudioEventListener> audioEventListeners)
     {
         _node = node;
         _logger = logger;

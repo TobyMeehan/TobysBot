@@ -29,9 +29,9 @@ public static class EmbedExtensions
 
         return embed
             .WithDescription($"[{track.Title}]({track.Url}) \n" +
-                             $"`{status.Position.ToTimeString()}` " +
-                             $"{GetProgress(status.Position, status.Duration)} " +
-                             $"`{status.Duration.ToTimeString()}` \n" +
+                             $"`{track.Position.ToTimeString()}` " +
+                             $"{GetProgress(track.Position, track.Duration)} " +
+                             $"`{track.Duration.ToTimeString()}` \n" +
                              $"{(status is PausedStatus ? "⏸" : "▶")}" +
                              $"{(queueStatus.LoopEnabled is TrackLoopSetting ? " 🔂": "")}" +
                              $"{(queueStatus.LoopEnabled is QueueLoopSetting ? " 🔁" : "")}" +
@@ -41,26 +41,27 @@ public static class EmbedExtensions
             .Build();
     }
     
-    public static Embed BuildQueueEmbed(this EmbedBuilder embed, IQueueStatus queue, ITrackStatus currentTrack)
+    public static Embed BuildQueueEmbed(this EmbedBuilder embed, IQueueStatus queue, ITrackStatus trackStatus)
     {
         var previous = queue.Previous().Reverse().ToList();
         var next = queue.Next().ToList();
+        var current = trackStatus?.CurrentTrack;
         var sb = new StringBuilder();
         var i = 0;
         var totalInQueue = previous.Count + next.Count;
         var elementsAdded = 1;
 
-        if (currentTrack is null)
+        if (trackStatus is null)
         {
             sb.AppendLine("**--** No track playing.");
         }
         else
         {
             sb.AppendLine($"**{previous.Count + 1}. " +
-                          $"({(currentTrack is PausedStatus ? "⏸" : "▶")}" +
+                          $"({(trackStatus is PausedStatus ? "⏸" : "▶")}" +
                           $"{(queue.LoopEnabled is TrackLoopSetting ? " 🔂": "")})** " +
-                          $"[{queue.CurrentTrack.Title}]({queue.CurrentTrack.Url}) " +
-                          $"`{currentTrack.Position.ToTimeString()}`/`{currentTrack.Duration.ToTimeString()}`");
+                          $"[{current.Title}]({current.Url}) " +
+                          $"`{current.Position.ToTimeString()}`/`{current.Duration.ToTimeString()}`");
         }
         
         while (sb.Length < 1900)

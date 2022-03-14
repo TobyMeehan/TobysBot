@@ -198,7 +198,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return;
             }
 
-            if (timeSpan > track.Duration)
+            if (timeSpan > track.CurrentTrack.Duration)
             {
                 await Context.Message.ReplyAsync(embed: new EmbedBuilder()
                     .WithContext(EmbedContext.Error)
