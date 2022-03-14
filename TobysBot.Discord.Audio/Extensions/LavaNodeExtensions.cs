@@ -8,7 +8,7 @@ namespace TobysBot.Discord.Audio.Extensions;
 
 public static class LavaNodeExtensions
 {
-    public static async Task<LavaTrack> LoadTrackAsync(this LavaNode node, ITrack track)
+    public static async Task<LavaTrack> LoadTrackAsync<T>(this LavaNode<T> node, ITrack track) where T : LavaPlayer
     {
         var search = await node.SearchAsync(SearchType.Direct, track.Url);
 

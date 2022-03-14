@@ -14,10 +14,10 @@ namespace TobysBot.Discord.Audio.Lavalink
 {
     public class LavalinkAudioNode : IAudioNode
     {
-        private readonly LavaNode _node;
+        private readonly LavaNode<XLavaPlayer> _node;
         private readonly IQueue _queue;
 
-        public LavalinkAudioNode(LavaNode node, IQueue queue)
+        public LavalinkAudioNode(LavaNode<XLavaPlayer> node, IQueue queue)
         {
             _node = node;
             _queue = queue;
@@ -59,9 +59,9 @@ namespace TobysBot.Discord.Audio.Lavalink
             await arg.Player.PlayAsync(await _node.LoadTrackAsync(track));
         }
 
-        private LavaPlayer ThrowIfNoPlayer(IGuild guild)
+        private XLavaPlayer ThrowIfNoPlayer(IGuild guild)
         {
-            if (!_node.TryGetPlayer(guild, out LavaPlayer player))
+            if (!_node.TryGetPlayer(guild, out var player))
             {
                 throw new Exception("No player is connected to the guild.");
             }
@@ -71,16 +71,17 @@ namespace TobysBot.Discord.Audio.Lavalink
 
         public async Task JoinAsync(IVoiceChannel channel, ITextChannel textChannel = null)
         {
-            if (_node.TryGetPlayer(channel.Guild, out LavaPlayer player))
+            if (_node.TryGetPlayer(channel.Guild, out var player))
             {
-                if (player.VoiceChannel != channel)
+                if (player.VoiceChannel == channel)
                 {
-                    await _node.MoveChannelAsync(channel);
-
-                    textChannel ??= player.TextChannel;
-                    
                     return;
                 }
+                
+                await _node.MoveChannelAsync(channel);
+                    
+                return;
+
             }
 
             await _node.JoinAsync(channel, textChannel);
@@ -88,7 +89,7 @@ namespace TobysBot.Discord.Audio.Lavalink
 
         public async Task LeaveAsync(IGuild guild)
         {
-            if (!_node.TryGetPlayer(guild, out LavaPlayer player))
+            if (!_node.TryGetPlayer(guild, out var player))
             {
                 return;
             }
@@ -100,7 +101,7 @@ namespace TobysBot.Discord.Audio.Lavalink
 
         public async Task<ITrack> EnqueueAsync(IPlayable source, IGuild guild)
         {
-            LavaPlayer player = ThrowIfNoPlayer(guild);
+            var player = ThrowIfNoPlayer(guild);
 
             SearchResponse search = await _node.SearchAsync(SearchType.Direct, source.Url);
 
@@ -142,7 +143,7 @@ namespace TobysBot.Discord.Audio.Lavalink
             
             await _queue.EnqueueAsync(guild, tracks, advanceToTracks: playerState is PlayerState.Stopped);
 
-            return new LavalinkTrack(player.Track);
+            return player.CurrentTrack;
         }
 
         public async Task PauseAsync(IGuild guild)
@@ -193,7 +194,7 @@ namespace TobysBot.Discord.Audio.Lavalink
 
         public async Task<ITrack> SkipAsync(IGuild guild, int index = 0)
         {
-            LavaPlayer player = ThrowIfNoPlayer(guild);
+            var player = ThrowIfNoPlayer(guild);
 
             var queue = await GetQueueAsync(guild);
 
@@ -236,25 +237,18 @@ namespace TobysBot.Discord.Audio.Lavalink
 
         public IPlayerStatus Status(IGuild guild)
         {
-            if (!_node.TryGetPlayer(guild, out LavaPlayer player))
+            if (!_node.TryGetPlayer(guild, out var player))
             {
                 return new NotPlayingStatus();
             }
 
-            return player.PlayerState switch
-            {
-                PlayerState.Playing => new PlayingStatus(new LavalinkTrack(player.Track), player.Track.Position,
-                    player.Track.Duration),
-                PlayerState.Paused => new PausedStatus(new LavalinkTrack(player.Track), player.Track.Position,
-                    player.Track.Duration),
-                _ => new NotPlayingStatus()
-            };
+            return player.Status;
         }
 
 
         public Task<IVoiceChannel> GetCurrentChannelAsync(IGuild guild)
         {
-            if (!_node.TryGetPlayer(guild, out LavaPlayer player))
+            if (!_node.TryGetPlayer(guild, out var player))
             {
                 return Task.FromResult<IVoiceChannel>(null);
             }
@@ -264,7 +258,7 @@ namespace TobysBot.Discord.Audio.Lavalink
 
         public Task<ITrack> GetCurrentTrackAsync(IGuild guild)
         {
-            if (!_node.TryGetPlayer(guild, out LavaPlayer player))
+            if (!_node.TryGetPlayer(guild, out var player))
             {
                 return Task.FromResult<ITrack>(null);
             }
@@ -274,7 +268,7 @@ namespace TobysBot.Discord.Audio.Lavalink
                 return Task.FromResult<ITrack>(null);
             }
 
-            return Task.FromResult<ITrack>(new LavalinkTrack(player.Track));
+            return Task.FromResult(player.CurrentTrack);
         }
 
         public async Task<IQueueStatus> GetQueueAsync(IGuild guild)

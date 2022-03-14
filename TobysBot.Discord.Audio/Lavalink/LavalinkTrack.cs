@@ -25,8 +25,17 @@ namespace TobysBot.Discord.Audio.Lavalink
 
         public TimeSpan Duration => Track.Duration;
 
+        public TimeSpan Position => Track.Position;
+
         public string Url => Track.Url;
 
         public LavaTrack Track { get; }
+    }
+    
+    public class LavalinkActiveTrack : LavalinkTrack, IActiveTrack
+    {
+        public LavalinkActiveTrack(LavaTrack track) : base (track)
+        {
+        }
     }
 }

@@ -8,9 +8,9 @@ namespace TobysBot.Discord.Audio.Lavalink
 {
     public class LavalinkAudioSource : IAudioSource
     {
-        private readonly LavaNode _node;
+        private readonly LavaNode<XLavaPlayer> _node;
 
-        public LavalinkAudioSource(LavaNode node)
+        public LavalinkAudioSource(LavaNode<XLavaPlayer> node)
         {
             _node = node;
         }
