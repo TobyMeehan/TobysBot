@@ -25,7 +25,7 @@ namespace TobysBot.Discord.Audio.Lavalink
             {
                 SearchStatus.SearchResult => new LavalinkTrack(result.Tracks.FirstOrDefault()),
                 SearchStatus.TrackLoaded => new LavalinkTrack(result.Tracks.FirstOrDefault()),
-                SearchStatus.PlaylistLoaded => new LavalinkPlaylist(result.Tracks.Take(25), query, result.Playlist.Name,
+                SearchStatus.PlaylistLoaded => new LavalinkPlaylist(result.Tracks.Take(50), query, result.Playlist.Name,
                     result.Playlist.SelectedTrack),
                 SearchStatus.NoMatches => null,
                 SearchStatus.LoadFailed => throw new Exception(result.Exception.Message),

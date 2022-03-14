@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Discord;
 using TobysBot.Discord.Audio;
+using TobysBot.Discord.Client.Extensions;
 
 namespace TobysBot.Discord.Client.TextCommands.Extensions.Music;
 
@@ -39,54 +40,66 @@ public static class EmbedExtensions
             .WithContext(EmbedContext.Information)
             .Build();
     }
-
+    
     public static Embed BuildQueueEmbed(this EmbedBuilder embed, IQueueStatus queue, ITrackStatus currentTrack)
     {
-        StringBuilder sb = new StringBuilder();
-
-        int i = 1;
-
-        foreach (var track in queue.Previous())
-        {
-            sb.AppendLine($"**{i++}.** [{track.Title}]({track.Url})" +
-                                 $" `{track.Duration.ToTimeString()}`");
-        }
+        var previous = queue.Previous().Reverse().ToList();
+        var next = queue.Next().ToList();
+        var sb = new StringBuilder();
+        var i = 0;
+        var totalInQueue = previous.Count + next.Count;
+        var elementsAdded = 1;
 
         if (currentTrack is null)
         {
-            sb.AppendLine($"**--** No track playing.");
-
-            if (queue.Next().Any())
-            {
-                sb.AppendLine($"**{i++}.** [{queue.CurrentTrack.Title}]({queue.CurrentTrack.Url})" +
-                              $" `{queue.CurrentTrack.Duration.ToTimeString()}`");
-            }
+            sb.AppendLine("**--** No track playing.");
         }
         else
         {
-            sb.AppendLine($"**{i++}. " +
+            sb.AppendLine($"**{previous.Count + 1}. " +
                           $"({(currentTrack is PausedStatus ? "⏸" : "▶")}" +
                           $"{(queue.LoopEnabled is TrackLoopSetting ? " 🔂": "")})** " +
                           $"[{queue.CurrentTrack.Title}]({queue.CurrentTrack.Url}) " +
                           $"`{currentTrack.Position.ToTimeString()}`/`{currentTrack.Duration.ToTimeString()}`");
         }
         
-        foreach (var track in queue.Next())
+        while (sb.Length < 1900)
         {
-            sb.AppendLine($"**{i++}.** [{track.Title}]({track.Url})" +
-                          $" `{track.Duration.ToTimeString()}`");
+            if (previous.ElementAtOrDefault(i) is not null)
+            {
+                sb.PrependLine($"**{previous.Count - i}.** [{previous[i].Title}]({previous[i].Url})" +
+                              $" `{previous[i].Duration.ToTimeString()}`");
+
+                elementsAdded++;
+            }
+            
+            if (next.ElementAtOrDefault(i) is not null)
+            {
+                sb.AppendLine($"**{previous.Count + i + 2}.** [{next[i].Title}]({next[i].Url})" +
+                              $" `{next[i].Duration.ToTimeString()}`");
+
+                elementsAdded++;
+            }
+
+            i++;
         }
 
-        if (queue.LoopEnabled is QueueLoopSetting)
+        if (elementsAdded < totalInQueue)
         {
             sb.AppendLine();
-            sb.AppendLine("🔁 Looping the **queue**.");
+            sb.AppendLine($"`{totalInQueue - elementsAdded + 1} other tracks in queue.`");
         }
 
-        if (queue.LoopEnabled is TrackLoopSetting)
+        switch (queue.LoopEnabled)
         {
-            sb.AppendLine();
-            sb.AppendLine("🔂 Looping the **current track**.");
+            case QueueLoopSetting:
+                sb.AppendLine();
+                sb.AppendLine("🔁 Looping the **queue**.");
+                break;
+            case TrackLoopSetting:
+                sb.AppendLine();
+                sb.AppendLine("🔂 Looping the **current track**.");
+                break;
         }
 
         if (queue.ShuffleEnabled is EnabledShuffleSetting)
