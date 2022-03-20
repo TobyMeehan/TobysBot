@@ -11,43 +11,45 @@ namespace TobysBot.Discord.Audio
         /// <summary>
         /// Adds the specified track or playlist to the queue for the specified guild.
         /// </summary>
-        /// <param name="guild"></param>
+        /// <param name="guildId"></param>
         /// <param name="tracks"></param>
         /// <returns></returns>
-        Task EnqueueAsync(IGuild guild, IEnumerable<ITrack> tracks, bool advanceToTracks = false);
+        Task EnqueueAsync(ulong guildId, IEnumerable<ITrack> tracks, bool advanceToTracks = false);
 
         /// <summary>
         /// Gets the queue for the specified guild.
         /// </summary>
-        /// <param name="guild"></param>
+        /// <param name="guildId"></param>
         /// <returns></returns>
-        Task<IQueueStatus> GetAsync(IGuild guild);
+        Task<IQueueStatus> GetAsync(ulong guildId);
 
         /// <summary>
         /// Advances to the next track in the queue and returns the current track.
         /// </summary>
-        /// <param name="guild"></param>
+        /// <param name="guildId"></param>
         /// <returns></returns>
-        Task<ITrack> AdvanceAsync(IGuild guild, int index = 0);
+        Task<ITrack> AdvanceAsync(ulong guildId, int index = 0);
+
+        Task ProgressAsync(ulong guildId, TimeSpan position);
 
         /// <summary>
         /// Clears the queue for the specified guild.
         /// </summary>
-        /// <param name="guild"></param>
+        /// <param name="guildId"></param>
         /// <returns></returns>
-        Task ClearAsync(IGuild guild);
+        Task ClearAsync(ulong guildId);
 
         /// <summary>
         /// Returns to the start of the queue.
         /// </summary>
-        /// <param name="guild"></param>
+        /// <param name="guildId"></param>
         /// <returns></returns>
-        Task ResetAsync(IGuild guild);
+        Task ResetAsync(ulong guildId);
 
-        Task SetLoopAsync(IGuild guild, LoopSetting setting);
+        Task SetLoopAsync(ulong guildId, LoopSetting setting);
 
-        Task SetShuffleAsync(IGuild guild, ShuffleSetting setting);
+        Task SetShuffleAsync(ulong guildId, ShuffleSetting setting);
 
-        Task ShuffleAsync(IGuild guild);
+        Task ShuffleAsync(ulong guildId);
     }
 }

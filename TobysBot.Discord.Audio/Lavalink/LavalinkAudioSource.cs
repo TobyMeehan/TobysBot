@@ -8,9 +8,9 @@ namespace TobysBot.Discord.Audio.Lavalink
 {
     public class LavalinkAudioSource : IAudioSource
     {
-        private readonly LavaNode _node;
+        private readonly LavaNode<XLavaPlayer> _node;
 
-        public LavalinkAudioSource(LavaNode node)
+        public LavalinkAudioSource(LavaNode<XLavaPlayer> node)
         {
             _node = node;
         }
@@ -25,7 +25,7 @@ namespace TobysBot.Discord.Audio.Lavalink
             {
                 SearchStatus.SearchResult => new LavalinkTrack(result.Tracks.FirstOrDefault()),
                 SearchStatus.TrackLoaded => new LavalinkTrack(result.Tracks.FirstOrDefault()),
-                SearchStatus.PlaylistLoaded => new LavalinkPlaylist(result.Tracks.Take(25), query, result.Playlist.Name,
+                SearchStatus.PlaylistLoaded => new LavalinkPlaylist(result.Tracks.Take(50), query, result.Playlist.Name,
                     result.Playlist.SelectedTrack),
                 SearchStatus.NoMatches => null,
                 SearchStatus.LoadFailed => throw new Exception(result.Exception.Message),

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,11 +13,11 @@ namespace TobysBot.Discord.Client.Configuration;
 
 public class LavalinkHostedService : IHostedService, IDiscordReadyEventListener
 {
-    private readonly LavaNode _node;
+    private readonly LavaNode<XLavaPlayer> _node;
     private readonly ILogger<LavalinkHostedService> _logger;
     private readonly IEnumerable<IAudioEventListener> _audioEventListeners;
 
-    public LavalinkHostedService(LavaNode node, ILogger<LavalinkHostedService> logger, IEnumerable<IAudioEventListener> audioEventListeners)
+    public LavalinkHostedService(LavaNode<XLavaPlayer> node, ILogger<LavalinkHostedService> logger, IEnumerable<IAudioEventListener> audioEventListeners)
     {
         _node = node;
         _logger = logger;
@@ -50,7 +51,7 @@ public class LavalinkHostedService : IHostedService, IDiscordReadyEventListener
 
             foreach (var listener in _audioEventListeners)
             {
-                await listener.OnTrackException(track, textChannel, args.ErrorMessage);
+                await listener.OnTrackException(track, textChannel, args.Exception.Message);
             }
         };
 
@@ -81,18 +82,29 @@ public class LavalinkHostedService : IHostedService, IDiscordReadyEventListener
 
     private Task NodeOnLog(LogMessage arg)
     {
-        LogLevel level = arg.Severity switch
+        switch (arg.Severity)
         {
-            LogSeverity.Critical => LogLevel.Critical,
-            LogSeverity.Debug => LogLevel.Debug,
-            LogSeverity.Error => LogLevel.Error,
-            LogSeverity.Info => LogLevel.Information,
-            LogSeverity.Verbose => LogLevel.Trace,
-            LogSeverity.Warning => LogLevel.Warning,
-            _ => LogLevel.None
-        };
-        
-        _logger.Log(level, arg.Exception, "{Message}", arg.Message);
+            case LogSeverity.Info:
+                _logger.LogInformation(arg.Exception, "{Source}: {Message}", arg.Source, arg.Message);
+                break;
+            case LogSeverity.Error:
+                _logger.LogError(arg.Exception, "{Source}: {Message}",arg.Source, arg.Message);
+                break;
+            case LogSeverity.Critical:
+                _logger.LogCritical(arg.Exception, "{Source}: {Message}",arg.Source, arg.Message);
+                break;
+            case LogSeverity.Warning:
+                _logger.LogWarning(arg.Exception, "{Source}: {Message}",arg.Source, arg.Message);
+                break;
+            case LogSeverity.Debug:
+                _logger.LogDebug(arg.Exception, "{Source}: {Message}",arg.Source, arg.Message);
+                break;
+            case LogSeverity.Verbose:
+                _logger.LogTrace(arg.Exception, "{Source}: {Message}",arg.Source, arg.Message);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
 
         return Task.CompletedTask;
     }
