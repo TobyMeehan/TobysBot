@@ -51,7 +51,7 @@ public class LavalinkHostedService : IHostedService, IDiscordReadyEventListener
 
             foreach (var listener in _audioEventListeners)
             {
-                await listener.OnTrackException(track, textChannel, args.ErrorMessage);
+                await listener.OnTrackException(track, textChannel, args.Exception.Message);
             }
         };
 
