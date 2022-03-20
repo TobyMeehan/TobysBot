@@ -413,7 +413,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                     return;
                 }
                 
-                if (queue.Count() == 1 && queue.CurrentTrack is not null)
+                if (queue.CurrentTrack is not null && !queue.Next().Any())
                 {
                     await _node.SetLoopAsync(Context.Guild, new TrackLoopSetting());
                     await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildLoopTrackEmbed());
