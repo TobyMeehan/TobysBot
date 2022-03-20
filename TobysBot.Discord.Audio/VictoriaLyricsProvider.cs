@@ -45,6 +45,13 @@ public class GeniusLyricsProvider : ILyricsProvider
     {
         var (artist, title) = GetArtistAndTitle(track);
         
-        return await LyricsResolver.SearchGeniusAsync(artist, title);
+        string ly = await LyricsResolver.SearchGeniusAsync(artist, title);
+
+        if (string.IsNullOrWhiteSpace(ly))
+        {
+            ly = await LyricsResolver.SearchOvhAsync(artist, title);
+        }
+
+        return ly;
     }
 }
