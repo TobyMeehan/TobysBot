@@ -13,6 +13,7 @@ namespace TobysBot.Discord.Audio.MemoryQueue
         private List<MemoryTrack> _played = new();
         private List<MemoryTrack> _queue = new();
         private MemoryTrack _currentTrack;
+        private TimeSpan _currentPosition = TimeSpan.Zero;
 
         public IEnumerable<ITrack> Previous()
         {
@@ -24,12 +25,17 @@ namespace TobysBot.Discord.Audio.MemoryQueue
             return _queue;
         }
 
-        public ITrack CurrentTrack => _currentTrack;
+        public IActiveTrack CurrentTrack => new MemoryActiveTrack(_currentTrack, _currentPosition);
 
         public LoopSetting LoopEnabled { get; set; } = new DisabledLoopSetting();
 
         public ShuffleSetting ShuffleEnabled { get; set; } = new DisabledShuffleSetting();
 
+        public void Progress(TimeSpan position)
+        {
+            _currentPosition = position;
+        }
+        
         public ITrack Advance(int index)
         {
             if (index != -1)

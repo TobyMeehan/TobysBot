@@ -19,3 +19,13 @@ public class MemoryTrack : ITrack
     public TimeSpan Duration { get; }
     public string Author { get; }
 }
+
+public class MemoryActiveTrack : MemoryTrack, IActiveTrack
+{
+    public MemoryActiveTrack(ITrack track, TimeSpan position) : base(track)
+    {
+        Position = position;
+    }
+
+    public TimeSpan Position { get; }
+}
