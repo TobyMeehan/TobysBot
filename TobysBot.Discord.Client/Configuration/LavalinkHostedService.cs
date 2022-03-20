@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -81,18 +82,29 @@ public class LavalinkHostedService : IHostedService, IDiscordReadyEventListener
 
     private Task NodeOnLog(LogMessage arg)
     {
-        LogLevel level = arg.Severity switch
+        switch (arg.Severity)
         {
-            LogSeverity.Critical => LogLevel.Critical,
-            LogSeverity.Debug => LogLevel.Debug,
-            LogSeverity.Error => LogLevel.Error,
-            LogSeverity.Info => LogLevel.Information,
-            LogSeverity.Verbose => LogLevel.Trace,
-            LogSeverity.Warning => LogLevel.Warning,
-            _ => LogLevel.None
-        };
-        
-        _logger.Log(level, arg.Exception, "{Message}", arg.Message);
+            case LogSeverity.Info:
+                _logger.LogInformation(arg.Exception, "{Source}: {Message}", arg.Source, arg.Message);
+                break;
+            case LogSeverity.Error:
+                _logger.LogError(arg.Exception, "{Source}: {Message}",arg.Source, arg.Message);
+                break;
+            case LogSeverity.Critical:
+                _logger.LogCritical(arg.Exception, "{Source}: {Message}",arg.Source, arg.Message);
+                break;
+            case LogSeverity.Warning:
+                _logger.LogWarning(arg.Exception, "{Source}: {Message}",arg.Source, arg.Message);
+                break;
+            case LogSeverity.Debug:
+                _logger.LogDebug(arg.Exception, "{Source}: {Message}",arg.Source, arg.Message);
+                break;
+            case LogSeverity.Verbose:
+                _logger.LogTrace(arg.Exception, "{Source}: {Message}",arg.Source, arg.Message);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
 
         return Task.CompletedTask;
     }
