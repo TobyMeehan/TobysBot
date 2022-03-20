@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using TobysBot.Discord.Audio.Extensions;
 using Victoria;
 using Victoria.Enums;
@@ -16,12 +17,14 @@ namespace TobysBot.Discord.Audio.Lavalink
     {
         private readonly LavaNode<XLavaPlayer> _node;
         private readonly IQueue _queue;
+        private readonly ILogger<LavalinkAudioNode> _logger;
 
-        public LavalinkAudioNode(LavaNode<XLavaPlayer> node, IQueue queue)
+        public LavalinkAudioNode(LavaNode<XLavaPlayer> node, IQueue queue, ILogger<LavalinkAudioNode> logger)
         {
             _node = node;
             _queue = queue;
-            
+            _logger = logger;
+
             _node.OnTrackEnded += NodeOnTrackEnded;
             _node.OnTrackException += NodeOnTrackException;
             _node.OnTrackStuck += NodeOnTrackStuck;
@@ -36,18 +39,28 @@ namespace TobysBot.Discord.Audio.Lavalink
 
         private async Task NodeOnPlayerUpdated(PlayerUpdateEventArgs arg)
         {
-            await _queue.ProgressAsync(arg.Player.VoiceChannel.GuildId, arg.Position);
+            if (arg.Position.HasValue)
+            {
+                await _queue.ProgressAsync(arg.Player.VoiceChannel.GuildId, arg.Position.Value);
+            }
         }
 
         private async Task NodeOnTrackStuck(TrackStuckEventArgs arg)
         {
-            Console.WriteLine("Track stuck!");
+            _logger.LogError("Track {Track} stuck. \n" +
+                             "\tPlayer Guild: {Player} \n" +
+                             "\tAt Threshold: {Threshold}",
+                arg.Track.Title, arg.Player.VoiceChannel.GuildId, arg.Threshold);
+            
             await arg.Player.PlayAsync(arg.Track);
         }
 
         private async Task NodeOnTrackException(TrackExceptionEventArgs arg)
         {
-            Console.WriteLine(arg.ErrorMessage);
+            _logger.LogError("Exception thrown in track: {Track} \n" +
+                             "\tPlayer Guild: {Player} \n" +
+                             "\tException: {Message}",
+                arg.Track.Title, arg.Player.VoiceChannel.GuildId, arg.Exception);
 
             var queue = await GetQueueAsync(arg.Player.VoiceChannel.Guild);
             
