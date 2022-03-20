@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,14 +9,14 @@ namespace TobysBot.Discord.Audio.MemoryQueue
 {
     public class MemoryQueue : IQueue
     {
-        private readonly Dictionary<IGuild, MemoryTrackCollection> _queue = new();
+        private readonly ConcurrentDictionary<ulong, MemoryTrackCollection> _queue = new();
 
-        public Task EnqueueAsync(IGuild guild, IEnumerable<ITrack> tracks, bool advanceToTracks = false)
+        public Task EnqueueAsync(ulong guild, IEnumerable<ITrack> tracks, bool advanceToTracks = false)
         {
             if (!_queue.TryGetValue(guild, out var queue))
             {
                 queue = new MemoryTrackCollection();
-                _queue.Add(guild, queue);
+                _queue[guild] = queue;
             }
             
             queue.AddRange(tracks, advanceToTracks);
@@ -22,7 +24,7 @@ namespace TobysBot.Discord.Audio.MemoryQueue
             return Task.CompletedTask;
         }
 
-        public Task<IQueueStatus> GetAsync(IGuild guild)
+        public Task<IQueueStatus> GetAsync(ulong guild)
         {
             if (!_queue.TryGetValue(guild, out var queue))
             {
@@ -32,24 +34,39 @@ namespace TobysBot.Discord.Audio.MemoryQueue
             return Task.FromResult<IQueueStatus>(queue);
         }
 
-        public Task<ITrack> AdvanceAsync(IGuild guild, int index = 0)
+        public Task<ITrack> AdvanceAsync(ulong guild, int index = 0)
         {
             if (!_queue.TryGetValue(guild, out var queue))
             {
-                return null;
+                return Task.FromResult<ITrack>(null);
             }
             
             return Task.FromResult<ITrack>(queue.Advance(index-1));
         }
 
-        public Task ClearAsync(IGuild guild)
+        public Task ProgressAsync(ulong guild, TimeSpan position)
         {
-            _queue.Remove(guild);
+            if (!_queue.TryGetValue(guild, out var queue))
+            {
+                return Task.CompletedTask;
+            }
+            
+            queue.Progress(position);
+            
+            return Task.CompletedTask;
+        }
+
+        public Task ClearAsync(ulong guild)
+        {
+            if (!_queue.TryRemove(guild, out var value))
+            {
+                return Task.FromException(new Exception("Failed to clear queue."));
+            }
 
             return Task.CompletedTask;
         }
 
-        public Task ResetAsync(IGuild guild)
+        public Task ResetAsync(ulong guild)
         {
             if (!_queue.TryGetValue(guild, out var queue))
             {
@@ -61,7 +78,7 @@ namespace TobysBot.Discord.Audio.MemoryQueue
             return Task.CompletedTask;
         }
 
-        public Task SetLoopAsync(IGuild guild, LoopSetting setting)
+        public Task SetLoopAsync(ulong guild, LoopSetting setting)
         {
             if (!_queue.TryGetValue(guild, out var queue))
             {
@@ -73,7 +90,7 @@ namespace TobysBot.Discord.Audio.MemoryQueue
             return Task.CompletedTask;
         }
 
-        public Task SetShuffleAsync(IGuild guild, ShuffleSetting setting)
+        public Task SetShuffleAsync(ulong guild, ShuffleSetting setting)
         {
             if (!_queue.TryGetValue(guild, out var queue))
             {
@@ -85,7 +102,7 @@ namespace TobysBot.Discord.Audio.MemoryQueue
             return Task.CompletedTask;
         }
 
-        public Task ShuffleAsync(IGuild guild)
+        public Task ShuffleAsync(ulong guild)
         {
             if (!_queue.TryGetValue(guild, out var queue))
             {
