@@ -64,7 +64,7 @@ public static class EmbedExtensions
                           $"`{current.Position.ToTimeString()}`/`{current.Duration.ToTimeString()}`");
         }
         
-        while (sb.Length < 1900)
+        while (sb.Length < 1900 && i < Math.Max(previous.Count, next.Count))
         {
             if (previous.ElementAtOrDefault(i) is not null)
             {
