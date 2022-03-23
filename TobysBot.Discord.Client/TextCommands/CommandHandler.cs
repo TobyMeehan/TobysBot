@@ -1,6 +1,8 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
@@ -36,6 +38,12 @@ namespace TobysBot.Discord.Client.TextCommands
                 return;
             }
 
+            if (!message.Embeds.Any())
+            {
+                await message.ReplyAsync(
+                    "https://tenor.com/view/epic-embed-fail-gus-fring-breaking-bad-gustavo-embed-fail-gif-21161041");
+            }
+            
             int argPos = 0;
 
             if (!(message.HasStringPrefix(_config.GetSection("Discord")["Prefix"], ref argPos) ||
