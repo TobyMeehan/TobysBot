@@ -68,6 +68,11 @@ public class HelpModule : ModuleBase<SocketCommandContext>
 
         foreach (var command in moduleInfo.Commands)
         {
+            if (command.Attributes.OfType<HideInHelpAttribute>().Any())
+            {
+                continue;
+            }
+            
             var sb = new StringBuilder();
 
             sb.Append($"\\{command.Aliases[0]}");
