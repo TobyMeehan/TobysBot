@@ -1,10 +1,45 @@
 ﻿@page
+@using global::Discord
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Toby's Bot";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    
+    @switch (Model.ConnectionState)
+    {
+        case ConnectionState.Disconnected:
+            <h1 class="display-4">
+                <span class="circle" style="background-color: red"></span>
+                Offline
+            </h1>
+            
+            break;
+        case ConnectionState.Connecting:
+            <h1 class="display-4">
+                <span class="circle" style="background-color: orange"></span>
+                Connecting
+            </h1>
+            
+            break;
+        case ConnectionState.Connected:
+            <h1 class="display-4">
+                <span class="circle" style="background-color: green"></span>
+                Online
+            </h1>
+            
+            <p>Toby's bot is online!</p>
+            
+            break;
+        case ConnectionState.Disconnecting:
+            <h1 class="display-4">
+                <span class="circle" style="background-color: orange"></span>
+                Disconnecting
+            </h1>
+            
+            break;
+        default:
+            throw new ArgumentOutOfRangeException();
+    }
 </div>
