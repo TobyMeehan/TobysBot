@@ -58,7 +58,9 @@ namespace TobysBot.Discord.Audio.Lavalink
                     case "audio/wav":
                     case "audio/ogg":
                     case "video/mp4":
+                    case "audio/m4a":
                     case "video/x-ms-wmv":
+                    case "video/x-matroska":
 
                         var track = new LavalinkTrack(await _node.LoadTrackAsync(attachment.Url));
                         playlist.Add(track);

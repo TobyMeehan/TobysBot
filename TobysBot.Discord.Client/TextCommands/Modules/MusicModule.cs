@@ -69,7 +69,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Summary("Add the track to the queue or resume playback.")]
         public async Task PlayAsync([Remainder] string query = null)
         {
-            if (!await EnsureUserInVoiceAsync())
+            if (!await EnsureUserInVoiceAsync(false))
             {
                 return;
             }
@@ -112,6 +112,8 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
 
         private async Task EnqueueAsync(IPlayable playable, string query)
         {
+            await JoinAsync();
+            
             if (playable is null)
             {
                 if (query is not null)
