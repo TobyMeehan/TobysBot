@@ -27,6 +27,8 @@ namespace TobysBot.Discord
         {
             services.AddRazorPages();
 
+            services.AddHttpClient();
+
             var lavalinkConfig = Configuration.GetSection("Lavalink");
 
             services.AddDiscordClient(options =>

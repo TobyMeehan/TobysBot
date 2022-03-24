@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -17,6 +21,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         private readonly IAudioNode _node;
         private readonly IAudioSource _source;
         private readonly ILyricsProvider _lyrics;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         private IEmote LoopEmote => new Emoji("🔁");
         private IEmote PauseEmote => new Emoji("⏸");
@@ -27,11 +32,12 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         private IEmote ShuffleEmote => new Emoji("🔀");
         private IEmote SkipEmote => new Emoji("⏭");
         
-        public MusicModule(IAudioNode node, IAudioSource source, ILyricsProvider lyrics) : base(node)
+        public MusicModule(IAudioNode node, IAudioSource source, ILyricsProvider lyrics, IHttpClientFactory httpClientFactory) : base(node)
         {
             _node = node;
             _source = source;
             _lyrics = lyrics;
+            _httpClientFactory = httpClientFactory;
         }
 
         // Voice Channel
@@ -63,18 +69,26 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Summary("Add the track to the queue or resume playback.")]
         public async Task PlayAsync([Remainder] string query = null)
         {
-            using var typing = Context.Channel.EnterTypingState();
-            
-            if (query is null)
-            {
-                await ResumeAsync();
-                return;
-            }
-            
             if (!await EnsureUserInVoiceAsync())
             {
                 return;
             }
+            
+            if (query is null)
+            {
+                if (!Context.Message.Attachments.Any())
+                {
+                    await ResumeAsync();
+                    return;
+                }
+
+                var attachments = await _source.LoadAttachmentsAsync(Context.Message);
+
+                await EnqueueAsync(attachments, null);
+                return;
+            }
+
+            using var typing = Context.Channel.EnterTypingState();
 
             IPlayable result;
             
@@ -93,9 +107,18 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return;
             }
 
-            if (result is null)
+            await EnqueueAsync(result, query);
+        }
+
+        private async Task EnqueueAsync(IPlayable playable, string query)
+        {
+            if (playable is null)
             {
-                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildTrackNotFoundEmbed(query));
+                if (query is not null)
+                {
+                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildTrackNotFoundEmbed(query));
+                }
+                
                 return;
             }
 
@@ -103,7 +126,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             
             try
             {
-                track = await _node.EnqueueAsync(result, Context.Guild);
+                track = await _node.EnqueueAsync(playable, Context.Guild);
             }
             catch (Exception ex)
             {
@@ -116,7 +139,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return;
             }
 
-            if (result is IPlaylist playlist)
+            if (playable is IPlaylist playlist)
             {
                 if (track.Url != playlist.First().Url)
                 {
@@ -130,9 +153,9 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return;
             }
 
-            if (track.Url != result.Url)
+            if (track.Url != playable.Url)
             {
-                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildQueueTrackEmbed(result as ITrack));
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildQueueTrackEmbed(playable as ITrack));
                 return;
             }
 
