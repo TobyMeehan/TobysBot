@@ -37,12 +37,6 @@ namespace TobysBot.Discord.Client.TextCommands
             {
                 return;
             }
-
-            if (!message.Embeds.Any())
-            {
-                await message.ReplyAsync(
-                    "https://tenor.com/view/epic-embed-fail-gus-fring-breaking-bad-gustavo-embed-fail-gif-21161041");
-            }
             
             int argPos = 0;
 
