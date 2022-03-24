@@ -10,6 +10,8 @@ using TobysBot.Discord.Client.TextCommands.Extensions.Music;
 
 namespace TobysBot.Discord.Client.TextCommands.Modules
 {
+    [Name("Music")]
+    [HelpCategory("music")]
     public class MusicModule : VoiceModuleBase
     {
         private readonly IAudioNode _node;
@@ -33,6 +35,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         // Voice Channel
         
         [Command("join", RunMode = RunMode.Async)]
+        [Summary("Join the voice channel.")]
         public async Task JoinAsync()
         {
             await EnsureUserInVoiceAsync();
@@ -40,6 +43,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
 
         [Command("leave", RunMode = RunMode.Async)]
         [Alias("disconnect", "fuckoff")]
+        [Summary("Leave the voice channel.")]
         public async Task LeaveAsync()
         {
             if (!await EnsureUserInSameVoiceAsync())
@@ -53,6 +57,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         // Player
         [Command("play", RunMode = RunMode.Async)]
         [Alias("p")]
+        [Summary("Add the track to the queue or resume playback.")]
         public async Task PlayAsync([Remainder] string query = null)
         {
             using var typing = Context.Channel.EnterTypingState();
@@ -151,6 +156,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         }
 
         [Command("pause")]
+        [Summary("Pause the player.")]
         public async Task PauseAsync()
         {
             if (!await EnsureUserInSameVoiceAsync())
@@ -171,6 +177,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         }
 
         [Command("seek")]
+        [Summary("Go to the position in the current track.")]
         public async Task SeekAsync(string position)
         {
             if (!await EnsureUserInSameVoiceAsync())
@@ -355,6 +362,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         }
 
         [Command("stop")]
+        [Summary("Stop playback and return to the start of the queue.")]
         public async Task StopAsync()
         {
             if (!await EnsureUserInVoiceAsync())
@@ -368,6 +376,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         }
 
         [Command("clear")]
+        [Summary("Clear the queue.")]
         public async Task ClearAsync()
         {
             if (!await EnsureUserInSameVoiceAsync())
@@ -480,6 +489,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         }
 
         [Command("np")]
+        [Summary("Display the currently playing track.")]
         public async Task NowPlayingAsync()
         {
             if (!await EnsureUserInSameVoiceAsync())
@@ -501,6 +511,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
 
         [Command("queue")]
         [Alias("q")]
+        [Summary("Display the queue.")]
         public async Task QueueAsync()
         {
             if (!await EnsureUserInSameVoiceAsync())
@@ -524,6 +535,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
 
         [Command("lyrics", RunMode = RunMode.Async)]
         [Alias("ly")]
+        [Summary("Find lyrics for the currently playing track.")]
         public async Task LyricsAsync()
         {
             using var typing = Context.Channel.EnterTypingState();
