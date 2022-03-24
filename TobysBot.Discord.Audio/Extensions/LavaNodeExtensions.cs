@@ -10,7 +10,12 @@ public static class LavaNodeExtensions
 {
     public static async Task<LavaTrack> LoadTrackAsync<T>(this LavaNode<T> node, ITrack track) where T : LavaPlayer
     {
-        var search = await node.SearchAsync(SearchType.Direct, track.Url);
+        return await node.LoadTrackAsync(track.Url);
+    }
+
+    public static async Task<LavaTrack> LoadTrackAsync<T>(this LavaNode<T> node, string url) where T : LavaPlayer
+    {
+        var search = await node.SearchAsync(SearchType.Direct, url);
 
         if (search.Status != SearchStatus.TrackLoaded)
         {

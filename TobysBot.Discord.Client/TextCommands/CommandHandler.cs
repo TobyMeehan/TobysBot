@@ -6,6 +6,8 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using TobysBot.Discord.Client.Configuration;
 
 namespace TobysBot.Discord.Client.TextCommands
 {
@@ -13,15 +15,15 @@ namespace TobysBot.Discord.Client.TextCommands
     {
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
-        private readonly IConfiguration _config;
         private readonly IServiceProvider _serviceProvider;
+        private readonly DiscordClientOptions _options;
 
-        public CommandHandler(DiscordSocketClient client, CommandService commands, IConfiguration config, IServiceProvider serviceProvider)
+        public CommandHandler(DiscordSocketClient client, CommandService commands, IServiceProvider serviceProvider, IOptions<DiscordClientOptions> options)
         {
             _client = client;
             _commands = commands;
-            _config = config;
             _serviceProvider = serviceProvider;
+            _options = options.Value;
         }
 
         public async Task InstallCommandsAsync()
@@ -40,7 +42,7 @@ namespace TobysBot.Discord.Client.TextCommands
             
             int argPos = 0;
 
-            if (!(message.HasStringPrefix(_config.GetSection("Discord")["Prefix"], ref argPos) ||
+            if (!(message.HasStringPrefix(_options.Prefix, ref argPos) ||
                   message.HasMentionPrefix(_client.CurrentUser, ref argPos)) ||
                 message.Author.IsBot)
             {

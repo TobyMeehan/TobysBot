@@ -31,7 +31,7 @@ public abstract class VoiceModuleBase : ModuleBase<SocketCommandContext>
         return voiceState.VoiceChannel.Id == Context.Guild.CurrentUser.VoiceChannel?.Id;
     }
 
-    protected async Task<bool> EnsureUserInVoiceAsync()
+    protected async Task<bool> EnsureUserInVoiceAsync(bool joinVc = true)
     {
         if (!IsUserInVoiceChannel(out IVoiceState voiceState))
         {
@@ -39,7 +39,10 @@ public abstract class VoiceModuleBase : ModuleBase<SocketCommandContext>
             return false;
         }
 
-        await _node.JoinAsync(voiceState.VoiceChannel, Context.Channel as ITextChannel);
+        if (joinVc)
+        {
+            await _node.JoinAsync(voiceState.VoiceChannel, Context.Channel as ITextChannel);
+        }
 
         return true;
     }

@@ -27,11 +27,14 @@ namespace TobysBot.Discord
         {
             services.AddRazorPages();
 
+            services.AddHttpClient();
+
             var lavalinkConfig = Configuration.GetSection("Lavalink");
 
             services.AddDiscordClient(options =>
                 {
                     options.Token = Configuration.GetSection("Discord")["Token"];
+                    options.Prefix = Configuration.GetSection("Discord")["Prefix"];
                 })
                 .AddLavaNode(options =>
                 {

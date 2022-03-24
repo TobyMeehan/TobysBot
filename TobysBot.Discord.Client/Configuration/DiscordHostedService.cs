@@ -72,6 +72,8 @@ public class DiscordHostedService : IHostedService
 
     private async Task ClientReadyAsync()
     {
+        await _client.SetActivityAsync(new Game(_options.Prefix, ActivityType.Listening));
+        
         foreach (var listener in _readyEventListeners)
         {
             await listener.OnDiscordReady();
