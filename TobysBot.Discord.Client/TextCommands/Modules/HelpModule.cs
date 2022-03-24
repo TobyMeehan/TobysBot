@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using TobysBot.Discord.Client.Extensions;
 using TobysBot.Discord.Client.TextCommands.Extensions;
 
 namespace TobysBot.Discord.Client.TextCommands.Modules;
@@ -72,28 +73,10 @@ public class HelpModule : ModuleBase<SocketCommandContext>
             {
                 continue;
             }
-            
-            var sb = new StringBuilder();
 
-            sb.Append($"\\{command.Aliases[0]}");
-
-            foreach (var param in command.Parameters)
-            {
-                sb.Append(" [");
-                    
-                sb.Append(param.Name);
-
-                if (param.IsOptional)
-                {
-                    sb.Append('?');
-                }
-
-                sb.Append(']');
-            }
-            
             embed.AddField(field =>
             {
-                field.Name = sb.ToString();
+                field.Name = command.ToHelpString();
                 field.Value = command.Summary;
             });
         }
