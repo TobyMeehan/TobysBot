@@ -35,6 +35,7 @@ namespace TobysBot.Discord
                 {
                     options.Token = Configuration.GetSection("Discord")["Token"];
                     options.Prefix = Configuration.GetSection("Discord")["Prefix"];
+                    options.TobyId = Configuration.GetSection("Discord").GetValue<ulong>("TobyId");
                 })
                 .AddLavaNode(options =>
                 {
