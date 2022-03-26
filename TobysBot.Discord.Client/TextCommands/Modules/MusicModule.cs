@@ -10,7 +10,6 @@ using Discord;
 using Discord.Commands;
 using TobysBot.Discord.Audio;
 using TobysBot.Discord.Client.TextCommands.Extensions;
-using TobysBot.Discord.Client.TextCommands.Extensions.Music;
 
 namespace TobysBot.Discord.Client.TextCommands.Modules
 {

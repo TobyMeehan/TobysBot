@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Discord;
 using TobysBot.Discord.Audio;
-using TobysBot.Discord.Client.TextCommands.Extensions.Music;
+using TobysBot.Discord.Client.TextCommands.Extensions;
 
 namespace TobysBot.Discord.Client.Configuration;
 

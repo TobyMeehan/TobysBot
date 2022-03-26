@@ -2,7 +2,7 @@ using Discord;
 
 namespace TobysBot.Discord.Client.TextCommands.Extensions;
 
-public static class EmbedExtensions
+public static partial class EmbedExtensions
 {
     public static EmbedBuilder WithColorRed(this EmbedBuilder embed)
     {
