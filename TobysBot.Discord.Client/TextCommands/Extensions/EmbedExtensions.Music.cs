@@ -6,9 +6,9 @@ using Discord;
 using TobysBot.Discord.Audio;
 using TobysBot.Discord.Client.Extensions;
 
-namespace TobysBot.Discord.Client.TextCommands.Extensions.Music;
+namespace TobysBot.Discord.Client.TextCommands.Extensions;
 
-public static class EmbedExtensions
+public static partial class EmbedExtensions
 {
     private static string GetProgress(TimeSpan position, TimeSpan duration)
     {
@@ -43,52 +43,56 @@ public static class EmbedExtensions
     
     public static Embed BuildQueueEmbed(this EmbedBuilder embed, IQueueStatus queue, ITrackStatus trackStatus)
     {
-        var previous = queue.Previous().Reverse().ToList();
-        var next = queue.Next().ToList();
+        var previous = new Queue<ITrack>(queue.Previous().Reverse());
+        var next = new Queue<ITrack>(queue.Next());
         var current = trackStatus?.CurrentTrack;
+        
         var sb = new StringBuilder();
-        var i = 0;
-        var totalInQueue = previous.Count + next.Count;
-        var elementsAdded = 1;
 
+        var currentPosition = previous.Count;
+        
         if (trackStatus is null)
         {
             sb.AppendLine("**--** No track playing.");
         }
         else
         {
-            sb.AppendLine($"**{previous.Count + 1}. " +
+            sb.AppendLine($"**{currentPosition + 1}. " +
                           $"({(trackStatus is PausedStatus ? "⏸" : "▶")}" +
                           $"{(queue.LoopEnabled is TrackLoopSetting ? " 🔂": "")})** " +
                           $"[{current.Title}]({current.Url}) " +
                           $"`{current.Position.ToTimeString()}`/`{current.Duration.ToTimeString()}`");
         }
         
-        while (sb.Length < 1900 && i < Math.Max(previous.Count, next.Count))
+        var i = 0;
+        
+        while (sb.Length < 1900 && (previous.Any() || next.Any()))
         {
-            if (previous.ElementAtOrDefault(i) is not null)
+            if (previous.TryDequeue(out var previousTrack))
             {
-                sb.PrependLine($"**{previous.Count - i}.** [{previous[i].Title}]({previous[i].Url})" +
-                              $" `{previous[i].Duration.ToTimeString()}`");
-
-                elementsAdded++;
+                sb.PrependLine($"**{currentPosition - i}.** [{previousTrack.Title}]({previousTrack.Url})" +
+                              $" `{previousTrack.Duration.ToTimeString()}`");
             }
             
-            if (next.ElementAtOrDefault(i) is not null)
+            if (next.TryDequeue(out var nextTrack))
             {
-                sb.AppendLine($"**{previous.Count + i + 2}.** [{next[i].Title}]({next[i].Url})" +
-                              $" `{next[i].Duration.ToTimeString()}`");
-
-                elementsAdded++;
+                sb.AppendLine($"**{currentPosition + i + 2}.** [{nextTrack.Title}]({nextTrack.Url})" +
+                              $" `{nextTrack.Duration.ToTimeString()}`");
             }
 
             i++;
         }
 
-        if (elementsAdded < totalInQueue)
+        if (previous.Any())
+        {
+            sb.PrependLine();
+            sb.PrependLine($"`{previous.Count} previous tracks.`");
+        }
+
+        if (next.Any())
         {
             sb.AppendLine();
-            sb.AppendLine($"`{totalInQueue - elementsAdded + 1} other tracks in queue.`");
+            sb.AppendLine($"`{next.Count} more tracks.`");
         }
 
         switch (queue.LoopEnabled)
