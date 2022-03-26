@@ -15,6 +15,7 @@ using TobysBot.Discord.Client.Configuration;
 namespace TobysBot.Discord.Client.TextCommands.Modules;
 
 [HelpCategory("classic")]
+[Name("Classic")]
 public class ClassicModule : ModuleBase<SocketCommandContext>
 {
     private readonly IHttpClientFactory _httpClientFactory;
