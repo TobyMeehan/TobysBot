@@ -220,7 +220,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return;
             }
 
-            string[] formats = {@"hh\:mm\:ss", @"mm\:ss"};
+            string[] formats = {@"%h\:%m\:%s", @"%m\:%s"};
             
             if (!TimeSpan.TryParseExact(position, formats, null, TimeSpanStyles.None, out var timeSpan))
             {
