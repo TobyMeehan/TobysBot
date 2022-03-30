@@ -515,19 +515,15 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Summary("Display the currently playing track.")]
         public async Task NowPlayingAsync()
         {
-            if (!await EnsureUserInSameVoiceAsync())
-            {
-                return;
-            }
-
             var status = _node.Status(Context.Guild);
-            var queue = await _node.GetQueueAsync(Context.Guild);
 
             if (status is not ITrackStatus trackStatus)
             {
                 await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
                 return;
             }
+            
+            var queue = await _node.GetQueueAsync(Context.Guild);
 
             await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildTrackStatusEmbed(trackStatus, queue));
         }
@@ -537,11 +533,6 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Summary("Display the queue.")]
         public async Task QueueAsync()
         {
-            if (!await EnsureUserInSameVoiceAsync())
-            {
-                return;
-            }
-
             var status = _node.Status(Context.Guild);
             var queue = await _node.GetQueueAsync(Context.Guild);
 
