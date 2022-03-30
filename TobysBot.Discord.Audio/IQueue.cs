@@ -27,8 +27,24 @@ namespace TobysBot.Discord.Audio
         /// Advances to the next track in the queue and returns the current track.
         /// </summary>
         /// <param name="guildId"></param>
+        /// <param name="ignoreTrackLoop"></param>
         /// <returns></returns>
-        Task<ITrack> AdvanceAsync(ulong guildId, int index = 0);
+        Task<ITrack> AdvanceAsync(ulong guildId, bool ignoreTrackLoop = false);
+
+        /// <summary>
+        /// Advances to the specified track and returns the current track.
+        /// </summary>
+        /// <param name="guild"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        Task<ITrack> JumpAsync(ulong guild, int index);
+
+        /// <summary>
+        /// Advances to the previous track in the queue.
+        /// </summary>
+        /// <param name="guild"></param>
+        /// <returns></returns>
+        Task<ITrack> BackAsync(ulong guild);
 
         Task ProgressAsync(ulong guildId, TimeSpan position);
 

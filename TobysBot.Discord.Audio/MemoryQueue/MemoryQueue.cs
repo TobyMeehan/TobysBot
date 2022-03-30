@@ -33,15 +33,35 @@ namespace TobysBot.Discord.Audio.MemoryQueue
 
             return Task.FromResult<IQueueStatus>(queue);
         }
+        
+        public Task<ITrack> AdvanceAsync(ulong guild, bool ignoreTrackLoop = false)
+        {
+            if (!_queue.TryGetValue(guild, out var queue))
+            {
+                return Task.FromResult<ITrack>(null);
+            }
 
-        public Task<ITrack> AdvanceAsync(ulong guild, int index = 0)
+            return Task.FromResult(queue.Advance(ignoreTrackLoop));
+        }
+
+        public Task<ITrack> JumpAsync(ulong guild, int index)
         {
             if (!_queue.TryGetValue(guild, out var queue))
             {
                 return Task.FromResult<ITrack>(null);
             }
             
-            return Task.FromResult<ITrack>(queue.Advance(index-1));
+            return Task.FromResult(queue.Jump(index-1));
+        }
+
+        public Task<ITrack> BackAsync(ulong guild)
+        {
+            if (!_queue.TryGetValue(guild, out var queue))
+            {
+                return Task.FromResult<ITrack>(null);
+            }
+
+            return Task.FromResult(queue.Back());
         }
 
         public Task ProgressAsync(ulong guild, TimeSpan position)

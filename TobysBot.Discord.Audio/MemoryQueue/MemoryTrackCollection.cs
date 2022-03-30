@@ -35,28 +35,41 @@ namespace TobysBot.Discord.Audio.MemoryQueue
         {
             _currentPosition = position;
         }
-        
-        public ITrack Advance(int index)
+
+        public ITrack Jump(int index)
         {
-            if (index != -1)
+            if (index < 0 && index >= _tracks.Count)
             {
-                if (index < 0 && index >= _tracks.Count)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(index));
-                }
-                
-                var previous = _tracks.Take(index);
-                var current = _tracks[index];
-                var next = _tracks.Skip(index + 1);
-
-                _played = previous.ToList();
-                _currentTrack = current;
-                _queue = next.ToList();
-
-                return _currentTrack;
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
-            
-            if (LoopEnabled is TrackLoopSetting)
+                
+            var previous = _tracks.Take(index);
+            var current = _tracks[index];
+            var next = _tracks.Skip(index + 1);
+
+            _played = previous.ToList();
+            _currentTrack = current;
+            _queue = next.ToList();
+
+            return _currentTrack;
+        }
+
+        public ITrack Back()
+        {
+            var previous = _played.SkipLast(1);
+            var current = _played.Last();
+            var next = _queue.Prepend(_currentTrack);
+
+            _played = previous.ToList();
+            _currentTrack = current;
+            _queue = next.ToList();
+
+            return _currentTrack;
+        }
+        
+        public ITrack Advance(bool ignoreTrackLoop)
+        {
+            if (!ignoreTrackLoop && LoopEnabled is TrackLoopSetting)
             {
                 return _currentTrack;
             }
