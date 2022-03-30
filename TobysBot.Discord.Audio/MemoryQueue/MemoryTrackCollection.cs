@@ -5,30 +5,22 @@ using System.Linq;
 
 namespace TobysBot.Discord.Audio.MemoryQueue
 {
-    public class MemoryTrackCollection : IQueueStatus
+    public class MemoryTrackCollection : IEnumerable<ITrack>
     {
         private readonly Random _rng = new();
+
+        private int _currentIndex = 0;
+        private List<MemoryTrack> _tracks = new();
+
+        public IEnumerable<MemoryTrack> Played => _tracks.Take(_currentIndex);
+        public IEnumerable<MemoryTrack> Queue => _tracks.Skip(_currentIndex + 1);
+
+        public MemoryActiveTrack CurrentTrack => new(_tracks.ElementAtOrDefault(_currentIndex), _currentPosition);
         
-        private List<MemoryTrack> _tracks => _played.Append(_currentTrack).Concat(_queue).ToList();
-        private List<MemoryTrack> _played = new();
-        private List<MemoryTrack> _queue = new();
-        private MemoryTrack _currentTrack;
+
         private TimeSpan _currentPosition = TimeSpan.Zero;
 
-        public IEnumerable<ITrack> Previous()
-        {
-            return _played;
-        }
-
-        public IEnumerable<ITrack> Next()
-        {
-            return _queue;
-        }
-
-        public IActiveTrack CurrentTrack => new MemoryActiveTrack(_currentTrack, _currentPosition);
-
         public LoopSetting LoopEnabled { get; set; } = new DisabledLoopSetting();
-
         public ShuffleSetting ShuffleEnabled { get; set; } = new DisabledShuffleSetting();
 
         public void Progress(TimeSpan position)
@@ -40,111 +32,86 @@ namespace TobysBot.Discord.Audio.MemoryQueue
         {
             if (index < 0 && index >= _tracks.Count)
             {
-                throw new ArgumentOutOfRangeException(nameof(index));
+                throw new IndexOutOfRangeException();
             }
-                
-            var previous = _tracks.Take(index);
-            var current = _tracks[index];
-            var next = _tracks.Skip(index + 1);
 
-            _played = previous.ToList();
-            _currentTrack = current;
-            _queue = next.ToList();
+            _currentIndex = index;
 
-            return _currentTrack;
+            return CurrentTrack;
         }
 
         public ITrack Back()
         {
-            var previous = _played.SkipLast(1);
-            var current = _played.Last();
-            var next = _queue.Prepend(_currentTrack);
+            _currentIndex--;
 
-            _played = previous.ToList();
-            _currentTrack = current;
-            _queue = next.ToList();
-
-            return _currentTrack;
+            return CurrentTrack;
         }
         
         public ITrack Advance(bool ignoreTrackLoop)
         {
             if (!ignoreTrackLoop && LoopEnabled is TrackLoopSetting)
             {
-                return _currentTrack;
+                return CurrentTrack;
             }
 
-            if (!_queue.Any())
+            if (!Queue.Any())
             {
                 if (LoopEnabled is QueueLoopSetting)
                 {
-                    _currentTrack = _played.First();
+                    _currentIndex = 0;
                     
-                    _queue.AddRange(_played.Skip(1));
-
-                    _played.Clear();
-                    
-                    return _currentTrack;
+                    return CurrentTrack;
                 }
-                
-                _played.Add(_currentTrack);
-                _currentTrack = null;
+
+                _currentIndex++;
                 return null;
             }
 
+            _currentIndex++;
+            
             if (ShuffleEnabled is EnabledShuffleSetting)
             {
-                int element = _rng.Next(0, _queue.Count);
-                _played.Add(_currentTrack);
-                _currentTrack = _queue[element];
-                _queue.RemoveAt(element);
+                var nextIndex = _rng.Next(_currentIndex, _tracks.Count);
+                var nextTrack = _tracks[nextIndex];
 
-                return _currentTrack;
+                _tracks.RemoveAt(nextIndex);
+                _tracks.Insert(_currentIndex, nextTrack);
             }
             
-            _played.Add(_currentTrack);
-            _currentTrack = _queue.First();
-            _queue.RemoveAt(0);
-
-            return _currentTrack;
+            return CurrentTrack;
         }
 
         public void AddRange(IEnumerable<ITrack> tracks, bool advanceToTracks = false)
         {
             if (advanceToTracks)
             {
-                _played = _tracks.ToList();
-                _currentTrack = null;
-                _queue.Clear();
+                _currentIndex = _tracks.Count;
             }
 
-            _queue.AddRange(
+            _tracks.AddRange(
                 from track in tracks
                 select new MemoryTrack(track));
-
-            if (_currentTrack is null)
-            {
-                _currentTrack = _queue.First();
-                _queue.RemoveAt(0);
-            }
         }
 
         public void Reset()
         {
-            _queue = _tracks;
-            _currentTrack = _queue.First();
-            _queue.RemoveAt(0);
+            _currentIndex = 0;
         }
 
         public void Shuffle()
         {
-            int n = _queue.Count;
+            var queue = Queue.ToList();
             
-            while (n > 1) {  
+            int n = queue.Count;
+            
+            while (n > 1) 
+            {  
                 n--;  
                 int k = _rng.Next(n + 1);
-                (_queue[k], _queue[n]) = (_queue[n], _queue[k]);
+                (queue[k], queue[n]) = (queue[n], queue[k]);
             }
+
+            _tracks = _tracks.Take(_currentIndex).Concat(queue).ToList();
         }
         
         public IEnumerator<ITrack> GetEnumerator()

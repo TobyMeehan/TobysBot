@@ -4,9 +4,9 @@ namespace TobysBot.Discord.Audio
 {
     public interface IQueueStatus : IEnumerable<ITrack>
     {
-        IEnumerable<ITrack> Previous();
+        IEnumerable<ITrack> Previous { get; }
 
-        IEnumerable<ITrack> Next();
+        IEnumerable<ITrack> Next { get; }
 
         IActiveTrack CurrentTrack { get; }
         

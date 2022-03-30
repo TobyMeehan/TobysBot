@@ -31,7 +31,7 @@ namespace TobysBot.Discord.Audio.MemoryQueue
                 return Task.FromResult<IQueueStatus>(null);
             }
 
-            return Task.FromResult<IQueueStatus>(queue);
+            return Task.FromResult<IQueueStatus>(new MemoryQueueStatus(queue));
         }
         
         public Task<ITrack> AdvanceAsync(ulong guild, bool ignoreTrackLoop = false)
