@@ -30,6 +30,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         private IEmote FastForwardEmote => new Emoji("⏩");
         private IEmote ShuffleEmote => new Emoji("🔀");
         private IEmote SkipEmote => new Emoji("⏭");
+        private IEmote BackEmote => new Emoji("⏮");
         
         public MusicModule(IAudioNode node, IAudioSource source, ILyricsProvider lyrics, IHttpClientFactory httpClientFactory) : base(node)
         {
@@ -281,12 +282,40 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return;
             }
 
-            var track = await _node.SkipAsync(Context.Guild);
+            await _node.SkipAsync(Context.Guild);
 
             await Context.Message.AddReactionAsync(SkipEmote);
         }
 
-        [Command("skip to")]
+        [Command("back")]
+        [Alias("previous")]
+        [Summary("Skip to the previous track.")]
+        public async Task BackAsync()
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var queue = await _node.GetQueueAsync(Context.Guild);
+
+            if (!queue.Previous().Any())
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("No previous track to skip to.")
+                    .Build());
+                
+                return;
+            }
+
+            await _node.BackAsync(Context.Guild);
+
+            await Context.Message.AddReactionAsync(BackEmote);
+        }
+
+        [Command("jump")]
+        [Alias("skip to")]
         [Summary("Skip to the specified track.")]
         public async Task SkipToAsync(int track)
         {
@@ -307,7 +336,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return;
             }
 
-            await _node.SkipAsync(Context.Guild, track);
+            await _node.JumpAsync(Context.Guild, track);
 
             await Context.Message.AddReactionAsync(SkipEmote);
         }
@@ -435,7 +464,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             }
 
             await _node.SetLoopAsync(Context.Guild, new DisabledLoopSetting());
-            await Context.Message.AddReactionAsync(StopEmote);
+            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildLoopDisabledEmbed());
         }
 
         [Command("shuffle")]
