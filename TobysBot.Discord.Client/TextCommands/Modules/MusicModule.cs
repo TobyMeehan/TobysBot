@@ -28,6 +28,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         private IEmote StopEmote => new Emoji("⏹");
         private IEmote ClearEmote => new Emoji("⏏");
         private IEmote FastForwardEmote => new Emoji("⏩");
+        private IEmote RewindEmote => new Emoji("⏪");
         private IEmote ShuffleEmote => new Emoji("🔀");
         private IEmote SkipEmote => new Emoji("⏭");
         
@@ -38,7 +39,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             _lyrics = lyrics;
             _httpClientFactory = httpClientFactory;
         }
-
+        
         // Voice Channel
         
         [Command("join", RunMode = RunMode.Async)]
@@ -254,6 +255,86 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                     .WithDescription($"Failed to seek: `{ex.Message}`")
                     .Build());
             }
+        }
+
+        [Command("fastforward")]
+        [Alias("ff")]
+        [Summary("Fast forwards the track by the specified amount.")]
+        public async Task FastForwardAsync(int seconds = 10)
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var status = _node.Status(Context.Guild);
+
+            if (status is not ITrackStatus track)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                return;
+            }
+
+            if (seconds < 0)
+            {
+                await RewindAsync(-seconds);
+                return;
+            }
+            
+            var timeSpan = track.CurrentTrack.Position + TimeSpan.FromSeconds(seconds);
+
+            if (timeSpan > track.CurrentTrack.Duration)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("Cannot fastforward to beyond the track's length.")
+                    .Build());
+                
+                return;
+            }
+
+            await _node.SeekAsync(Context.Guild, timeSpan);
+            await Context.Message.AddReactionAsync(FastForwardEmote);
+        }
+
+        [Command("rewind")]
+        [Alias("rw")]
+        [Summary("Rewinds the track by the specified amount.")]
+        public async Task RewindAsync(int seconds = 10)
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var status = _node.Status(Context.Guild);
+
+            if (status is not ITrackStatus track)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                return;
+            }
+
+            if (seconds < 0)
+            {
+                await FastForwardAsync(-seconds);
+                return;
+            }
+            
+            var timeSpan = track.CurrentTrack.Position - TimeSpan.FromSeconds(seconds);
+
+            if (timeSpan < TimeSpan.Zero)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("Cannot rewind to before the track started.")
+                    .Build());
+                
+                return;
+            }
+
+            await _node.SeekAsync(Context.Guild, timeSpan);
+            await Context.Message.AddReactionAsync(RewindEmote);
         }
         
         [Command("stop")]
