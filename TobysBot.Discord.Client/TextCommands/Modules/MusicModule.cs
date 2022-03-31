@@ -177,7 +177,10 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             await Context.Message.AddReactionAsync(PlayEmote);
         }
 
-        private async Task ResumeAsync()
+        [Command("resume")]
+        [Alias("unpause")]
+        [Summary("Resume playback.")]
+        public async Task ResumeAsync()
         {
             if (!await EnsureUserInSameVoiceAsync())
             {
@@ -197,7 +200,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         }
 
         [Command("pause")]
-        [Summary("Pause the player.")]
+        [Summary("Pause playback.")]
         public async Task PauseAsync()
         {
             if (!await EnsureUserInSameVoiceAsync())
