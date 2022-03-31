@@ -43,8 +43,8 @@ public static partial class EmbedExtensions
     
     public static Embed BuildQueueEmbed(this EmbedBuilder embed, IQueueStatus queue, ITrackStatus trackStatus)
     {
-        var previous = new Queue<ITrack>(queue.Previous().Reverse());
-        var next = new Queue<ITrack>(queue.Next());
+        var previous = new Queue<ITrack>(queue.Previous.Reverse());
+        var next = new Queue<ITrack>(queue.Next);
         var current = trackStatus?.CurrentTrack;
         
         var sb = new StringBuilder();

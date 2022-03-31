@@ -380,7 +380,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
 
             var queue = await _node.GetQueueAsync(Context.Guild);
 
-            if (!queue.Previous().Any())
+            if (!queue.Previous.Any())
             {
                 await Context.Message.ReplyAsync(embed: new EmbedBuilder()
                     .WithContext(EmbedContext.Error)
@@ -460,7 +460,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return;
             }
             
-            if (queue.CurrentTrack is not null && !queue.Next().Any())
+            if (queue.CurrentTrack is not null && !queue.Next.Any())
             {
                 await _node.SetLoopAsync(Context.Guild, new TrackLoopSetting());
                 await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildLoopTrackEmbed());
