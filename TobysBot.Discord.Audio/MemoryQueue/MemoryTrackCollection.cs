@@ -104,7 +104,7 @@ namespace TobysBot.Discord.Audio.MemoryQueue
             
             _tracks.RemoveAt(index);
 
-            return track == CurrentTrack;
+            return track.Id != CurrentTrack.Id;
         }
 
         public bool RemoveRange(int startIndex, int endIndex)
@@ -120,19 +120,30 @@ namespace TobysBot.Discord.Audio.MemoryQueue
             
             _tracks.RemoveRange(startIndex, count);
 
-            return track == CurrentTrack;
+            return track.Id != CurrentTrack.Id;
         }
 
         public bool Move(int index, int destIndex)
         {
             var currentTrack = CurrentTrack;
             
+            if (index < _currentIndex)
+            {
+                _currentIndex--;
+            }
+
+            if (destIndex <= _currentIndex)
+            {
+                _currentIndex++;
+            }
+            
             var track = _tracks[index];
+            
             
             _tracks.RemoveAt(index);
             _tracks.Insert(destIndex, track);
 
-            return currentTrack == CurrentTrack;
+            return currentTrack.Id != CurrentTrack.Id;
         }
         
         public void Reset()
