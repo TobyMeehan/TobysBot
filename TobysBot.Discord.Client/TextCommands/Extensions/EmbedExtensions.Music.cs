@@ -209,10 +209,10 @@ public static partial class EmbedExtensions
             .Build();
     }
 
-    public static Embed BuildTrackNotFoundEmbed(this EmbedBuilder embed, string query)
+    public static Embed BuildTrackNotFoundEmbed(this EmbedBuilder embed)
     {
         return embed
-            .WithDescription($"No results for {query} :(")
+            .WithDescription($"No results :(")
             .WithContext(EmbedContext.Error)
             .Build();
     }
