@@ -64,7 +64,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         }
         
         // Player
-        
+
         [Command("play", RunMode = RunMode.Async)]
         [Alias("p")]
         [Summary("Add the track to the queue or resume playback.")]
@@ -77,20 +77,32 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             
             if (query is null)
             {
-                if (!Context.Message.Attachments.Any())
+                if (Context.Message.Attachments.Any())
                 {
-                    await ResumeAsync();
+                    var attachments = await _source.LoadAttachmentsAsync(Context.Message);
+
+                    await EnqueueAsync(attachments);
                     return;
                 }
 
-                var attachments = await _source.LoadAttachmentsAsync(Context.Message);
-
-                await EnqueueAsync(attachments, null);
+                await ResumeAsync();
                 return;
             }
 
             using var typing = Context.Channel.EnterTypingState();
 
+            var (success, result) = await TrySearchQueryAsync(query);
+
+            if (!success)
+            {
+                return;
+            }
+
+            await EnqueueAsync(result);
+        }
+
+        private async Task<(bool Success, IPlayable Playable)> TrySearchQueryAsync(string query)
+        {
             IPlayable result;
             
             try
@@ -101,29 +113,26 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             {
                 await Context.Message.ReplyAsync(embed: new EmbedBuilder()
                     .WithContext(EmbedContext.Error)
-                    .WithDescription($"Error running query: `{ex.Message}`")
+                    .WithDescription(ex.Message)
                     .Build()
                 );
                 
-                return;
+                return (false, null);
             }
 
-            await EnqueueAsync(result, query);
-        }
+            if (result is null)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildTrackNotFoundEmbed(query));
 
-        private async Task EnqueueAsync(IPlayable playable, string query)
+                return (false, null);
+            }
+            
+            return (true, result);
+        }
+        
+        private async Task EnqueueAsync(IPlayable playable)
         {
             await JoinAsync();
-            
-            if (playable is null)
-            {
-                if (query is not null)
-                {
-                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildTrackNotFoundEmbed(query));
-                }
-                
-                return;
-            }
 
             ITrack track;
             
