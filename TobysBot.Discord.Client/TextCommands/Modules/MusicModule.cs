@@ -67,47 +67,67 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
 
         [Command("play", RunMode = RunMode.Async)]
         [Alias("p")]
-        [Summary("Add the track to the queue or resume playback.")]
+        [Summary("Add the track to the queue.")]
         public async Task PlayAsync([Remainder] string query = null)
         {
             if (!await EnsureUserInVoiceAsync(false))
             {
                 return;
             }
+
+            IPlayable playable;
+            
+            using var typing = Context.Channel.EnterTypingState();
             
             if (query is null)
             {
-                if (Context.Message.Attachments.Any())
-                {
-                    var attachments = await _source.LoadAttachmentsAsync(Context.Message);
-
-                    await EnqueueAsync(attachments);
-                    return;
-                }
-
-                await ResumeAsync();
-                return;
+                playable = await PlayFromMessageAsync(Context.Message);
             }
-
-            using var typing = Context.Channel.EnterTypingState();
-
-            var (success, result) = await TrySearchQueryAsync(query);
-
-            if (!success)
+            else
             {
+                playable = await PlayFromQueryAsync(query);
+            }
+
+            if (playable is null)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildTrackNotFoundEmbed());
+                
                 return;
             }
 
-            await EnqueueAsync(result);
+            await EnqueueAsync(playable);
         }
 
-        private async Task<(bool Success, IPlayable Playable)> TrySearchQueryAsync(string query)
+        private async Task<IPlayable> PlayFromMessageAsync(IUserMessage message, bool recurse = true)
         {
-            IPlayable result;
+            if (!string.IsNullOrWhiteSpace(message.Content) && !recurse)
+            {
+                return await PlayFromQueryAsync(message.Content);
+            }
+
+            if (message.Attachments.Any())
+            {
+                var attachments = await _source.LoadAttachmentsAsync(message);
+
+                if (attachments is not null)
+                {
+                    return attachments;
+                }
+            }
             
+            if (message.ReferencedMessage is { } referencedMessage && recurse)
+            {
+                return await PlayFromMessageAsync(referencedMessage, false);
+            }
+
+            return null;
+        }
+
+        private async Task<IPlayable> PlayFromQueryAsync(string query)
+        {
             try
             {
-                result = await _source.SearchAsync(query);
+                return await _source.SearchAsync(query);
             }
             catch (Exception ex)
             {
@@ -116,18 +136,9 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                     .WithDescription(ex.Message)
                     .Build()
                 );
-                
-                return (false, null);
-            }
 
-            if (result is null)
-            {
-                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildTrackNotFoundEmbed(query));
-
-                return (false, null);
+                return null;
             }
-            
-            return (true, result);
         }
         
         private async Task EnqueueAsync(IPlayable playable)
@@ -153,15 +164,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
 
             if (playable is IPlaylist playlist)
             {
-                if (track.Url != playlist.First().Url)
-                {
-                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildQueuePlaylistEmbed(playlist));
-                }
-                else
-                {
-                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildPlayPlaylistEmbed(playlist));
-                }
-                
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildQueuePlaylistEmbed(playlist));
                 return;
             }
 
