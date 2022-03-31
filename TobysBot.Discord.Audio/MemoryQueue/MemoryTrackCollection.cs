@@ -111,12 +111,17 @@ namespace TobysBot.Discord.Audio.MemoryQueue
         {
             var track = CurrentTrack;
             
-            if (startIndex < _currentIndex || endIndex > _currentIndex)
+            if (startIndex < _currentIndex && endIndex >= _currentIndex)
             {
                 _currentIndex = startIndex;
             }
             
-            var count = endIndex - startIndex;
+            var count = endIndex - startIndex + 1;
+
+            if (startIndex < _currentIndex && endIndex <= _currentIndex)
+            {
+                _currentIndex -= count;
+            }
             
             _tracks.RemoveRange(startIndex, count);
 
