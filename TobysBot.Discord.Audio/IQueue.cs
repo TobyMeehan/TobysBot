@@ -17,6 +17,32 @@ namespace TobysBot.Discord.Audio
         Task EnqueueAsync(ulong guildId, IEnumerable<ITrack> tracks, bool advanceToTracks = false);
 
         /// <summary>
+        /// Removes the specified track from the queue.
+        /// </summary>
+        /// <param name="guildId"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        Task<(bool TrackChanged, ITrack CurrentTrack)> RemoveAsync(ulong guildId, int index);
+
+        /// <summary>
+        /// Removes the specified range of tracks from the queue.
+        /// </summary>
+        /// <param name="guildId"></param>
+        /// <param name="startIndex"></param>
+        /// <param name="endIndex"></param>
+        /// <returns></returns>
+        Task<(bool TrackChanged, ITrack CurrentTrack)> RemoveRangeAsync(ulong guildId, int startIndex, int endIndex);
+
+        /// <summary>
+        /// Moves the specified track to the specified position.
+        /// </summary>
+        /// <param name="guildId"></param>
+        /// <param name="index"></param>
+        /// <param name="destIndex"></param>
+        /// <returns></returns>
+        Task<(bool TrackChanged, ITrack CurrentTrack)> MoveAsync(ulong guildId, int index, int destIndex);
+        
+        /// <summary>
         /// Gets the queue for the specified guild.
         /// </summary>
         /// <param name="guildId"></param>

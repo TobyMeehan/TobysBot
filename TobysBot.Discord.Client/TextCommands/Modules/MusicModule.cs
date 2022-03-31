@@ -32,6 +32,8 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         private IEmote ShuffleEmote => new Emoji("🔀");
         private IEmote SkipEmote => new Emoji("⏭");
         private IEmote BackEmote => new Emoji("⏮");
+        private IEmote MoveEmote => new Emoji("↔");
+        private IEmote RemoveEmote => new Emoji("⤴");
         
         public MusicModule(IAudioNode node, IAudioSource source, ILyricsProvider lyrics, IHttpClientFactory httpClientFactory) : base(node)
         {
@@ -395,7 +397,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
 
             var queue = await _node.GetQueueAsync(Context.Guild);
 
-            if (!queue.Previous().Any())
+            if (!queue.Previous.Any())
             {
                 await Context.Message.ReplyAsync(embed: new EmbedBuilder()
                     .WithContext(EmbedContext.Error)
@@ -475,7 +477,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return;
             }
             
-            if (queue.CurrentTrack is not null && !queue.Next().Any())
+            if (queue.CurrentTrack is not null && !queue.Next.Any())
             {
                 await _node.SetLoopAsync(Context.Guild, new TrackLoopSetting());
                 await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildLoopTrackEmbed());
@@ -634,6 +636,117 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             await Context.Message.AddReactionAsync(ShuffleEmote);
         }
         
+        // Queue Management
+
+        [Command("move")]
+        [Alias("mv")]
+        [Summary("Move the specified track to the specified position.")]
+        public async Task MoveAsync(int track, int position)
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var queue = await _node.GetQueueAsync(Context.Guild);
+
+            if (queue is null)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                return;
+            }
+            
+            if (track > queue.Count() || track < 1)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("No track at that position in the queue.")
+                    .Build());
+                
+                return;
+            }
+
+            if (position > queue.Count() || position < 1)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("The queue is not that long.")
+                    .Build());
+                
+                return;
+            }
+
+            await _node.MoveAsync(Context.Guild, track, position);
+
+            await Context.Message.AddReactionAsync(MoveEmote);
+        }
+
+        [Command("remove")]
+        [Alias("rm")]
+        [Summary("Remove the specified track from the queue.")]
+        public async Task RemoveAsync(int track)
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var queue = await _node.GetQueueAsync(Context.Guild);
+
+            if (queue is null)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                return;
+            }
+            
+            if (track > queue.Count() || track < 1)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("No track at that position in the queue.")
+                    .Build());
+                
+                return;
+            }
+
+            await _node.RemoveAsync(Context.Guild, track);
+
+            await Context.Message.AddReactionAsync(RemoveEmote);
+        }
+
+        [Command("remove range")]
+        [Alias("rm range")]
+        [Summary("Remove the specified range of tracks from the queue.")]
+        public async Task RemoveRangeAsync(int start, int end)
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var queue = await _node.GetQueueAsync(Context.Guild);
+
+            if (queue is null)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                return;
+            }
+            
+            if (start > queue.Count() || start < 1 || end > queue.Count() || end < 1)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("No track at that position in the queue.")
+                    .Build());
+                
+                return;
+            }
+
+            await _node.RemoveRangeAsync(Context.Guild, start, end);
+
+            await Context.Message.AddReactionAsync(RemoveEmote);
+        }
+
         // Information
 
         [Command("np")]

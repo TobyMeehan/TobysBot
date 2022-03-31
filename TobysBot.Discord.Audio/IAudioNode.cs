@@ -94,6 +94,34 @@ namespace TobysBot.Discord.Audio
         /// <param name="guild"></param>
         /// <returns></returns>
         Task StopAsync(IGuild guild);
+        
+        // Queue Management
+
+        /// <summary>
+        /// Removes the specified track from the queue.
+        /// </summary>
+        /// <param name="guild"></param>
+        /// <param name="track"></param>
+        /// <returns></returns>
+        Task RemoveAsync(IGuild guild, int track);
+
+        /// <summary>
+        /// Removes the specified range of tracks from the queue.
+        /// </summary>
+        /// <param name="guild"></param>
+        /// <param name="startTrack"></param>
+        /// <param name="endTrack"></param>
+        /// <returns></returns>
+        Task RemoveRangeAsync(IGuild guild, int startTrack, int endTrack);
+
+        /// <summary>
+        /// Moves the specified track to the new position.
+        /// </summary>
+        /// <param name="guild"></param>
+        /// <param name="track"></param>
+        /// <param name="newPos"></param>
+        /// <returns></returns>
+        Task MoveAsync(IGuild guild, int track, int newPos);
 
         // Status
 
