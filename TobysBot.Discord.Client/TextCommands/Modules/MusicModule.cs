@@ -619,6 +619,51 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             await Context.Message.AddReactionAsync(ShuffleEmote);
         }
         
+        // Queue Management
+
+        [Command("move")]
+        [Alias("mv")]
+        [Summary("Move the specified track to the specified position.")]
+        public async Task MoveAsync(int track, int position)
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var queue = await _node.GetQueueAsync(Context.Guild);
+
+            if (queue is null)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                return;
+            }
+            
+            if (track > queue.Count() || track < 1)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("No track at that position in the queue.")
+                    .Build());
+                
+                return;
+            }
+
+            if (position > queue.Count() || position < 1)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("The queue is not that long.")
+                    .Build());
+                
+                return;
+            }
+
+            await _node.MoveAsync(Context.Guild, track, position);
+
+            await ReplyAsync("moved");
+        }
+
         // Information
 
         [Command("np")]
