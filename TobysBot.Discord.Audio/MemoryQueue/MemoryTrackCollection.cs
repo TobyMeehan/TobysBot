@@ -93,6 +93,48 @@ namespace TobysBot.Discord.Audio.MemoryQueue
                 select new MemoryTrack(track));
         }
 
+        public bool Remove(int index)
+        {
+            var track = CurrentTrack;
+            
+            if (index < _currentIndex)
+            {
+                _currentIndex--;
+            }
+            
+            _tracks.RemoveAt(index);
+
+            return track == CurrentTrack;
+        }
+
+        public bool RemoveRange(int startIndex, int endIndex)
+        {
+            var track = CurrentTrack;
+            
+            if (startIndex < _currentIndex || endIndex > _currentIndex)
+            {
+                _currentIndex = startIndex;
+            }
+            
+            var count = endIndex - startIndex;
+            
+            _tracks.RemoveRange(startIndex, count);
+
+            return track == CurrentTrack;
+        }
+
+        public bool Move(int index, int destIndex)
+        {
+            var currentTrack = CurrentTrack;
+            
+            var track = _tracks[index];
+            
+            _tracks.RemoveAt(index);
+            _tracks.Insert(destIndex, track);
+
+            return currentTrack == CurrentTrack;
+        }
+        
         public void Reset()
         {
             _currentIndex = 0;
@@ -111,7 +153,7 @@ namespace TobysBot.Discord.Audio.MemoryQueue
                 (queue[k], queue[n]) = (queue[n], queue[k]);
             }
 
-            _tracks = _tracks.Take(_currentIndex).Concat(queue).ToList();
+            _tracks = _tracks.Take(_currentIndex + 1).Concat(queue).ToList();
         }
         
         public IEnumerator<ITrack> GetEnumerator()
