@@ -24,6 +24,42 @@ namespace TobysBot.Discord.Audio.MemoryQueue
             return Task.CompletedTask;
         }
 
+        public Task<(bool TrackChanged, ITrack CurrentTrack)> RemoveAsync(ulong guildId, int index)
+        {
+            if (!_queue.TryGetValue(guildId, out var queue))
+            {
+                throw new Exception("No queue for specified guild.");
+            }
+            
+            var changed = queue.Remove(index-1);
+            
+            return Task.FromResult<(bool TrackChanged, ITrack CurrentTrack)>((changed, queue.CurrentTrack));
+        }
+
+        public Task<(bool TrackChanged, ITrack CurrentTrack)> RemoveRangeAsync(ulong guildId, int startIndex, int endIndex)
+        {
+            if (!_queue.TryGetValue(guildId, out var queue))
+            {
+                throw new Exception("No queue for specified guild.");
+            }
+            
+            var changed = queue.RemoveRange(startIndex-1, endIndex-1);
+            
+            return Task.FromResult<(bool TrackChanged, ITrack CurrentTrack)>((changed, queue.CurrentTrack));
+        }
+
+        public Task<(bool TrackChanged, ITrack CurrentTrack)> MoveAsync(ulong guildId, int index, int destIndex)
+        {
+            if (!_queue.TryGetValue(guildId, out var queue))
+            {
+                throw new Exception("No queue for specified guild.");
+            }
+            
+            var changed = queue.Move(index-1, destIndex-1);
+
+            return Task.FromResult<(bool TrackChanged, ITrack CurrentTrack)>((changed, queue.CurrentTrack));
+        }
+
         public Task<IQueueStatus> GetAsync(ulong guild)
         {
             if (!_queue.TryGetValue(guild, out var queue))
@@ -31,17 +67,37 @@ namespace TobysBot.Discord.Audio.MemoryQueue
                 return Task.FromResult<IQueueStatus>(null);
             }
 
-            return Task.FromResult<IQueueStatus>(queue);
+            return Task.FromResult<IQueueStatus>(new MemoryQueueStatus(queue));
+        }
+        
+        public Task<ITrack> AdvanceAsync(ulong guild, bool ignoreTrackLoop = false)
+        {
+            if (!_queue.TryGetValue(guild, out var queue))
+            {
+                return Task.FromResult<ITrack>(null);
+            }
+
+            return Task.FromResult(queue.Advance(ignoreTrackLoop));
         }
 
-        public Task<ITrack> AdvanceAsync(ulong guild, int index = 0)
+        public Task<ITrack> JumpAsync(ulong guild, int index)
         {
             if (!_queue.TryGetValue(guild, out var queue))
             {
                 return Task.FromResult<ITrack>(null);
             }
             
-            return Task.FromResult<ITrack>(queue.Advance(index-1));
+            return Task.FromResult(queue.Jump(index-1));
+        }
+
+        public Task<ITrack> BackAsync(ulong guild)
+        {
+            if (!_queue.TryGetValue(guild, out var queue))
+            {
+                return Task.FromResult<ITrack>(null);
+            }
+
+            return Task.FromResult(queue.Back());
         }
 
         public Task ProgressAsync(ulong guild, TimeSpan position)

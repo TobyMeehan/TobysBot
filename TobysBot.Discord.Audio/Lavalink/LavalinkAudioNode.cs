@@ -217,18 +217,11 @@ namespace TobysBot.Discord.Audio.Lavalink
             }
         }
 
-        public async Task<ITrack> SkipAsync(IGuild guild, int index = 0)
+        public async Task<ITrack> SkipAsync(IGuild guild)
         {
             var player = ThrowIfNoPlayer(guild);
 
-            var queue = await GetQueueAsync(guild);
-
-            if (queue.LoopEnabled is TrackLoopSetting)
-            {
-                await SetLoopAsync(guild, new DisabledLoopSetting());
-            }
-
-            ITrack nextTrack = await _queue.AdvanceAsync(guild.Id, index);
+            var nextTrack = await _queue.AdvanceAsync(guild.Id, true);
 
             if (nextTrack is null)
             {
@@ -242,9 +235,46 @@ namespace TobysBot.Discord.Audio.Lavalink
             return nextTrack;
         }
 
+        public async Task<ITrack> BackAsync(IGuild guild)
+        {
+            var player = ThrowIfNoPlayer(guild);
+
+            var previousTrack = await _queue.BackAsync(guild.Id);
+
+            if (previousTrack is null)
+            {
+                throw new Exception("No previous track to play.");
+            }
+
+            await player.PlayAsync(await _node.LoadTrackAsync(previousTrack));
+
+            return previousTrack;
+        }
+
+        public async Task<ITrack> JumpAsync(IGuild guild, int index)
+        {
+            var player = ThrowIfNoPlayer(guild);
+
+            if (index < 1)
+            {
+                throw new ArgumentException("Index must be > 1", nameof(index));
+            }
+            
+            var track = await _queue.JumpAsync(guild.Id, index);
+
+            if (track is null)
+            {
+                throw new Exception("Invalid track or index.");
+            }
+
+            await player.PlayAsync(await _node.LoadTrackAsync(track));
+
+            return track;
+        }
+
         public async Task ClearAsync(IGuild guild)
         {
-            LavaPlayer player = ThrowIfNoPlayer(guild);
+            var player = ThrowIfNoPlayer(guild);
 
             await _queue.ClearAsync(guild.Id);
 
@@ -253,11 +283,47 @@ namespace TobysBot.Discord.Audio.Lavalink
 
         public async Task StopAsync(IGuild guild)
         {
-            LavaPlayer player = ThrowIfNoPlayer(guild);
+            var player = ThrowIfNoPlayer(guild);
 
             await _queue.ResetAsync(guild.Id);
             
             await player.StopAsync();
+        }
+
+        public async Task RemoveAsync(IGuild guild, int position)
+        {
+            var player = ThrowIfNoPlayer(guild);
+            
+            var (trackChanged, currentTrack) = await _queue.RemoveAsync(guild.Id, position);
+
+            if (trackChanged)
+            {
+                await player.PlayAsync(await _node.LoadTrackAsync(currentTrack));
+            }
+        }
+
+        public async Task RemoveRangeAsync(IGuild guild, int startTrack, int endTrack)
+        {
+            var player = ThrowIfNoPlayer(guild);
+            
+            var (trackChanged, currentTrack) = await _queue.RemoveRangeAsync(guild.Id, startTrack, endTrack);
+
+            if (trackChanged)
+            {
+                await player.PlayAsync(await _node.LoadTrackAsync(currentTrack));
+            }
+        }
+
+        public async Task MoveAsync(IGuild guild, int track, int newPos)
+        {
+            var player = ThrowIfNoPlayer(guild);
+            
+            var (trackChanged, currentTrack) = await _queue.MoveAsync(guild.Id, track, newPos);
+
+            if (trackChanged)
+            {
+                await player.PlayAsync(await _node.LoadTrackAsync(currentTrack));
+            }
         }
 
         public IPlayerStatus Status(IGuild guild)

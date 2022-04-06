@@ -43,8 +43,8 @@ public static partial class EmbedExtensions
     
     public static Embed BuildQueueEmbed(this EmbedBuilder embed, IQueueStatus queue, ITrackStatus trackStatus)
     {
-        var previous = new Queue<ITrack>(queue.Previous().Reverse());
-        var next = new Queue<ITrack>(queue.Next());
+        var previous = new Queue<ITrack>(queue.Previous.Reverse());
+        var next = new Queue<ITrack>(queue.Next);
         var current = trackStatus?.CurrentTrack;
         
         var sb = new StringBuilder();
@@ -209,10 +209,10 @@ public static partial class EmbedExtensions
             .Build();
     }
 
-    public static Embed BuildTrackNotFoundEmbed(this EmbedBuilder embed, string query)
+    public static Embed BuildTrackNotFoundEmbed(this EmbedBuilder embed)
     {
         return embed
-            .WithDescription($"No results for {query} :(")
+            .WithDescription($"No results :(")
             .WithContext(EmbedContext.Error)
             .Build();
     }

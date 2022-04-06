@@ -28,8 +28,12 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         private IEmote StopEmote => new Emoji("⏹");
         private IEmote ClearEmote => new Emoji("⏏");
         private IEmote FastForwardEmote => new Emoji("⏩");
+        private IEmote RewindEmote => new Emoji("⏪");
         private IEmote ShuffleEmote => new Emoji("🔀");
         private IEmote SkipEmote => new Emoji("⏭");
+        private IEmote BackEmote => new Emoji("⏮");
+        private IEmote MoveEmote => new Emoji("↔");
+        private IEmote RemoveEmote => new Emoji("⤴");
         
         public MusicModule(IAudioNode node, IAudioSource source, ILyricsProvider lyrics, IHttpClientFactory httpClientFactory) : base(node)
         {
@@ -38,7 +42,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             _lyrics = lyrics;
             _httpClientFactory = httpClientFactory;
         }
-
+        
         // Voice Channel
         
         [Command("join", RunMode = RunMode.Async)]
@@ -62,66 +66,89 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         }
         
         // Player
-        
+
         [Command("play", RunMode = RunMode.Async)]
         [Alias("p")]
-        [Summary("Add the track to the queue or resume playback.")]
+        [Summary("Add the track to the queue.")]
         public async Task PlayAsync([Remainder] string query = null)
         {
             if (!await EnsureUserInVoiceAsync(false))
             {
                 return;
             }
+
+            IPlayable playable;
+            
+            using var typing = Context.Channel.EnterTypingState();
             
             if (query is null)
             {
-                if (!Context.Message.Attachments.Any())
-                {
-                    await ResumeAsync();
+                playable = await PlayFromMessageAsync(Context.Message);
+            }
+            else
+            {
+                playable = await PlayFromQueryAsync(query);
+            }
+
+            switch (playable)
+            {
+                case NotPlayable np:
+                    await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                        .WithContext(EmbedContext.Error)
+                        .WithDescription(np.Exception.Message)
+                        .Build());
                     return;
-                }
-
-                var attachments = await _source.LoadAttachmentsAsync(Context.Message);
-
-                await EnqueueAsync(attachments, null);
-                return;
-            }
-
-            using var typing = Context.Channel.EnterTypingState();
-
-            IPlayable result;
-            
-            try
-            {
-                result = await _source.SearchAsync(query);
-            }
-            catch (Exception ex)
-            {
-                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
-                    .WithContext(EmbedContext.Error)
-                    .WithDescription($"Error running query: `{ex.Message}`")
-                    .Build()
-                );
                 
-                return;
+                case null:
+                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildTrackNotFoundEmbed());
+                    return;
+                
+                default:
+                    await EnqueueAsync(playable);
+                    break;
             }
-
-            await EnqueueAsync(result, query);
         }
 
-        private async Task EnqueueAsync(IPlayable playable, string query)
+        private async Task<IPlayable> PlayFromMessageAsync(IUserMessage message, bool recurse = true)
+        {
+            if (!string.IsNullOrWhiteSpace(message.Content) && !recurse)
+            {
+                return await PlayFromQueryAsync(message.Content);
+            }
+
+            if (message.Attachments.Any())
+            {
+                var attachments = await _source.LoadAttachmentsAsync(message);
+
+                if (attachments is not null)
+                {
+                    return attachments;
+                }
+            }
+            
+            if (message.ReferencedMessage is { } referencedMessage && recurse)
+            {
+                return await PlayFromMessageAsync(referencedMessage, false);
+            }
+
+            return null;
+        }
+
+        private async Task<IPlayable> PlayFromQueryAsync(string query)
+        {
+            try
+            {
+                return await _source.SearchAsync(query);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+        
+        private async Task EnqueueAsync(IPlayable playable)
         {
             await JoinAsync();
-            
-            if (playable is null)
-            {
-                if (query is not null)
-                {
-                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildTrackNotFoundEmbed(query));
-                }
-                
-                return;
-            }
 
             ITrack track;
             
@@ -142,15 +169,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
 
             if (playable is IPlaylist playlist)
             {
-                if (track.Url != playlist.First().Url)
-                {
-                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildQueuePlaylistEmbed(playlist));
-                }
-                else
-                {
-                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildPlayPlaylistEmbed(playlist));
-                }
-                
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildQueuePlaylistEmbed(playlist));
                 return;
             }
 
@@ -163,7 +182,10 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             await Context.Message.AddReactionAsync(PlayEmote);
         }
 
-        private async Task ResumeAsync()
+        [Command("resume")]
+        [Alias("unpause")]
+        [Summary("Resume playback.")]
+        public async Task ResumeAsync()
         {
             if (!await EnsureUserInSameVoiceAsync())
             {
@@ -183,7 +205,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         }
 
         [Command("pause")]
-        [Summary("Pause the player.")]
+        [Summary("Pause playback.")]
         public async Task PauseAsync()
         {
             if (!await EnsureUserInSameVoiceAsync())
@@ -220,7 +242,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return;
             }
 
-            string[] formats = {@"hh\:mm\:ss", @"mm\:ss"};
+            string[] formats = {@"%h\:%m\:%s", @"%m\:%s"};
             
             if (!TimeSpan.TryParseExact(position, formats, null, TimeSpanStyles.None, out var timeSpan))
             {
@@ -255,6 +277,86 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                     .Build());
             }
         }
+
+        [Command("fastforward")]
+        [Alias("ff")]
+        [Summary("Fast forwards the track by the specified amount.")]
+        public async Task FastForwardAsync(int seconds = 10)
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var status = _node.Status(Context.Guild);
+
+            if (status is not ITrackStatus track)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                return;
+            }
+
+            if (seconds < 0)
+            {
+                await RewindAsync(-seconds);
+                return;
+            }
+            
+            var timeSpan = track.CurrentTrack.Position + TimeSpan.FromSeconds(seconds);
+
+            if (timeSpan > track.CurrentTrack.Duration)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("Cannot fastforward to beyond the track's length.")
+                    .Build());
+                
+                return;
+            }
+
+            await _node.SeekAsync(Context.Guild, timeSpan);
+            await Context.Message.AddReactionAsync(FastForwardEmote);
+        }
+
+        [Command("rewind")]
+        [Alias("rw")]
+        [Summary("Rewinds the track by the specified amount.")]
+        public async Task RewindAsync(int seconds = 10)
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var status = _node.Status(Context.Guild);
+
+            if (status is not ITrackStatus track)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                return;
+            }
+
+            if (seconds < 0)
+            {
+                await FastForwardAsync(-seconds);
+                return;
+            }
+            
+            var timeSpan = track.CurrentTrack.Position - TimeSpan.FromSeconds(seconds);
+
+            if (timeSpan < TimeSpan.Zero)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("Cannot rewind to before the track started.")
+                    .Build());
+                
+                return;
+            }
+
+            await _node.SeekAsync(Context.Guild, timeSpan);
+            await Context.Message.AddReactionAsync(RewindEmote);
+        }
         
         [Command("stop")]
         [Summary("Stop playback and return to the start of the queue.")]
@@ -281,12 +383,40 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return;
             }
 
-            var track = await _node.SkipAsync(Context.Guild);
+            await _node.SkipAsync(Context.Guild);
 
             await Context.Message.AddReactionAsync(SkipEmote);
         }
 
-        [Command("skip to")]
+        [Command("back")]
+        [Alias("previous")]
+        [Summary("Skip to the previous track.")]
+        public async Task BackAsync()
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var queue = await _node.GetQueueAsync(Context.Guild);
+
+            if (!queue.Previous.Any())
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("No previous track to skip to.")
+                    .Build());
+                
+                return;
+            }
+
+            await _node.BackAsync(Context.Guild);
+
+            await Context.Message.AddReactionAsync(BackEmote);
+        }
+
+        [Command("jump")]
+        [Alias("skip to")]
         [Summary("Skip to the specified track.")]
         public async Task SkipToAsync(int track)
         {
@@ -307,7 +437,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return;
             }
 
-            await _node.SkipAsync(Context.Guild, track);
+            await _node.JumpAsync(Context.Guild, track);
 
             await Context.Message.AddReactionAsync(SkipEmote);
         }
@@ -350,7 +480,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return;
             }
             
-            if (queue.CurrentTrack is not null && !queue.Next().Any())
+            if (queue.CurrentTrack is not null && !queue.Next.Any())
             {
                 await _node.SetLoopAsync(Context.Guild, new TrackLoopSetting());
                 await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildLoopTrackEmbed());
@@ -435,7 +565,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             }
 
             await _node.SetLoopAsync(Context.Guild, new DisabledLoopSetting());
-            await Context.Message.AddReactionAsync(StopEmote);
+            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildLoopDisabledEmbed());
         }
 
         [Command("shuffle")]
@@ -509,25 +639,132 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             await Context.Message.AddReactionAsync(ShuffleEmote);
         }
         
-        // Information
+        // Queue Management
 
-        [Command("np")]
-        [Summary("Display the currently playing track.")]
-        public async Task NowPlayingAsync()
+        [Command("move")]
+        [Alias("mv")]
+        [Summary("Move the specified track to the specified position.")]
+        public async Task MoveAsync(int track, int position)
         {
             if (!await EnsureUserInSameVoiceAsync())
             {
                 return;
             }
 
-            var status = _node.Status(Context.Guild);
             var queue = await _node.GetQueueAsync(Context.Guild);
+
+            if (queue is null)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                return;
+            }
+            
+            if (track > queue.Count() || track < 1)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("No track at that position in the queue.")
+                    .Build());
+                
+                return;
+            }
+
+            if (position > queue.Count() || position < 1)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("The queue is not that long.")
+                    .Build());
+                
+                return;
+            }
+
+            await _node.MoveAsync(Context.Guild, track, position);
+
+            await Context.Message.AddReactionAsync(MoveEmote);
+        }
+
+        [Command("remove")]
+        [Alias("rm")]
+        [Summary("Remove the specified track from the queue.")]
+        public async Task RemoveAsync(int track)
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var queue = await _node.GetQueueAsync(Context.Guild);
+
+            if (queue is null)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                return;
+            }
+            
+            if (track > queue.Count() || track < 1)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("No track at that position in the queue.")
+                    .Build());
+                
+                return;
+            }
+
+            await _node.RemoveAsync(Context.Guild, track);
+
+            await Context.Message.AddReactionAsync(RemoveEmote);
+        }
+
+        [Command("remove range")]
+        [Alias("rm range")]
+        [Summary("Remove the specified range of tracks from the queue.")]
+        public async Task RemoveRangeAsync(int start, int end)
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var queue = await _node.GetQueueAsync(Context.Guild);
+
+            if (queue is null)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                return;
+            }
+            
+            if (start > queue.Count() || start < 1 || end > queue.Count() || end < 1)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("No track at that position in the queue.")
+                    .Build());
+                
+                return;
+            }
+
+            await _node.RemoveRangeAsync(Context.Guild, start, end);
+
+            await Context.Message.AddReactionAsync(RemoveEmote);
+        }
+
+        // Information
+
+        [Command("np")]
+        [Summary("Display the currently playing track.")]
+        public async Task NowPlayingAsync()
+        {
+            var status = _node.Status(Context.Guild);
 
             if (status is not ITrackStatus trackStatus)
             {
                 await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
                 return;
             }
+            
+            var queue = await _node.GetQueueAsync(Context.Guild);
 
             await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildTrackStatusEmbed(trackStatus, queue));
         }
@@ -537,11 +774,6 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Summary("Display the queue.")]
         public async Task QueueAsync()
         {
-            if (!await EnsureUserInSameVoiceAsync())
-            {
-                return;
-            }
-
             var status = _node.Status(Context.Guild);
             var queue = await _node.GetQueueAsync(Context.Guild);
 
