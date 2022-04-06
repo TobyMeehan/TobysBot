@@ -90,14 +90,23 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 playable = await PlayFromQueryAsync(query);
             }
 
-            if (playable is null)
+            switch (playable)
             {
-                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildTrackNotFoundEmbed());
+                case NotPlayable np:
+                    await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                        .WithContext(EmbedContext.Error)
+                        .WithDescription(np.Exception.Message)
+                        .Build());
+                    return;
                 
-                return;
+                case null:
+                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildTrackNotFoundEmbed());
+                    return;
+                
+                default:
+                    await EnqueueAsync(playable);
+                    break;
             }
-
-            await EnqueueAsync(playable);
         }
 
         private async Task<IPlayable> PlayFromMessageAsync(IUserMessage message, bool recurse = true)
@@ -131,14 +140,8 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             {
                 return await _source.SearchAsync(query);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
-                    .WithContext(EmbedContext.Error)
-                    .WithDescription(ex.Message)
-                    .Build()
-                );
-
                 return null;
             }
         }

@@ -48,7 +48,7 @@ namespace TobysBot.Discord.Audio.Lavalink
                 SearchStatus.PlaylistLoaded => new LavalinkPlaylist(result.Tracks, query, result.Playlist.Name,
                     result.Playlist.SelectedTrack),
                 SearchStatus.NoMatches => null,
-                SearchStatus.LoadFailed => throw new Exception(result.Exception.Message),
+                SearchStatus.LoadFailed => new NotPlayable(new Exception(result.Exception.Message)),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -62,7 +62,7 @@ namespace TobysBot.Discord.Audio.Lavalink
                 "watch" => await LoadYoutubeTrackAsync(query["v"]),
                 "playlist" => await LoadYoutubePlaylistAsync(query["list"]),
                 "shorts/" => await LoadYoutubeTrackAsync(uri.Segments.Last()),
-                _ => throw new Exception("Could not parse YouTube url.")
+                _ => new NotPlayable(new Exception("Could not parse YouTube url."))
             };
         }
 
@@ -74,7 +74,7 @@ namespace TobysBot.Discord.Audio.Lavalink
 
             if (!result.IsTrackLoadedStatus())
             {
-                throw new Exception(result.Exception.Message);
+                return new NotPlayable(new Exception(result.Exception.Message));
             }
 
             return new LavalinkTrack(result.Tracks.First());
@@ -88,7 +88,7 @@ namespace TobysBot.Discord.Audio.Lavalink
 
             if (!result.IsPlaylistLoadedStatus())
             {
-                throw new Exception(result.Exception.Message);
+                return new NotPlayable(new Exception(result.Exception.Message));
             }
 
             return new LavalinkPlaylist(result.Tracks, url, result.Playlist.Name, index);
@@ -109,7 +109,7 @@ namespace TobysBot.Discord.Audio.Lavalink
                 return new LavalinkPlaylist(result.Tracks, url, result.Playlist.Name, result.Playlist.SelectedTrack);
             }
 
-            throw new Exception(result.Exception.Message);
+            return new NotPlayable(new Exception(result.Exception.Message));
         }
         
         public async Task<IPlayable> LoadAttachmentsAsync(IMessage message)
