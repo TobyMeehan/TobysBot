@@ -10,6 +10,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using TobysBot.Discord.Client.Configuration;
+using TobysBot.Discord.Client.Webhooks;
+using TobysBot.Discord.Configuration;
 
 namespace TobysBot.Discord
 {
@@ -26,6 +28,7 @@ namespace TobysBot.Discord
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
+            services.AddMvc();
 
             services.AddHttpClient();
 
@@ -47,6 +50,10 @@ namespace TobysBot.Discord
 
                     options.LogSeverity = LogSeverity.Verbose;
                 });
+
+            services.Configure<MikeGapesOptions>(Configuration.GetSection("MikeGapes"));
+            
+            services.AddTransient<IWebhookMessageService, WebhookMessageService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -73,6 +80,7 @@ namespace TobysBot.Discord
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
+                endpoints.MapControllers();
             });
         }
     }
