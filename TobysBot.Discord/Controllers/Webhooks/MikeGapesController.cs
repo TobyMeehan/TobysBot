@@ -31,7 +31,7 @@ public class MikeGapesController : ControllerBase
     [Route("/webhooks/mikegapes")]
     public async Task<IActionResult> Post(MikeGapesTweetModel tweet)
     {
-        var sedecordle = new Regex(@"Daily #\d*\r?\n(.*\r?\n)*sedecordle\.com\r?\n#sedecordle");
+        var sedecordle = new Regex(@"Daily #\d*\r?\n(.*\r?\n)*#sedecordle");
         var octordle = new Regex(@"Daily Octordle #\d*");
         var quordle = new Regex(@"Daily Quordle \d*");
         var wordle = new Regex(@"Wordle \d* \d/6");
