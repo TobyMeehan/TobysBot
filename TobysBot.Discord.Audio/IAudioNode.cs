@@ -25,6 +25,13 @@ namespace TobysBot.Discord.Audio
         /// <returns></returns>
         Task LeaveAsync(IGuild guild);
 
+        /// <summary>
+        /// Rebinds the player to the specified text channel.
+        /// </summary>
+        /// <param name="textChannel"></param>
+        /// <returns></returns>
+        Task RebindChannelAsync(ITextChannel textChannel);
+
         // Player
 
         /// <summary>

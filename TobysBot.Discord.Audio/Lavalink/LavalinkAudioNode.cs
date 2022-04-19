@@ -94,7 +94,7 @@ namespace TobysBot.Discord.Audio.Lavalink
             return player;
         }
 
-        public async Task JoinAsync(IVoiceChannel channel, ITextChannel textChannel = null)
+        public async Task JoinAsync(IVoiceChannel channel, ITextChannel textChannel)
         {
             if (_node.TryGetPlayer(channel.Guild, out var player))
             {
@@ -121,6 +121,13 @@ namespace TobysBot.Discord.Audio.Lavalink
 
             await _node.LeaveAsync(player.VoiceChannel);
             await _queue.ClearAsync(guild.Id);
+        }
+
+        public async Task RebindChannelAsync(ITextChannel textChannel)
+        {
+            ThrowIfNoPlayer(textChannel.Guild);
+
+            await _node.MoveChannelAsync(textChannel);
         }
 
 
