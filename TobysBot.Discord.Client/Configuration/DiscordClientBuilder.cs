@@ -2,6 +2,8 @@ using System;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using SpotifyAPI.Web;
 using TobysBot.Discord.Audio;
 using TobysBot.Discord.Audio.Lavalink;
 using TobysBot.Discord.Audio.MemoryQueue;
@@ -39,6 +41,24 @@ public class DiscordClientBuilder
         Services.AddTransient<IAudioEventListener, AudioEventListener>();
         Services.AddHostedService<LavalinkHostedService>();
   
+        return this;
+    }
+
+    public DiscordClientBuilder AddSpotifyClient(Action<SpotifyOptions> configureOptions = null)
+    {
+        Services.Configure(configureOptions);
+
+        Services.AddSingleton(services =>
+        {
+            var options = services.GetRequiredService<IOptions<SpotifyOptions>>().Value;
+
+            return SpotifyClientConfig
+                .CreateDefault()
+                .WithAuthenticator(new ClientCredentialsAuthenticator(options.ClientId, options.ClientSecret));
+        });
+
+        Services.AddTransient<ISpotifyClient, SpotifyClient>();
+
         return this;
     }
 }
