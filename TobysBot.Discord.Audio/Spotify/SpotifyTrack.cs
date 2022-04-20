@@ -10,7 +10,7 @@ public class SpotifyTrack : ITrack
     public SpotifyTrack(FullTrack track, ITrack innerTrack)
     {
         _innerTrack = innerTrack;
-        Url = track.Uri;
+        Url = track.Href;
         Title = track.Name;
         Author = track.Artists[0].Name;
     }
@@ -21,5 +21,5 @@ public class SpotifyTrack : ITrack
     
     public string Id => _innerTrack.Id;
     public TimeSpan Duration => _innerTrack.Duration;
-    
+    public string SourceUrl => _innerTrack.SourceUrl;
 }

@@ -65,8 +65,8 @@ namespace TobysBot.Discord.Audio.Lavalink
         {
             return uri.Segments[1] switch
             {
-                "track" => await LoadSpotifyTrackAsync(uri.Segments[2]),
-                "playlist" => await LoadSpotifyPlaylistAsync(uri.Segments[2]),
+                "track/" => await LoadSpotifyTrackAsync(uri.Segments[2]),
+                "playlist/" => await LoadSpotifyPlaylistAsync(uri.Segments[2]),
                 _ => new NotPlayable(new Exception("Invalid spotify url."))
             };
         }
@@ -87,7 +87,7 @@ namespace TobysBot.Discord.Audio.Lavalink
             foreach (var ytTrack in search.Tracks)
             {
                 var uri = new Uri(ytTrack.Url);
-                var playable = await LoadFromYoutubeAsync(new Uri($"{uri.Scheme}music.youtube.com{uri.PathAndQuery}"));
+                var playable = await LoadFromYoutubeAsync(new Uri($"{uri.Scheme}://music.youtube.com{uri.PathAndQuery}"));
 
                 if (playable is not ITrack result)
                 {

@@ -8,6 +8,8 @@ namespace TobysBot.Discord.Audio
     {
         string Url { get; }
         
+        string SourceUrl { get; }
+        
         string Title { get; }
     }
 }

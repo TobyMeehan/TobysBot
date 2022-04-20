@@ -128,7 +128,7 @@ namespace TobysBot.Discord.Audio.Lavalink
         {
             var player = ThrowIfNoPlayer(guild);
 
-            SearchResponse search = await _node.SearchAsync(SearchType.Direct, source.Url);
+            SearchResponse search = await _node.SearchAsync(SearchType.Direct, source.SourceUrl);
 
             List<ITrack> tracks = new List<ITrack>();
 

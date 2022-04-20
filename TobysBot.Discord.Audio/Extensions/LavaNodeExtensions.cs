@@ -10,7 +10,7 @@ public static class LavaNodeExtensions
 {
     public static async Task<LavaTrack> LoadTrackAsync<T>(this LavaNode<T> node, ITrack track) where T : LavaPlayer
     {
-        return await node.LoadTrackAsync(track.Url);
+        return await node.LoadTrackAsync(track.SourceUrl);
     }
 
     public static async Task<LavaTrack> LoadTrackAsync<T>(this LavaNode<T> node, string url) where T : LavaPlayer

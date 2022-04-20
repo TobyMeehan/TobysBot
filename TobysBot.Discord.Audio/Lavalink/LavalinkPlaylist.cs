@@ -20,7 +20,7 @@ namespace TobysBot.Discord.Audio.Lavalink
         }
         
         public string Url { get; }
-        
+        public string SourceUrl => Url;
         public string Title { get; }
 
         public IEnumerator<ITrack> GetEnumerator()

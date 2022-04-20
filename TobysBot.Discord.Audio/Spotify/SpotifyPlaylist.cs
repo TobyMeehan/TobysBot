@@ -11,11 +11,12 @@ public class SpotifyPlaylist : IPlaylist
     public SpotifyPlaylist(FullPlaylist playlist, IEnumerable<SpotifyTrack> tracks)
     {
         _tracks = tracks;
-        Url = playlist.Uri;
+        Url = playlist.Href;
         Title = playlist.Name;
     }
     
     public string Url { get; }
+    public string SourceUrl => Url;
     public string Title { get; }
     
     public IEnumerator<ITrack> GetEnumerator()
