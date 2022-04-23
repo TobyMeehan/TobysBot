@@ -9,15 +9,24 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        app: ['tobysbot-preview']
+
     steps:
+    
     - uses: actions/checkout@v2
     
     - id: branch-name
       uses: tj-actions/branch-names@v5.2
-    
-    - uses: AlexxNB/caprover-action@v1
+  
+    - name: Setup NPM
+      uses: actions/setup-node@v2
       with:
-        server: '${{ secrets.CAPROVER_DOMAIN }}'
-        password: '${{ secrets.CAPROVER_PASSWORD }}'
-        appname: 'tobysbot-preview'
-        branch: ${{ steps.branch-name.outputs.current_branch }}
+         node-version: '14'
+
+    - name: Install Caprover
+      run: npm install -g caprover
+
+    - name: Caprover Deploy
+      run: caprover deploy -h '${{ secrets.CAPROVER_DOMAIN }}' -p '${{ secrets.CAPROVER_PASSWORD }}' -b ${{ steps.branch-name.outputs.current_branch }} -a ${{ matrix.app }}
