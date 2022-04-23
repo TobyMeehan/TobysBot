@@ -775,18 +775,26 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Summary("Display the queue.")]
         public async Task QueueAsync()
         {
-            var status = _node.Status(Context.Guild);
-            var queue = await _node.GetQueueAsync(Context.Guild);
-
-            var trackStatus = status as ITrackStatus;
-            
-            if (trackStatus is null && queue is null)
+            try
             {
-                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
-                return;
-            }
+                var status = _node.Status(Context.Guild);
+                var queue = await _node.GetQueueAsync(Context.Guild);
 
-            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildQueueEmbed(queue, trackStatus));
+                var trackStatus = status as ITrackStatus;
+            
+                if (trackStatus is null && queue is null or {Count: 0})
+                {
+                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                    return;
+                }
+
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildQueueEmbed(queue, trackStatus));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         [Command("lyrics", RunMode = RunMode.Async)]
