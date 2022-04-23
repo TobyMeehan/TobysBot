@@ -140,7 +140,7 @@ public class MiscModule : VoiceModuleBase
 
             if (voiceState.IsSelfDeafened || voiceState.IsSelfMuted)
             {
-                await ReplyAsync($"{user.Mention} you should probably unmute though...");
+                await ReplyAsync($"{Context.User.Mention} you should probably unmute though...");
             }
         }
         else
