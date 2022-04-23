@@ -32,9 +32,9 @@ public class XLavaPlayer : LavaPlayer
         {
             return PlayerState switch
             {
-                PlayerState.Playing => new TrackStatus(new LavalinkActiveTrack(Track, _title, _author), VoiceChannel, false),
-                PlayerState.Paused => new TrackStatus(new LavalinkActiveTrack(Track, _title, _author), VoiceChannel, true),
-                PlayerState.Stopped => new NotPlayingStatus(VoiceChannel),
+                PlayerState.Playing => new TrackStatus(new LavalinkActiveTrack(Track, _title, _author), VoiceChannel, TextChannel, false),
+                PlayerState.Paused => new TrackStatus(new LavalinkActiveTrack(Track, _title, _author), VoiceChannel, TextChannel, true),
+                PlayerState.Stopped => new NotPlayingStatus(VoiceChannel, TextChannel),
                 PlayerState.None => new NotConnectedStatus(),
                 _ => throw new Exception("Unexpected player status.")
             };

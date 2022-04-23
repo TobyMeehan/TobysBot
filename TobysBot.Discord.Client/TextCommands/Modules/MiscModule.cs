@@ -102,7 +102,7 @@ public class MiscModule : VoiceModuleBase
         {
             if (user.Id == Context.Client.CurrentUser.Id)
             {
-                if (IsUserInVoiceChannel(out var voice) && (PlayerStatus as IConnectedStatus)?.Channel.Id != voice.VoiceChannel.Id)
+                if (IsUserInVoiceChannel(out var voice) && (PlayerStatus as IConnectedStatus)?.VoiceChannel.Id != voice.VoiceChannel.Id)
                 {
                     await EnsureUserInVoiceAsync(false, true);
                     return;

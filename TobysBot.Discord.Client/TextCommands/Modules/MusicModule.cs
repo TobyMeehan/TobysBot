@@ -68,6 +68,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
 
         [Priority(3)]
         [Command("rebind")]
+        [Alias("bind")]
         [Summary("Rebind track notifications to the current text channel.")]
         public async Task RebindAsync()
         {
@@ -76,7 +77,25 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return;
             }
 
-            var channel = Context.Channel as ITextChannel;
+            if (Context.Channel is not ITextChannel channel)
+            {
+                return;
+            }
+            
+            if (_node.Status(Context.Guild) is not IConnectedStatus status)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                return;
+            }
+
+            if (status.TextChannel.Id == channel.Id)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription($"Already bound to {channel.Mention}")
+                    .Build());
+                return;
+            }
             
             await _node.RebindChannelAsync(channel);
             
@@ -105,6 +124,21 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return;
             }
 
+            if (_node.Status(Context.Guild) is not IConnectedStatus status)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                return;
+            }
+
+            if (status.TextChannel.Id == channel.Id)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription($"Already bound to {channel.Mention}")
+                    .Build());
+                return;
+            }
+            
             await _node.RebindChannelAsync(channel);
 
             await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildRebindEmbed(channel));
@@ -117,6 +151,21 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         {
             if (!await EnsureUserInSameVoiceAsync())
             {
+                return;
+            }
+
+            if (_node.Status(Context.Guild) is not IConnectedStatus status)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                return;
+            }
+
+            if (status.TextChannel.Id == channel.Id)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription($"Already bound to {channel.Mention}")
+                    .Build());
                 return;
             }
             
