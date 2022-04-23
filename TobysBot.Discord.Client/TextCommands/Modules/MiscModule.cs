@@ -17,14 +17,14 @@ using TobysBot.Discord.Client.TextCommands.Extensions;
 
 namespace TobysBot.Discord.Client.TextCommands.Modules;
 
-[HelpCategory("classic")]
-[Name("Classic")]
-public class ClassicModule : VoiceModuleBase
+[HelpCategory("misc")]
+[Name("Miscellaneous")]
+public class MiscModule : VoiceModuleBase
 {
     private readonly StarOptions _starOptions;
     private readonly DiscordClientOptions _options;
 
-    public ClassicModule(IOptions<DiscordClientOptions> options, IOptions<StarOptions> starOptions, IAudioNode node) : base(node)
+    public MiscModule(IOptions<DiscordClientOptions> options, IOptions<StarOptions> starOptions, IAudioNode node) : base(node)
     {
         _starOptions = starOptions.Value;
         _options = options.Value;
@@ -148,6 +148,22 @@ public class ClassicModule : VoiceModuleBase
             await ReplyAsync(
                 $"{user.Mention}, {Context.User.Mention} wants you to join them in whatever they are doing.");
         }
+
+        await Context.Message.DeleteAsync();
+    }
+
+    [Command("say")]
+    [Summary("Says a message.")]
+    public async Task SayAsync([Remainder] string message)
+    {
+        await Context.Channel.SendMessageAsync(message);
+    }
+
+    [Command("sayh")]
+    [Summary("Says a message and hides your command.")]
+    public async Task SayAndHideAsync([Remainder] string message)
+    {
+        await SayAsync(message);
 
         await Context.Message.DeleteAsync();
     }
