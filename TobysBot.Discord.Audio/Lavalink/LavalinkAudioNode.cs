@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using TobysBot.Discord.Audio.Extensions;
+using TobysBot.Discord.Audio.Status;
 using Victoria;
 using Victoria.Enums;
 using Victoria.EventArgs;
@@ -337,7 +338,7 @@ namespace TobysBot.Discord.Audio.Lavalink
         {
             if (!_node.TryGetPlayer(guild, out var player))
             {
-                return new NotPlayingStatus();
+                return new NotConnectedStatus();
             }
 
             return player.Status;

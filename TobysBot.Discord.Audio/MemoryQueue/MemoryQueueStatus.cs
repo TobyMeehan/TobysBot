@@ -6,7 +6,7 @@ namespace TobysBot.Discord.Audio.MemoryQueue;
 
 public class MemoryQueueStatus : IQueueStatus
 {
-    private IEnumerable<ITrack> _tracks;
+    private readonly IReadOnlyList<ITrack> _tracks;
 
     public MemoryQueueStatus(MemoryTrackCollection tracks)
     {
@@ -26,6 +26,7 @@ public class MemoryQueueStatus : IQueueStatus
     
     public LoopSetting LoopEnabled { get; }
     public ShuffleSetting ShuffleEnabled { get; }
+    public int Count => _tracks.Count;
 
     public IEnumerator<ITrack> GetEnumerator()
     {

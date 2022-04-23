@@ -6,6 +6,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TobysBot.Discord.Client.Configuration;
 
@@ -16,13 +17,15 @@ namespace TobysBot.Discord.Client.TextCommands
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
         private readonly IServiceProvider _serviceProvider;
+        private readonly ILogger<CommandHandler> _logger;
         private readonly DiscordClientOptions _options;
 
-        public CommandHandler(DiscordSocketClient client, CommandService commands, IServiceProvider serviceProvider, IOptions<DiscordClientOptions> options)
+        public CommandHandler(DiscordSocketClient client, CommandService commands, IServiceProvider serviceProvider, IOptions<DiscordClientOptions> options, ILogger<CommandHandler> logger)
         {
             _client = client;
             _commands = commands;
             _serviceProvider = serviceProvider;
+            _logger = logger;
             _options = options.Value;
         }
 
@@ -51,7 +54,12 @@ namespace TobysBot.Discord.Client.TextCommands
 
             var context = new SocketCommandContext(_client, message);
 
-            await _commands.ExecuteAsync(context, argPos: argPos, services: _serviceProvider);
+            var result = await _commands.ExecuteAsync(context, argPos: argPos, services: _serviceProvider);
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Command execution failed: {Error}: {Reason}", result.Error, result.ErrorReason);
+            }
         }
     }
 }

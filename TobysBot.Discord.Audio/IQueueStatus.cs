@@ -13,5 +13,6 @@ namespace TobysBot.Discord.Audio
         LoopSetting LoopEnabled { get; }
         
         ShuffleSetting ShuffleEnabled { get; }
+        int Count { get; }
     }
 }

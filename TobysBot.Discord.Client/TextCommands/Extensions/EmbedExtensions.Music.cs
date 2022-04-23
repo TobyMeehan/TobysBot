@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Discord;
 using TobysBot.Discord.Audio;
+using TobysBot.Discord.Audio.Status;
 using TobysBot.Discord.Client.Extensions;
 
 namespace TobysBot.Discord.Client.TextCommands.Extensions;
@@ -40,7 +41,7 @@ public static partial class EmbedExtensions
                              $"`{track.Position.ToTimeString()}` " +
                              $"{GetProgress(track.Position, track.Duration)} " +
                              $"`{track.Duration.ToTimeString()}` \n" +
-                             $"{(status is PausedStatus ? "⏸" : "▶")}" +
+                             $"{(status.IsPaused ? "⏸" : "▶")}" +
                              $"{(queueStatus.LoopEnabled is TrackLoopSetting ? " 🔂": "")}" +
                              $"{(queueStatus.LoopEnabled is QueueLoopSetting ? " 🔁" : "")}" +
                              $"{(queueStatus.ShuffleEnabled is EnabledShuffleSetting ? " 🔀" : "")}" +
@@ -66,7 +67,7 @@ public static partial class EmbedExtensions
         else
         {
             sb.AppendLine($"**{currentPosition + 1}. " +
-                          $"({(trackStatus is PausedStatus ? "⏸" : "▶")}" +
+                          $"({(trackStatus.IsPaused ? "⏸" : "▶")}" +
                           $"{(queue.LoopEnabled is TrackLoopSetting ? " 🔂": "")})** " +
                           $"[{current.Title}]({current.Url}) " +
                           $"`{current.Position.ToTimeString()}`/`{current.Duration.ToTimeString()}`");
