@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using TobysBot.Discord.Audio;
+using TobysBot.Discord.Audio.Status;
 using TobysBot.Discord.Client.TextCommands.Extensions;
 
 namespace TobysBot.Discord.Client.TextCommands.Modules
@@ -49,7 +50,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Summary("Join the voice channel.")]
         public async Task JoinAsync()
         {
-            await EnsureUserInVoiceAsync();
+            await EnsureUserInVoiceAsync(true, true);
         }
 
         [Command("leave", RunMode = RunMode.Async)]
@@ -72,7 +73,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Summary("Add the track to the queue.")]
         public async Task PlayAsync([Remainder] string query = null)
         {
-            if (!await EnsureUserInVoiceAsync(false))
+            if (!await EnsureUserInVoiceAsync(true, false))
             {
                 return;
             }
@@ -194,7 +195,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
 
             var status = _node.Status(Context.Guild);
 
-            if (status is PlayingStatus)
+            if (status is ITrackStatus {IsPaused: false})
             {
                 return;
             }
@@ -215,7 +216,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
 
             var status = _node.Status(Context.Guild);
 
-            if (status is not PlayingStatus)
+            if (status is not ITrackStatus {IsPaused: false})
             {
                 return;
             }
@@ -362,7 +363,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Summary("Stop playback and return to the start of the queue.")]
         public async Task StopAsync()
         {
-            if (!await EnsureUserInVoiceAsync())
+            if (!await EnsureUserInSameVoiceAsync())
             {
                 return;
             }

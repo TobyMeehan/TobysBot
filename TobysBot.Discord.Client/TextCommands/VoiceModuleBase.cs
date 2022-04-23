@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using TobysBot.Discord.Audio;
+using TobysBot.Discord.Audio.Status;
 using TobysBot.Discord.Client.TextCommands.Extensions;
 
 namespace TobysBot.Discord.Client.TextCommands;
@@ -31,11 +32,15 @@ public abstract class VoiceModuleBase : ModuleBase<SocketCommandContext>
         return voiceState.VoiceChannel.Id == Context.Guild.CurrentUser.VoiceChannel?.Id;
     }
 
-    protected async Task<bool> EnsureUserInVoiceAsync(bool joinVc = true)
+    protected async Task<bool> EnsureUserInVoiceAsync(bool required, bool joinVc)
     {
-        if (!IsUserInVoiceChannel(out IVoiceState voiceState))
+        if (!IsUserInVoiceChannel(out var voiceState))
         {
-            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildJoinVoiceEmbed());
+            if (required)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildJoinVoiceEmbed());
+            }
+
             return false;
         }
 
@@ -49,7 +54,7 @@ public abstract class VoiceModuleBase : ModuleBase<SocketCommandContext>
 
     protected async Task<bool> EnsureUserInSameVoiceAsync()
     {
-        if (!IsUserInSameVoiceChannel(out IVoiceState voiceState))
+        if (!IsUserInSameVoiceChannel(out _))
         {
             await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildJoinSameVoiceEmbed());
             return false;
@@ -57,4 +62,6 @@ public abstract class VoiceModuleBase : ModuleBase<SocketCommandContext>
 
         return true;
     }
+
+    protected IPlayerStatus PlayerStatus => _node.Status(Context.Guild);
 }
