@@ -1,0 +1,19 @@
+name: Caprover Deploy
+
+on:
+  push:
+    branches: [ dev, caprover-deploy ]
+
+jobs:
+
+  tobysbot:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - uses: AlexxNB/caprover-action@v1
+      with:
+        server: '${{ secrets.CAPROVER_DOMAIN }}'
+        password: '${{ secrets.CAPROVER_PASSWORD }}'
+        appname: 'tobysbot-preview'
