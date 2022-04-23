@@ -128,27 +128,15 @@ namespace TobysBot.Discord.Audio.Lavalink
         {
             var player = ThrowIfNoPlayer(guild);
 
-            SearchResponse search = await _node.SearchAsync(SearchType.Direct, source.SourceUrl);
-
-            List<ITrack> tracks = new List<ITrack>();
+            var tracks = new List<ITrack>();
 
             if (source is ITrack track)
             {
-                if (search.Status != SearchStatus.TrackLoaded)
-                {
-                    throw new Exception(search.Exception.Message);
-                }
-
                 tracks.Add(track);
             }
 
             if (source is IPlaylist playlist)
             {
-                if (search.Status != SearchStatus.PlaylistLoaded)
-                {
-                    throw new Exception(search.Exception.Message);
-                }
-
                 tracks.AddRange(playlist);
             }
 
@@ -159,7 +147,7 @@ namespace TobysBot.Discord.Audio.Lavalink
                 try
                 {
                     var trackToPlay = tracks.First();
-                    await player.PlayAsync(search.Tracks.First(), trackToPlay.Title, trackToPlay.Author);
+                    await player.PlayAsync(await _node.LoadTrackAsync(trackToPlay), trackToPlay.Title, trackToPlay.Author);
                 }
                 catch (Exception ex)
                 {
