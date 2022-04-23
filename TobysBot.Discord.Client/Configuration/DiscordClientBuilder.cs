@@ -1,6 +1,7 @@
 using System;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using SpotifyAPI.Web;
@@ -43,7 +44,7 @@ public class DiscordClientBuilder
   
         return this;
     }
-
+  
     public DiscordClientBuilder AddSpotifyClient(Action<SpotifyOptions> configureOptions = null)
     {
         Services.Configure(configureOptions);
@@ -58,6 +59,11 @@ public class DiscordClientBuilder
         });
 
         Services.AddTransient<ISpotifyClient, SpotifyClient>();
+    }
+  
+    public DiscordClientBuilder ConfigureStar(IConfiguration config)
+    {
+        Services.Configure<StarOptions>(config);
 
         return this;
     }

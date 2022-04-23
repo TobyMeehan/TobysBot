@@ -15,8 +15,9 @@ namespace TobysBot.Discord.Audio.MemoryQueue
         public IEnumerable<MemoryTrack> Played => _tracks.Take(_currentIndex);
         public IEnumerable<MemoryTrack> Queue => _tracks.Skip(_currentIndex + 1);
 
-        public MemoryActiveTrack CurrentTrack => new(_tracks.ElementAtOrDefault(_currentIndex), _currentPosition);
-        
+        public MemoryActiveTrack CurrentTrack => _currentIndex < _tracks.Count
+            ? new MemoryActiveTrack(_tracks.ElementAtOrDefault(_currentIndex), _currentPosition)
+            : null;
 
         private TimeSpan _currentPosition = TimeSpan.Zero;
 

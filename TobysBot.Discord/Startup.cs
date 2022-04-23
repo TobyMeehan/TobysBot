@@ -40,6 +40,7 @@ namespace TobysBot.Discord
                     options.Prefix = Configuration.GetSection("Discord")["Prefix"];
                     options.TobyId = Configuration.GetSection("Discord").GetValue<ulong>("TobyId");
                 })
+                .ConfigureStar(Configuration.GetSection("Star"))
                 .AddLavaNode(options =>
                 {
                     options.SelfDeaf = false;

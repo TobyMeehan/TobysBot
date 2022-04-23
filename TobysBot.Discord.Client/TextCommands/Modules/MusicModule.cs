@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using TobysBot.Discord.Audio;
+using TobysBot.Discord.Audio.Status;
 using TobysBot.Discord.Client.TextCommands.Extensions;
 
 namespace TobysBot.Discord.Client.TextCommands.Modules
@@ -49,7 +50,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Summary("Join the voice channel.")]
         public async Task JoinAsync()
         {
-            await EnsureUserInVoiceAsync();
+            await EnsureUserInVoiceAsync(true, true);
         }
 
         [Command("leave", RunMode = RunMode.Async)]
@@ -64,7 +65,66 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
 
             await _node.LeaveAsync(Context.Guild);
         }
+
+        [Priority(3)]
+        [Command("rebind")]
+        [Summary("Rebind track notifications to the current text channel.")]
+        public async Task RebindAsync()
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var channel = Context.Channel as ITextChannel;
+            
+            await _node.RebindChannelAsync(channel);
+            
+            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildRebindEmbed(channel));
+        }
+
+        [Priority(1)]
+        [Command("rebind")]
+        [Summary("Rebind track notifications to the specified text channel.")]
+        public async Task RebindAsync(string channelName)
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var channel = Context.Guild.TextChannels.FirstOrDefault(c => c.Name == channelName);
+
+            if (channel is null)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription($"Could not find a text channel with name {channelName}")
+                    .Build());
+                
+                return;
+            }
+
+            await _node.RebindChannelAsync(channel);
+
+            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildRebindEmbed(channel));
+        }
         
+        [Priority(2)]
+        [Command("rebind")]
+        [Summary("Rebind track notifications to the specified text channel.")]
+        public async Task RebindAsync(ITextChannel channel)
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+            
+            await _node.RebindChannelAsync(channel);
+            
+            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildRebindEmbed(channel));
+        }
+
         // Player
 
         [Command("play", RunMode = RunMode.Async)]
@@ -72,7 +132,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Summary("Add the track to the queue.")]
         public async Task PlayAsync([Remainder] string query = null)
         {
-            if (!await EnsureUserInVoiceAsync(false))
+            if (!await EnsureUserInVoiceAsync(true, true))
             {
                 return;
             }
@@ -194,7 +254,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
 
             var status = _node.Status(Context.Guild);
 
-            if (status is PlayingStatus)
+            if (status is ITrackStatus {IsPaused: false})
             {
                 return;
             }
@@ -215,7 +275,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
 
             var status = _node.Status(Context.Guild);
 
-            if (status is not PlayingStatus)
+            if (status is not ITrackStatus {IsPaused: false})
             {
                 return;
             }
@@ -362,7 +422,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Summary("Stop playback and return to the start of the queue.")]
         public async Task StopAsync()
         {
-            if (!await EnsureUserInVoiceAsync())
+            if (!await EnsureUserInSameVoiceAsync())
             {
                 return;
             }
@@ -774,18 +834,26 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Summary("Display the queue.")]
         public async Task QueueAsync()
         {
-            var status = _node.Status(Context.Guild);
-            var queue = await _node.GetQueueAsync(Context.Guild);
-
-            var trackStatus = status as ITrackStatus;
-            
-            if (trackStatus is null && queue is null)
+            try
             {
-                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
-                return;
-            }
+                var status = _node.Status(Context.Guild);
+                var queue = await _node.GetQueueAsync(Context.Guild);
 
-            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildQueueEmbed(queue, trackStatus));
+                var trackStatus = status as ITrackStatus;
+            
+                if (trackStatus is null && queue is null or {Count: 0})
+                {
+                    await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildNotPlayingEmbed());
+                    return;
+                }
+
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildQueueEmbed(queue, trackStatus));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         [Command("lyrics", RunMode = RunMode.Async)]

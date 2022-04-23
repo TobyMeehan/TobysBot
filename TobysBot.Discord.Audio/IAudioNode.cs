@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using TobysBot.Discord.Audio.Status;
 
 namespace TobysBot.Discord.Audio
 {
@@ -24,6 +25,13 @@ namespace TobysBot.Discord.Audio
         /// <param name="guild">Guild to attempt to disconnect.</param>
         /// <returns></returns>
         Task LeaveAsync(IGuild guild);
+
+        /// <summary>
+        /// Rebinds the player to the specified text channel.
+        /// </summary>
+        /// <param name="textChannel"></param>
+        /// <returns></returns>
+        Task RebindChannelAsync(ITextChannel textChannel);
 
         // Player
 

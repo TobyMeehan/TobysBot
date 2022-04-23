@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Discord;
+using TobysBot.Discord.Audio.Status;
 using Victoria;
 using Victoria.Enums;
 
@@ -31,9 +32,11 @@ public class XLavaPlayer : LavaPlayer
         {
             return PlayerState switch
             {
-                PlayerState.Playing => new PlayingStatus(new LavalinkActiveTrack(Track, _title, _author)),
-                PlayerState.Paused => new PausedStatus(new LavalinkActiveTrack(Track, _title, _author)),
-                _ => new NotPlayingStatus()
+                PlayerState.Playing => new TrackStatus(new LavalinkActiveTrack(Track, _title, _author), VoiceChannel, false),
+                PlayerState.Paused => new TrackStatus(new LavalinkActiveTrack(Track, _title, _author), VoiceChannel, true),
+                PlayerState.Stopped => new NotPlayingStatus(VoiceChannel),
+                PlayerState.None => new NotConnectedStatus(),
+                _ => throw new Exception("Unexpected player status.")
             };
         }
     }
