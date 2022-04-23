@@ -65,7 +65,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             await _node.LeaveAsync(Context.Guild);
         }
 
-        [Priority(1)]
+        [Priority(3)]
         [Command("rebind")]
         [Summary("Rebind track notifications to the current text channel.")]
         public async Task RebindAsync()
@@ -75,23 +75,14 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
                 return;
             }
 
-            await _node.RebindChannelAsync(Context.Channel as ITextChannel);
-        }
-        
-        [Priority(2)]
-        [Command("rebind")]
-        [Summary("Rebind track notifications to the specified text channel.")]
-        public async Task RebindAsync(ITextChannel channel)
-        {
-            if (!await EnsureUserInSameVoiceAsync())
-            {
-                return;
-            }
+            var channel = Context.Channel as ITextChannel;
             
             await _node.RebindChannelAsync(channel);
+            
+            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildRebindEmbed(channel));
         }
 
-        [Priority(3)]
+        [Priority(1)]
         [Command("rebind")]
         [Summary("Rebind track notifications to the specified text channel.")]
         public async Task RebindAsync(string channelName)
@@ -105,17 +96,33 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
 
             if (channel is null)
             {
-                await ReplyAsync(embed: new EmbedBuilder()
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
                     .WithContext(EmbedContext.Error)
-                    .WithDescription($"Could not find a text channel with name {channelName}.")
+                    .WithDescription($"Could not find a text channel with name {channelName}")
                     .Build());
                 
                 return;
             }
 
             await _node.RebindChannelAsync(channel);
-        }
 
+            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildRebindEmbed(channel));
+        }
+        
+        [Priority(2)]
+        [Command("rebind")]
+        [Summary("Rebind track notifications to the specified text channel.")]
+        public async Task RebindAsync(ITextChannel channel)
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+            
+            await _node.RebindChannelAsync(channel);
+            
+            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildRebindEmbed(channel));
+        }
 
         // Player
 

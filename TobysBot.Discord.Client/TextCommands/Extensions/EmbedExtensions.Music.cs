@@ -10,6 +10,14 @@ namespace TobysBot.Discord.Client.TextCommands.Extensions;
 
 public static partial class EmbedExtensions
 {
+    public static Embed BuildRebindEmbed(this EmbedBuilder embed, ITextChannel channel)
+    {
+        return embed
+            .WithContext(EmbedContext.Action)
+            .WithDescription($"Player messages now bound to {channel.Mention}")
+            .Build();
+    }
+    
     private static string GetProgress(TimeSpan position, TimeSpan duration)
     {
         double fraction = (double)position.Ticks / (double)duration.Ticks;
