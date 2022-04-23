@@ -1,6 +1,7 @@
 using System;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TobysBot.Discord.Audio;
 using TobysBot.Discord.Audio.Lavalink;
@@ -39,6 +40,13 @@ public class DiscordClientBuilder
         Services.AddTransient<IAudioEventListener, AudioEventListener>();
         Services.AddHostedService<LavalinkHostedService>();
   
+        return this;
+    }
+
+    public DiscordClientBuilder ConfigureStar(IConfiguration config)
+    {
+        Services.Configure<StarOptions>(config);
+
         return this;
     }
 }

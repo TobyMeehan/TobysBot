@@ -11,6 +11,7 @@ using Discord;
 using Discord.Commands;
 using Microsoft.Extensions.Options;
 using TobysBot.Discord.Client.Configuration;
+using TobysBot.Discord.Client.TextCommands.Extensions;
 
 namespace TobysBot.Discord.Client.TextCommands.Modules;
 
@@ -18,20 +19,25 @@ namespace TobysBot.Discord.Client.TextCommands.Modules;
 [Name("Classic")]
 public class ClassicModule : ModuleBase<SocketCommandContext>
 {
+    private readonly StarOptions _starOptions;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly DiscordClientOptions _options;
 
-    public ClassicModule(IOptions<DiscordClientOptions> options, IHttpClientFactory httpClientFactory)
+    public ClassicModule(IOptions<DiscordClientOptions> options, IOptions<StarOptions> starOptions,
+        IHttpClientFactory httpClientFactory)
     {
+        _starOptions = starOptions.Value;
         _httpClientFactory = httpClientFactory;
         _options = options.Value;
     }
+
+    private string Star(string star) => $"{star} is a star. S T A R  S T A R";
 
     [Command("pop")]
     [Summary("Calls the user a pop pop head.")]
     public async Task PopAsync(IUser user = null)
     {
-        if (user is null)
+        if (user is null || user.Id == Context.User.Id)
         {
             await Context.Message.ReplyAsync("You are a pop pop head.");
             return;
@@ -45,12 +51,42 @@ public class ClassicModule : ModuleBase<SocketCommandContext>
 
         if (user.Id == _options.TobyId)
         {
-            await ReplyAsync($"{user.Mention} is a star. S T A R  S T A R");
+            await ReplyAsync(Star(user.Mention));
         }
         else
         {
             await ReplyAsync($"{user.Mention} is a pop pop head.");
         }
+
+        await Context.Message.DeleteAsync();
+    }
+
+
+    [Command("star")]
+    [Summary("Declares the user an S T A R")]
+    public async Task StarAsync(IUser user = null)
+    {
+        if (user is null)
+        {
+            var star = _starOptions.Stars.SelectRandom();
+
+            await Context.Channel.SendMessageAsync(Star(star));
+
+            return;
+        }
+
+        if (user.Id == Context.Client.CurrentUser.Id)
+        {
+            await Context.Channel.SendMessageAsync("I am a star. S T A R  S T A R");
+            return;
+        }
+        if (user.Id == Context.User.Id)
+        {
+            await Context.Channel.SendMessageAsync("You are a star. S T A R  S T A R");
+            return;
+        }
+
+        await Context.Channel.SendMessageAsync(Star(user.Mention));
 
         await Context.Message.DeleteAsync();
     }
