@@ -10,7 +10,7 @@ public class SpotifyTrack : ITrack
     public SpotifyTrack(FullTrack track, ITrack innerTrack)
     {
         _innerTrack = innerTrack;
-        Url = track.Href;
+        Url = $"https://open.spotify.com/track/{track.Id}";
         Title = track.Name;
         Author = track.Artists[0].Name;
     }

@@ -68,6 +68,7 @@ namespace TobysBot.Discord.Audio.Lavalink
             return uri.Segments[1] switch
             {
                 "track/" => await LoadSpotifyTrackAsync(uri.Segments[2]),
+                "album/" => await LoadSpotifyAlbumAsync(uri.Segments[2]),
                 "playlist/" => await LoadSpotifyPlaylistAsync(uri.Segments[2]),
                 _ => new NotPlayable(new Exception("Invalid spotify url."))
             };
@@ -102,6 +103,37 @@ namespace TobysBot.Discord.Audio.Lavalink
             return new NotPlayable(new Exception("Could not find source for spotify track."));
         }
 
+        private async Task<IPlayable> LoadSpotifyAlbumAsync(string id)
+        {
+            var album = await _spotify.Albums.Get(id);
+
+            if (album.Tracks?.Items is null)
+            {
+                return new NotPlayable(new Exception("Could not load spotify album."));
+            }
+            
+            var tracks = new List<SpotifyTrack>();
+
+            foreach (var track in album.Tracks.Items)
+            {
+                var playable = await LoadSpotifyTrackAsync(track.Id);
+
+                if (playable is not SpotifyTrack spotifyTrack)
+                {
+                    continue;
+                }
+                
+                tracks.Add(spotifyTrack);
+            }
+
+            if (!tracks.Any())
+            {
+                return new NotPlayable(new Exception("Could not load spotify album."));
+            }
+
+            return new SpotifyPlaylist(album, tracks);
+        }
+        
         private async Task<IPlayable> LoadSpotifyPlaylistAsync(string id)
         {
             var playlist = await _spotify.Playlists.Get(id);

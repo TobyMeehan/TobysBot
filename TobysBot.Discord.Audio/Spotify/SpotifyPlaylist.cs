@@ -8,10 +8,17 @@ public class SpotifyPlaylist : IPlaylist
 {
     private readonly IEnumerable<SpotifyTrack> _tracks;
 
+    public SpotifyPlaylist(FullAlbum album, IEnumerable<SpotifyTrack> tracks)
+    {
+        _tracks = tracks;
+        Url = $"https://open.spotify.com/album/{album.Id}";
+        Title = album.Name;
+    }
+
     public SpotifyPlaylist(FullPlaylist playlist, IEnumerable<SpotifyTrack> tracks)
     {
         _tracks = tracks;
-        Url = playlist.Href;
+        Url = $"https://open.spotify.com/playlist/{playlist.Id}";
         Title = playlist.Name;
     }
     
