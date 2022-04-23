@@ -64,7 +64,66 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
 
             await _node.LeaveAsync(Context.Guild);
         }
+
+        [Priority(3)]
+        [Command("rebind")]
+        [Summary("Rebind track notifications to the current text channel.")]
+        public async Task RebindAsync()
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var channel = Context.Channel as ITextChannel;
+            
+            await _node.RebindChannelAsync(channel);
+            
+            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildRebindEmbed(channel));
+        }
+
+        [Priority(1)]
+        [Command("rebind")]
+        [Summary("Rebind track notifications to the specified text channel.")]
+        public async Task RebindAsync(string channelName)
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var channel = Context.Guild.TextChannels.FirstOrDefault(c => c.Name == channelName);
+
+            if (channel is null)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription($"Could not find a text channel with name {channelName}")
+                    .Build());
+                
+                return;
+            }
+
+            await _node.RebindChannelAsync(channel);
+
+            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildRebindEmbed(channel));
+        }
         
+        [Priority(2)]
+        [Command("rebind")]
+        [Summary("Rebind track notifications to the specified text channel.")]
+        public async Task RebindAsync(ITextChannel channel)
+        {
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+            
+            await _node.RebindChannelAsync(channel);
+            
+            await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildRebindEmbed(channel));
+        }
+
         // Player
 
         [Command("play", RunMode = RunMode.Async)]
