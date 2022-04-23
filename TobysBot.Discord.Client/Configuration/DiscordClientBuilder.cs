@@ -59,6 +59,8 @@ public class DiscordClientBuilder
         });
 
         Services.AddTransient<ISpotifyClient, SpotifyClient>();
+
+        return this;
     }
   
     public DiscordClientBuilder ConfigureStar(IConfiguration config)
