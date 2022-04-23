@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Microsoft.Extensions.Options;
+using TobysBot.Discord.Audio;
+using TobysBot.Discord.Audio.Status;
 using TobysBot.Discord.Client.Configuration;
 using TobysBot.Discord.Client.TextCommands.Extensions;
 
@@ -17,17 +19,14 @@ namespace TobysBot.Discord.Client.TextCommands.Modules;
 
 [HelpCategory("classic")]
 [Name("Classic")]
-public class ClassicModule : ModuleBase<SocketCommandContext>
+public class ClassicModule : VoiceModuleBase
 {
     private readonly StarOptions _starOptions;
-    private readonly IHttpClientFactory _httpClientFactory;
     private readonly DiscordClientOptions _options;
 
-    public ClassicModule(IOptions<DiscordClientOptions> options, IOptions<StarOptions> starOptions,
-        IHttpClientFactory httpClientFactory)
+    public ClassicModule(IOptions<DiscordClientOptions> options, IOptions<StarOptions> starOptions, IAudioNode node) : base(node)
     {
         _starOptions = starOptions.Value;
-        _httpClientFactory = httpClientFactory;
         _options = options.Value;
     }
 
@@ -93,25 +92,38 @@ public class ClassicModule : ModuleBase<SocketCommandContext>
 
     [Command("summon")]
     [Summary("Summons the user to your activity.")]
-    public async Task SummonAsync(IUser user)
+    public async Task SummonAsync(IUser user = null, IRole role = null)
     {
-        if (user.Id == Context.Client.CurrentUser.Id)
-        {
-            await Context.Message.ReplyAsync("Do not worry, I am here.");
-            return;
-        }
+        IMentionable mention = role;
+        user ??= Context.Client.CurrentUser;
+        mention ??= user;
 
-        if (user.Id == Context.User.Id)
+        if (mention is IUser)
         {
-            await Context.Message.ReplyAsync("Consider yourself summoned.");
-            return;
+            if (user.Id == Context.Client.CurrentUser.Id)
+            {
+                if (IsUserInVoiceChannel(out var voice) && (PlayerStatus as IConnectedStatus)?.Channel.Id != voice.VoiceChannel.Id)
+                {
+                    await EnsureUserInVoiceAsync(false, true);
+                    return;
+                }
+            
+                await Context.Message.ReplyAsync("Do not worry, I am here.");
+                return;
+            }
+            
+            if (user.Id == Context.User.Id)
+            {
+                await Context.Message.ReplyAsync("Consider yourself summoned.");
+                return;
+            }
         }
 
         if (Context.User.Activities.Any())
         {
             var activity = Context.User.Activities.First();
 
-            await ReplyAsync($"{user.Mention}, {Context.User.Mention} wants you to join them in {activity.Name}");
+            await ReplyAsync($"{mention.Mention}, {Context.User.Mention} wants you to join them in {activity.Name}");
         }
         else if (Context.User is IVoiceState voiceState && voiceState.VoiceChannel?.GuildId == Context.Guild.Id)
         {
