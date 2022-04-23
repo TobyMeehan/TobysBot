@@ -49,10 +49,12 @@ namespace TobysBot.Discord.Audio.Lavalink
 
             var result = await _node.SearchYouTubeAsync(query);
 
+            var track = result.Tracks.FirstOrDefault();
+            
             return result.Status switch
             {
-                SearchStatus.SearchResult => new LavalinkTrack(result.Tracks.FirstOrDefault()),
-                SearchStatus.TrackLoaded => new LavalinkTrack(result.Tracks.FirstOrDefault()),
+                SearchStatus.SearchResult => new LavalinkTrack(track, track?.Title, track?.Author),
+                SearchStatus.TrackLoaded => new LavalinkTrack(track, track?.Title, track?.Author),
                 SearchStatus.PlaylistLoaded => new LavalinkPlaylist(result.Tracks, query, result.Playlist.Name,
                     result.Playlist.SelectedTrack),
                 SearchStatus.NoMatches => null,
@@ -160,7 +162,9 @@ namespace TobysBot.Discord.Audio.Lavalink
                 return new NotPlayable(new Exception(result.Exception.Message));
             }
 
-            return new LavalinkTrack(result.Tracks.First());
+            var track = result.Tracks.First();
+            
+            return new LavalinkTrack(track, track.Title, track.Author);
         }
 
         private async Task<IPlayable> LoadYoutubePlaylistAsync(string id, int index = 0)
@@ -182,9 +186,11 @@ namespace TobysBot.Discord.Audio.Lavalink
             var url = uri.AbsoluteUri;
             var result = await _node.SearchAsync(SearchType.Direct, url);
 
+            var track = result.Tracks.First();
+            
             if (result.IsTrackLoadedStatus())
             {
-                return new LavalinkTrack(result.Tracks.First());
+                return new LavalinkTrack(track, track.Title, track.Author);
             }
 
             if (result.IsPlaylistLoadedStatus())
@@ -218,7 +224,8 @@ namespace TobysBot.Discord.Audio.Lavalink
                     case "video/x-ms-wmv":
                     case "video/x-matroska":
 
-                        var track = new LavalinkTrack(await _node.LoadTrackAsync(attachment.Url));
+                        var lavaTrack = await _node.LoadTrackAsync(attachment.Url);
+                        var track = new LavalinkTrack(lavaTrack, lavaTrack.Title, lavaTrack.Author);
                         playlist.Add(track);
                         
                         break;

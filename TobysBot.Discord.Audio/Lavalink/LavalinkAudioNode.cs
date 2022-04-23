@@ -158,7 +158,8 @@ namespace TobysBot.Discord.Audio.Lavalink
             {
                 try
                 {
-                    await player.PlayAsync(search.Tracks.First());
+                    var trackToPlay = tracks.First();
+                    await player.PlayAsync(search.Tracks.First(), trackToPlay.Title, trackToPlay.Author);
                 }
                 catch (Exception ex)
                 {
@@ -229,7 +230,7 @@ namespace TobysBot.Discord.Audio.Lavalink
             }
             else
             {
-                await player.PlayAsync(await _node.LoadTrackAsync(nextTrack));
+                await player.PlayAsync(await _node.LoadTrackAsync(nextTrack), nextTrack.Title, nextTrack.Author);
             }
             
             return nextTrack;

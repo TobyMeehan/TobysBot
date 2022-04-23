@@ -11,8 +11,19 @@ public class XLavaPlayer : LavaPlayer
     public XLavaPlayer(LavaSocket lavaSocket, IVoiceChannel voiceChannel, ITextChannel textChannel) : base(lavaSocket, voiceChannel, textChannel)
     {
     }
+
+    private string _title;
+    private string _author;
     
-    public ITrack CurrentTrack => new LavalinkTrack(Track);
+    public async Task PlayAsync(LavaTrack track, string title, string author)
+    {
+        await PlayAsync(track);
+
+        _title = title;
+        _author = author;
+    }
+    
+    public ITrack CurrentTrack => new LavalinkTrack(Track, _title, _author);
 
     public IPlayerStatus Status
     {
@@ -20,8 +31,8 @@ public class XLavaPlayer : LavaPlayer
         {
             return PlayerState switch
             {
-                PlayerState.Playing => new PlayingStatus(new LavalinkActiveTrack(Track)),
-                PlayerState.Paused => new PausedStatus(new LavalinkActiveTrack(Track)),
+                PlayerState.Playing => new PlayingStatus(new LavalinkActiveTrack(Track, _title, _author)),
+                PlayerState.Paused => new PausedStatus(new LavalinkActiveTrack(Track, _title, _author)),
                 _ => new NotPlayingStatus()
             };
         }
