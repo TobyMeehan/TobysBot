@@ -6,14 +6,18 @@ on:
 
 jobs:
 
-  tobysbot:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
+    
+    - id: branch-name
+      uses: tj-actions/branch-names@v5.2
     
     - uses: AlexxNB/caprover-action@v1
       with:
         server: '${{ secrets.CAPROVER_DOMAIN }}'
         password: '${{ secrets.CAPROVER_PASSWORD }}'
         appname: 'tobysbot-preview'
+        branch: ${{ steps.branch-name.outputs.current_branch }}
