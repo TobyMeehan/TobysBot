@@ -13,14 +13,14 @@ namespace TobysBot.Discord.Audio.Lavalink
         {
             _tracks =
                 from track in tracks.Skip(startPos)
-                select new LavalinkTrack(track);
+                select new LavalinkTrack(track, track.Title, track.Author);
             
             Url = url;
             Title = title;
         }
         
         public string Url { get; }
-        
+        public string SourceUrl => Url;
         public string Title { get; }
 
         public IEnumerator<ITrack> GetEnumerator()

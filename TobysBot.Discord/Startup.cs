@@ -50,6 +50,11 @@ namespace TobysBot.Discord
                     options.Authorization = lavalinkConfig["Authorization"];
 
                     options.LogSeverity = LogSeverity.Verbose;
+                })
+                .AddSpotifyClient(options =>
+                {
+                    options.ClientId = Configuration.GetSection("Spotify")["ClientId"];
+                    options.ClientSecret = Configuration.GetSection("Spotify")["ClientSecret"];
                 });
 
             services.Configure<MikeGapesOptions>(Configuration.GetSection("MikeGapes"));

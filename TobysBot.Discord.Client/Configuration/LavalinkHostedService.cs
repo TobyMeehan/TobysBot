@@ -14,12 +14,14 @@ namespace TobysBot.Discord.Client.Configuration;
 public class LavalinkHostedService : IHostedService, IDiscordReadyEventListener
 {
     private readonly LavaNode<XLavaPlayer> _node;
+    private readonly IQueue _queue;
     private readonly ILogger<LavalinkHostedService> _logger;
     private readonly IEnumerable<IAudioEventListener> _audioEventListeners;
 
-    public LavalinkHostedService(LavaNode<XLavaPlayer> node, ILogger<LavalinkHostedService> logger, IEnumerable<IAudioEventListener> audioEventListeners)
+    public LavalinkHostedService(LavaNode<XLavaPlayer> node, IQueue queue, ILogger<LavalinkHostedService> logger, IEnumerable<IAudioEventListener> audioEventListeners)
     {
         _node = node;
+        _queue = queue;
         _logger = logger;
         _audioEventListeners = audioEventListeners;
     }
@@ -35,7 +37,7 @@ public class LavalinkHostedService : IHostedService, IDiscordReadyEventListener
 
         _node.OnTrackEnded += async args =>
         {
-            ITrack track = new LavalinkTrack(args.Track);
+            ITrack track = new LavalinkTrack(args.Track, args.Track.Title, args.Track.Author);
             ITextChannel textChannel = args.Player.TextChannel;
 
             foreach (var listener in _audioEventListeners)
@@ -46,7 +48,7 @@ public class LavalinkHostedService : IHostedService, IDiscordReadyEventListener
 
         _node.OnTrackException += async args =>
         {
-            ITrack track = new LavalinkTrack(args.Track);
+            ITrack track = new LavalinkTrack(args.Track, args.Track.Title, args.Track.Author);
             ITextChannel textChannel = args.Player.TextChannel;
 
             foreach (var listener in _audioEventListeners)
@@ -57,7 +59,8 @@ public class LavalinkHostedService : IHostedService, IDiscordReadyEventListener
 
         _node.OnTrackStarted += async args =>
         {
-            ITrack track = new LavalinkTrack(args.Track);
+            var queue = await _queue.GetAsync(args.Player.VoiceChannel.GuildId);
+            ITrack track = queue.CurrentTrack;
             ITextChannel textChannel = args.Player.TextChannel;
 
             foreach (var listener in _audioEventListeners)
@@ -68,7 +71,7 @@ public class LavalinkHostedService : IHostedService, IDiscordReadyEventListener
 
         _node.OnTrackStuck += async args =>
         {
-            ITrack track = new LavalinkTrack(args.Track);
+            ITrack track = new LavalinkTrack(args.Track, args.Track.Title, args.Track.Author);
             ITextChannel textChannel = args.Player.TextChannel;
 
             foreach (var listener in _audioEventListeners)

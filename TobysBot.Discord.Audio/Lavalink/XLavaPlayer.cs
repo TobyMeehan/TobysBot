@@ -12,8 +12,19 @@ public class XLavaPlayer : LavaPlayer
     public XLavaPlayer(LavaSocket lavaSocket, IVoiceChannel voiceChannel, ITextChannel textChannel) : base(lavaSocket, voiceChannel, textChannel)
     {
     }
+
+    private string _title;
+    private string _author;
     
-    public ITrack CurrentTrack => new LavalinkTrack(Track);
+    public async Task PlayAsync(LavaTrack track, string title, string author)
+    {
+        await PlayAsync(track);
+
+        _title = title;
+        _author = author;
+    }
+    
+    public ITrack CurrentTrack => new LavalinkTrack(Track, _title, _author);
 
     public IPlayerStatus Status
     {
@@ -21,8 +32,8 @@ public class XLavaPlayer : LavaPlayer
         {
             return PlayerState switch
             {
-                PlayerState.Playing => new TrackStatus(new LavalinkActiveTrack(Track), VoiceChannel, false),
-                PlayerState.Paused => new TrackStatus(new LavalinkActiveTrack(Track), VoiceChannel, true),
+                PlayerState.Playing => new TrackStatus(new LavalinkActiveTrack(Track, _title, _author), VoiceChannel, false),
+                PlayerState.Paused => new TrackStatus(new LavalinkActiveTrack(Track, _title, _author), VoiceChannel, true),
                 PlayerState.Stopped => new NotPlayingStatus(VoiceChannel),
                 PlayerState.None => new NotConnectedStatus(),
                 _ => throw new Exception("Unexpected player status.")
