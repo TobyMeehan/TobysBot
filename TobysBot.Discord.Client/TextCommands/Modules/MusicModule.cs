@@ -73,7 +73,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Summary("Add the track to the queue.")]
         public async Task PlayAsync([Remainder] string query = null)
         {
-            if (!await EnsureUserInVoiceAsync(true, false))
+            if (!await EnsureUserInVoiceAsync(true, true))
             {
                 return;
             }
