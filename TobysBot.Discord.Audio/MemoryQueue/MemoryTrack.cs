@@ -11,6 +11,7 @@ public class MemoryTrack : ITrack
         Id = track.Id;
         Duration = track.Duration;
         Author = track.Author;
+        SourceUrl = track.SourceUrl;
     }
     
     public string Url { get; }
@@ -18,6 +19,7 @@ public class MemoryTrack : ITrack
     public string Id { get; }
     public TimeSpan Duration { get; }
     public string Author { get; }
+    public string SourceUrl { get; }
 }
 
 public class MemoryActiveTrack : MemoryTrack, IActiveTrack

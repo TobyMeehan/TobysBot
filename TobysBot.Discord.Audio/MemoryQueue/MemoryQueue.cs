@@ -64,7 +64,7 @@ namespace TobysBot.Discord.Audio.MemoryQueue
         {
             if (!_queue.TryGetValue(guild, out var queue))
             {
-                return Task.FromResult<IQueueStatus>(null);
+                return Task.FromResult<IQueueStatus>(new EmptyQueueStatus());
             }
 
             return Task.FromResult<IQueueStatus>(new MemoryQueueStatus(queue));

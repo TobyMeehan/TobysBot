@@ -16,6 +16,7 @@ public class AttachmentPlaylist : IPlaylist
     }
     
     public string Url { get; }
+    public string SourceUrl => Url;
     public string Title { get; }
 
     public void Add(ITrack track)

@@ -10,6 +10,7 @@ public class NotPlayable : IPlayable
     }
 
     public string Url => null;
+    public string SourceUrl => null;
     public string Title => null;
 
     public Exception Exception { get; }

@@ -6,7 +6,9 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using Discord;
+using SpotifyAPI.Web;
 using TobysBot.Discord.Audio.Extensions;
+using TobysBot.Discord.Audio.Spotify;
 using Victoria;
 using Victoria.Responses.Search;
 
@@ -16,11 +18,13 @@ namespace TobysBot.Discord.Audio.Lavalink
     {
         private readonly LavaNode<XLavaPlayer> _node;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ISpotifyClient _spotify;
 
-        public LavalinkAudioSource(LavaNode<XLavaPlayer> node, IHttpClientFactory httpClientFactory)
+        public LavalinkAudioSource(LavaNode<XLavaPlayer> node, IHttpClientFactory httpClientFactory, ISpotifyClient spotify)
         {
             _node = node;
             _httpClientFactory = httpClientFactory;
+            _spotify = spotify;
         }
         
         public async Task<IPlayable> SearchAsync(string query)
@@ -34,6 +38,10 @@ namespace TobysBot.Discord.Audio.Lavalink
                     case "music.youtube.com":
                         return await LoadFromYoutubeAsync(uri);
                     
+                    case "open.spotify.com":
+
+                        return await LoadFromSpotifyAsync(uri);
+                    
                     default:
                         return await LoadFromUriAsync(uri);
                 }
@@ -41,16 +49,125 @@ namespace TobysBot.Discord.Audio.Lavalink
 
             var result = await _node.SearchYouTubeAsync(query);
 
+            var track = result.Tracks.FirstOrDefault();
+            
             return result.Status switch
             {
-                SearchStatus.SearchResult => new LavalinkTrack(result.Tracks.FirstOrDefault()),
-                SearchStatus.TrackLoaded => new LavalinkTrack(result.Tracks.FirstOrDefault()),
+                SearchStatus.SearchResult => new LavalinkTrack(track, track?.Title, track?.Author),
+                SearchStatus.TrackLoaded => new LavalinkTrack(track, track?.Title, track?.Author),
                 SearchStatus.PlaylistLoaded => new LavalinkPlaylist(result.Tracks, query, result.Playlist.Name,
                     result.Playlist.SelectedTrack),
                 SearchStatus.NoMatches => null,
                 SearchStatus.LoadFailed => new NotPlayable(new Exception(result.Exception.Message)),
                 _ => throw new ArgumentOutOfRangeException()
             };
+        }
+
+        private async Task<IPlayable> LoadFromSpotifyAsync(Uri uri)
+        {
+            return uri.Segments[1] switch
+            {
+                "track/" => await LoadSpotifyTrackAsync(uri.Segments[2]),
+                "album/" => await LoadSpotifyAlbumAsync(uri.Segments[2]),
+                "playlist/" => await LoadSpotifyPlaylistAsync(uri.Segments[2]),
+                _ => new NotPlayable(new Exception("Invalid spotify url."))
+            };
+        }
+
+        private async Task<IPlayable> LoadSpotifyTrackAsync(string id)
+        {
+            var track = await _spotify.Tracks.Get(id);
+            
+            var query = $"{track.Artists[0].Name} {track.Name}";
+            
+            var search = await _node.SearchYouTubeAsync(query);
+
+            if (search.Status is not SearchStatus.SearchResult)
+            {
+                return new NotPlayable(new Exception("No results for spotify track."));
+            }
+
+            foreach (var ytTrack in search.Tracks)
+            {
+                var uri = new Uri(ytTrack.Url);
+                var playable = await LoadFromYoutubeAsync(new Uri($"{uri.Scheme}://music.youtube.com{uri.PathAndQuery}"));
+
+                if (playable is not ITrack result)
+                {
+                    continue;
+                }
+
+                return new SpotifyTrack(track, result);
+            }
+
+            return new NotPlayable(new Exception("Could not find source for spotify track."));
+        }
+
+        private async Task<IPlayable> LoadSpotifyAlbumAsync(string id)
+        {
+            var album = await _spotify.Albums.Get(id);
+
+            if (album.Tracks?.Items is null)
+            {
+                return new NotPlayable(new Exception("Could not load spotify album."));
+            }
+            
+            var tracks = new List<SpotifyTrack>();
+
+            foreach (var track in album.Tracks.Items)
+            {
+                var playable = await LoadSpotifyTrackAsync(track.Id);
+
+                if (playable is not SpotifyTrack spotifyTrack)
+                {
+                    continue;
+                }
+                
+                tracks.Add(spotifyTrack);
+            }
+
+            if (!tracks.Any())
+            {
+                return new NotPlayable(new Exception("Could not load spotify album."));
+            }
+
+            return new SpotifyPlaylist(album, tracks);
+        }
+        
+        private async Task<IPlayable> LoadSpotifyPlaylistAsync(string id)
+        {
+            var playlist = await _spotify.Playlists.Get(id);
+
+            if (playlist.Tracks?.Items is null)
+            {
+                return new NotPlayable(new Exception("Could not load spotify playlist."));
+            }
+            
+            var tracks = new List<SpotifyTrack>();
+
+            foreach (var track in playlist.Tracks.Items)
+            {
+                if (track.Track.Type is ItemType.Episode)
+                {
+                    return new NotPlayable(new Exception("Podcasts are not currently supported."));
+                }
+
+                var playable = await LoadSpotifyTrackAsync((track.Track as FullTrack)?.Id);
+
+                if (playable is not SpotifyTrack spotifyTrack)
+                {
+                    continue;
+                }
+                
+                tracks.Add(spotifyTrack);
+            }
+
+            if (!tracks.Any())
+            {
+                return new NotPlayable(new Exception("Could not load spotify playlist."));
+            }
+
+            return new SpotifyPlaylist(playlist, tracks);
         }
 
         private async Task<IPlayable> LoadFromYoutubeAsync(Uri uri)
@@ -77,7 +194,9 @@ namespace TobysBot.Discord.Audio.Lavalink
                 return new NotPlayable(new Exception(result.Exception.Message));
             }
 
-            return new LavalinkTrack(result.Tracks.First());
+            var track = result.Tracks.First();
+            
+            return new LavalinkTrack(track, track.Title, track.Author);
         }
 
         private async Task<IPlayable> LoadYoutubePlaylistAsync(string id, int index = 0)
@@ -99,9 +218,11 @@ namespace TobysBot.Discord.Audio.Lavalink
             var url = uri.AbsoluteUri;
             var result = await _node.SearchAsync(SearchType.Direct, url);
 
+            var track = result.Tracks.First();
+            
             if (result.IsTrackLoadedStatus())
             {
-                return new LavalinkTrack(result.Tracks.First());
+                return new LavalinkTrack(track, track.Title, track.Author);
             }
 
             if (result.IsPlaylistLoadedStatus())
@@ -135,7 +256,8 @@ namespace TobysBot.Discord.Audio.Lavalink
                     case "video/x-ms-wmv":
                     case "video/x-matroska":
 
-                        var track = new LavalinkTrack(await _node.LoadTrackAsync(attachment.Url));
+                        var lavaTrack = await _node.LoadTrackAsync(attachment.Url);
+                        var track = new LavalinkTrack(lavaTrack, lavaTrack.Title, lavaTrack.Author);
                         playlist.Add(track);
                         
                         break;

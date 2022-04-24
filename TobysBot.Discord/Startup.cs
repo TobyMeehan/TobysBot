@@ -10,6 +10,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using TobysBot.Discord.Client.Configuration;
+using TobysBot.Discord.Client.Webhooks;
+using TobysBot.Discord.Configuration;
 
 namespace TobysBot.Discord
 {
@@ -26,6 +28,7 @@ namespace TobysBot.Discord
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
+            services.AddMvc();
 
             services.AddHttpClient();
 
@@ -37,6 +40,7 @@ namespace TobysBot.Discord
                     options.Prefix = Configuration.GetSection("Discord")["Prefix"];
                     options.TobyId = Configuration.GetSection("Discord").GetValue<ulong>("TobyId");
                 })
+                .ConfigureStar(Configuration.GetSection("Star"))
                 .AddLavaNode(options =>
                 {
                     options.SelfDeaf = false;
@@ -46,7 +50,16 @@ namespace TobysBot.Discord
                     options.Authorization = lavalinkConfig["Authorization"];
 
                     options.LogSeverity = LogSeverity.Verbose;
+                })
+                .AddSpotifyClient(options =>
+                {
+                    options.ClientId = Configuration.GetSection("Spotify")["ClientId"];
+                    options.ClientSecret = Configuration.GetSection("Spotify")["ClientSecret"];
                 });
+
+            services.Configure<MikeGapesOptions>(Configuration.GetSection("MikeGapes"));
+            
+            services.AddTransient<IWebhookMessageService, WebhookMessageService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -73,6 +86,7 @@ namespace TobysBot.Discord
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
+                endpoints.MapControllers();
             });
         }
     }
