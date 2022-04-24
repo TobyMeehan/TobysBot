@@ -54,23 +54,34 @@ public static partial class EmbedExtensions
     {
         var previous = new Queue<ITrack>(queue.Previous.Reverse());
         var next = new Queue<ITrack>(queue.Next);
-        var current = trackStatus?.CurrentTrack;
+        var current = queue.CurrentTrack;
         
         var sb = new StringBuilder();
 
         var currentPosition = previous.Count;
         
-        if (trackStatus is null)
+        if (queue.CurrentTrack is null)
         {
             sb.AppendLine("**--** No track playing.");
         }
         else
         {
-            sb.AppendLine($"**{currentPosition + 1}. " +
-                          $"({(trackStatus.IsPaused ? "⏸" : "▶")}" +
-                          $"{(queue.LoopEnabled is TrackLoopSetting ? " 🔂": "")})** " +
-                          $"[{current.Title}]({current.Url}) " +
-                          $"`{current.Position.ToTimeString()}`/`{current.Duration.ToTimeString()}`");
+            sb.Append($"**{currentPosition + 1}. ");
+            sb.Append('(');
+
+            if (trackStatus is null)
+            {
+                sb.Append('⏹');
+            }
+            else
+            {
+                sb.Append($"{(trackStatus.IsPaused ? "⏸" : "▶")}");
+            }
+
+            sb.Append($"{(queue.LoopEnabled is TrackLoopSetting ? " 🔂" : "")})** ");
+            sb.Append($"**[{current.Title}]({current.Url})** ");
+            sb.Append($"`{current.Position.ToTimeString()}`/`{current.Duration.ToTimeString()}`");
+            sb.AppendLine();
         }
         
         var i = 0;
