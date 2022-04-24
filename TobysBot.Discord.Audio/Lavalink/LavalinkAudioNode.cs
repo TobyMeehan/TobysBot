@@ -52,8 +52,8 @@ namespace TobysBot.Discord.Audio.Lavalink
                              "\tPlayer Guild: {Player} \n" +
                              "\tAt Threshold: {Threshold}",
                 arg.Track.Title, arg.Player.VoiceChannel.GuildId, arg.Threshold);
-            
-            await arg.Player.PlayAsync(arg.Track);
+
+            await SkipAsync(arg.Player.VoiceChannel.Guild);
         }
 
         private async Task NodeOnTrackException(TrackExceptionEventArgs arg)
@@ -64,8 +64,8 @@ namespace TobysBot.Discord.Audio.Lavalink
                 arg.Track.Title, arg.Player.VoiceChannel.GuildId, arg.Exception);
 
             var queue = await GetQueueAsync(arg.Player.VoiceChannel.Guild);
-            
-            await arg.Player.PlayAsync(await _node.LoadTrackAsync(queue.CurrentTrack));
+
+            await SkipAsync(arg.Player.VoiceChannel.Guild);
         }
 
         private async Task NodeOnTrackEnded(TrackEndedEventArgs arg)
@@ -82,7 +82,12 @@ namespace TobysBot.Discord.Audio.Lavalink
                 return;
             }
 
-            await arg.Player.PlayAsync(await _node.LoadTrackAsync(track));
+            if (arg.Player is not XLavaPlayer player)
+            {
+                return;
+            }
+            
+            await player.PlayAsync(await _node.LoadTrackAsync(track), track.Title, track.Author);
         }
 
         private XLavaPlayer ThrowIfNoPlayer(IGuild guild)
