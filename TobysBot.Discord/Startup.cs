@@ -55,7 +55,8 @@ namespace TobysBot.Discord
                 {
                     options.ClientId = Configuration.GetSection("Spotify")["ClientId"];
                     options.ClientSecret = Configuration.GetSection("Spotify")["ClientSecret"];
-                });
+                })
+                .AddYouTubeDownloadProvider();
 
             services.Configure<MikeGapesOptions>(Configuration.GetSection("MikeGapes"));
             

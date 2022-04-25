@@ -8,8 +8,10 @@ using SpotifyAPI.Web;
 using TobysBot.Discord.Audio;
 using TobysBot.Discord.Audio.Lavalink;
 using TobysBot.Discord.Audio.MemoryQueue;
+using TobysBot.Discord.Audio.YouTubeDownload;
 using TobysBot.Discord.Client.TextCommands;
 using Victoria;
+using YoutubeExplode;
 
 namespace TobysBot.Discord.Client.Configuration;
 
@@ -66,6 +68,14 @@ public class DiscordClientBuilder
     public DiscordClientBuilder ConfigureStar(IConfiguration config)
     {
         Services.Configure<StarOptions>(config);
+
+        return this;
+    }
+
+    public DiscordClientBuilder AddYouTubeDownloadProvider()
+    {
+        Services.AddTransient<YoutubeClient>();
+        Services.AddTransient<IDownloadProvider, YouTubeDownloadProvider>();
 
         return this;
     }

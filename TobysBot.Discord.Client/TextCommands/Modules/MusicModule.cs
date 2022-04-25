@@ -22,6 +22,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         private readonly IAudioSource _source;
         private readonly ILyricsProvider _lyrics;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IDownloadProvider _downloads;
 
         private IEmote LoopEmote => new Emoji("🔁");
         private IEmote PauseEmote => new Emoji("⏸");
@@ -36,12 +37,13 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         private IEmote MoveEmote => new Emoji("↔");
         private IEmote RemoveEmote => new Emoji("⤴");
         
-        public MusicModule(IAudioNode node, IAudioSource source, ILyricsProvider lyrics, IHttpClientFactory httpClientFactory) : base(node)
+        public MusicModule(IAudioNode node, IAudioSource source, ILyricsProvider lyrics, IHttpClientFactory httpClientFactory, IDownloadProvider downloads) : base(node)
         {
             _node = node;
             _source = source;
             _lyrics = lyrics;
             _httpClientFactory = httpClientFactory;
+            _downloads = downloads;
         }
         
         // Voice Channel
@@ -70,6 +72,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Command("rebind")]
         [Alias("bind")]
         [Summary("Rebind track notifications to the current text channel.")]
+        [HideInHelp]
         public async Task RebindAsync()
         {
             if (!await EnsureUserInSameVoiceAsync())
@@ -105,6 +108,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Priority(1)]
         [Command("rebind")]
         [Summary("Rebind track notifications to the specified text channel.")]
+        [HideInHelp]
         public async Task RebindAsync(string channelName)
         {
             if (!await EnsureUserInSameVoiceAsync())
@@ -947,6 +951,27 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             }
             
             await Context.Message.ReplyAsync(embed: new EmbedBuilder().BuildLyricsEmbed(track.CurrentTrack, lyrics));
+        }
+
+        [Command("download", RunMode = RunMode.Async)]
+        [Alias("dl")]
+        [Summary("Gets a download for the specified track.")]
+        public async Task DownloadAsync(int index)
+        {
+            using var typing = Context.Channel.EnterTypingState();
+            
+            if (!await EnsureUserInSameVoiceAsync())
+            {
+                return;
+            }
+
+            var queue = await _node.GetQueueAsync(Context.Guild);
+
+            var track = queue.ElementAt(index);
+
+            var stream = await _downloads.GetDownloadAsync(track);
+
+            await Context.Channel.SendFileAsync(stream, $"{track.Title}.mp4");
         }
     }
 }
