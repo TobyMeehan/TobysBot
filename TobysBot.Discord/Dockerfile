@@ -3,6 +3,8 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
+FROM mwader/static-ffmpeg:5.0-1 AS ffmpeg
+
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["TobysBot.Discord/TobysBot.Discord.csproj", "TobysBot.Discord/"]
@@ -19,4 +21,6 @@ RUN dotnet publish "TobysBot.Discord.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY --from=mwader/static-ffmpeg:5.0.1 /ffmpeg /usr/local/bin/
+COPY --from=mwader/static-ffmpeg:5.0.1 /ffprobe /usr/local/bin/
 ENTRYPOINT ["dotnet", "TobysBot.Discord.dll"]
