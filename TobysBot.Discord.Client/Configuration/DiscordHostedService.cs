@@ -39,6 +39,20 @@ public class DiscordHostedService : IHostedService
         
         await _client.LoginAsync(TokenType.Bot, _options.Token);
         await _client.StartAsync();
+
+        while (true)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                break;
+            }
+            
+            await _client.SetActivityAsync(new Game($"{_options.Prefix} in " +
+                                                    $"{(_client.Guilds.Count < 2 ? "this guild." : $"{_client.Guilds.Count} guilds.")} ",
+                ActivityType.Listening));
+
+            await Task.Delay(TimeSpan.FromMinutes(15), cancellationToken);
+        }
     }
 
     private Task ClientOnLog(LogMessage arg)
