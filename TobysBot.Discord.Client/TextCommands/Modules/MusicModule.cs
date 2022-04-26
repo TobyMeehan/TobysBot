@@ -70,6 +70,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Command("rebind")]
         [Alias("bind")]
         [Summary("Rebind track notifications to the current text channel.")]
+        [HideInHelp]
         public async Task RebindAsync()
         {
             if (!await EnsureUserInSameVoiceAsync())
@@ -105,6 +106,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Priority(1)]
         [Command("rebind")]
         [Summary("Rebind track notifications to the specified text channel.")]
+        [HideInHelp]
         public async Task RebindAsync(string channelName)
         {
             if (!await EnsureUserInSameVoiceAsync())
