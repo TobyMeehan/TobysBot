@@ -2,50 +2,75 @@
 @using global::Discord
 @model IndexModel
 @{
-    ViewData["Title"] = "Toby's Bot";
+
 }
 
-<h1 class="display-4">Hey!</h1>
-
-<p>You've reached the homepage for my discord bot! Besides a range of random stuff (including a literal random number generator), Toby's Bot also has a suite of features for playing music and audio from YouTube, Spotify, Soundcloud and more. To get started, use the big button to invite the bot to a server, or read on for more information. Make sure you check out some of my other projects over at <a href="https://tobymeehan.com">tobymeehan.com</a></p>
-
-<button class="btn btn-primary">Add to Server</button>
-
-<div class="text-center">
+<div class="container-fluid discord-banner py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5">
+                <h1 class="display-4">Hey!</h1>
     
-    @switch (Model.ConnectionState)
-    {
-        case ConnectionState.Disconnected:
-            <h1 class="display-4">
-                <span class="circle" style="background-color: red"></span>
-                Offline
-            </h1>
-            
-            break;
-        case ConnectionState.Connecting:
-            <h1 class="display-4">
-                <span class="circle" style="background-color: orange"></span>
-                Connecting
-            </h1>
-            
-            break;
-        case ConnectionState.Connected:
-            <h1 class="display-4">
-                <span class="circle" style="background-color: green"></span>
-                Online
-            </h1>
-            
-            <p>Toby's bot is online!</p>
-            
-            break;
-        case ConnectionState.Disconnecting:
-            <h1 class="display-4">
-                <span class="circle" style="background-color: orange"></span>
-                Disconnecting
-            </h1>
-            
-            break;
-        default:
-            throw new ArgumentOutOfRangeException();
-    }
+                <p>You've reached the homepage for my discord bot! Besides a range of random stuff Toby's Bot also has a suite of features for playing music and audio from YouTube, Spotify, Soundcloud and more.</p>
+    
+                <p>To get started, use the big button to invite the bot to a server, or read on for more information. Make sure you check out some of my other projects over at <a href="https://tobymeehan.com">tobymeehan.com</a></p>
+    
+                <button class="btn btn-primary btn-lg">Add to Server</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid bg-600 py-3 mb-3">
+    <div class="container">
+        <p class="lead my-3">
+            @switch (Model.ConnectionState)
+            {
+                case ConnectionState.Connected:
+                    <span>
+                        <i class="fas fa-circle" style="color: green"></i>
+                        ONLINE
+
+                        <span class="text-muted">Online in @Model.Guilds guilds.</span>
+                    </span>
+
+
+                    break;
+
+                case ConnectionState.Connecting:
+                    <span class="lead">
+                        <i class="fas fa-circle" style="color: orange"></i>
+                        CONNECTING
+                    </span>
+
+                    <span>|</span>
+
+                    <span class="text-muted">
+                        With you shortly!
+                    </span>
+
+                    break;
+
+                case ConnectionState.Disconnected:
+                case ConnectionState.Disconnecting:
+                    <span class="lead">
+                        <i class="fas fa-circle" style="color: red"></i>
+                        OFFLINE
+                    </span>
+
+                    <span>|</span>
+
+                    <span class="text-muted">Oops! Somethings gone wrong and Toby's Bot is not online right now.</span>
+
+                    break;
+            }
+        </p>
+    </div>
+</div>
+
+<div class="container">
+    <h2>Music</h2>
+    <p>Toby's Bot has a huge range of features for listening to music. From queue management with shuffle and repeat to integrated lyrics, as well as support for major formats including YouTube, Spotify and Soundcloud, your music listening needs are covered.</p>
+    <h2>Open Source</h2>
+    <p>Toby's Bot is completely free and open source software, under the GNU GPLv3. Check out the source code on Github for yourself!</p>
 </div>

@@ -1,58 +1,89 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Toby's Bot</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    
+    @if (ViewData.TryGetValue("PrependTitle", out var prependTitle))
+    {
+        if (prependTitle is true)
+        {
+            <title>@ViewData["Title"] - Toby's Bot</title>
+        }
+    }
+    else
+    {
+        @if (ViewData.TryGetValue("Title", out var title))
+        {
+            <title>@title</title>
+        }
+        else
+        {
+            <title>Toby's Bot</title>
+        }
+        
+    }
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="~/css/site.css"/>
     <link rel="stylesheet" href="css/fonts.css"/>
-    
+
     <partial name="_Favicons"/>
-    
+
     <script src="https://kit.fontawesome.com/ea7d42651e.js" crossorigin="anonymous"></script>
 </head>
 <body class="bg-darker">
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark text-light box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">
-                    <img src="img/discord.png" width="30" height="30" class="d-inline-block align-top" alt=""/>
-                    <span class="font-title">TOBYSBOT</span>
-                </a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Commands">Commands</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Invite">Invite</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3 text-light">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="footer text-muted bg-dark">
+<header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-darker text-light box-shadow mb-3">
         <div class="container">
-            &copy; @DateTime.Now.Year - Toby Meehan
+            <a class="navbar-brand" asp-area="" asp-page="/Index">
+                <img src="img/discord.png" width="30" height="30" class="d-inline-block align-top" alt=""/>
+                <span class="font-title">TOBYSBOT</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <span class="mr-auto"></span>
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-page="/Commands">
+                            <i class="fas fa-info-circle"></i>
+                            Commands
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-page="/Invite">
+                            <i class="fab fa-discord"></i>
+                            Invite
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://github.com/TobyMeehan/TobysBot">
+                            <i class="fab fa-github"></i>
+                            Github
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </footer>
+    </nav>
+</header>
+<main role="main" class="pb-3 text-light">
+    @RenderBody()
+</main>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+<footer class="footer text-muted bg-dark">
+    <div class="container">
+        &copy; @DateTime.Now.Year - Toby Meehan
+    </div>
+</footer>
 
-    @await RenderSectionAsync("Scripts", required: false)
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -25,10 +25,13 @@ namespace TobysBot.Discord.Pages
 
         public string Activity { get; set; }
 
-        public void OnGet()
+        public int Guilds { get; set; }
+
+        public async Task OnGet()
         {
             ConnectionState = _discordClient.ConnectionState;
             Activity = _discordClient.CurrentUser?.Activities.FirstOrDefault()?.ToString();
+            Guilds = (await _discordClient.GetGuildsAsync()).Count;
         }
     }
 }
