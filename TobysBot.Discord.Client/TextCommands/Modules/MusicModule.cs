@@ -956,7 +956,7 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
         [Command("download", RunMode = RunMode.Async)]
         [Alias("dl")]
         [Summary("Gets a download for the specified track.")]
-        public async Task DownloadAsync(int index)
+        public async Task DownloadAsync(int? position = null)
         {
             using var typing = Context.Channel.EnterTypingState();
             
@@ -964,13 +964,45 @@ namespace TobysBot.Discord.Client.TextCommands.Modules
             {
                 return;
             }
-
+            
             var queue = await _node.GetQueueAsync(Context.Guild);
 
-            var track = queue.ElementAt(index);
+            ITrack track;
+
+            if (position.HasValue)
+            {
+                var index = position.Value - 1;
+
+                if (index < 0 || index >= queue.Count)
+                {
+                    await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                        .WithContext(EmbedContext.Error)
+                        .WithDescription("There is not a track at that position.")
+                        .Build());
+                    
+                    return;
+                }
+
+                track = queue.ElementAt(index);
+            }
+            else
+            {
+                track = queue.CurrentTrack;
+            }
 
             var stream = await _downloads.GetDownloadAsync(track);
 
+            if (stream.Length > 8 * 1000 * 1000)
+            {
+                await Context.Message.ReplyAsync(embed: new EmbedBuilder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription(
+                        "Discord will not accept this file as it is larger than 8MB. I am working on a way to get around this.")
+                    .Build());
+                
+                return;
+            }
+            
             await Context.Channel.SendFileAsync(stream, $"{track.Title}.mp4");
         }
     }
