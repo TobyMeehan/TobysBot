@@ -14,4 +14,5 @@ public class MikeGapesServerOptions
     public ulong QuordleChannel { get; set; }
     public ulong OctordleChannel { get; set; }
     public ulong SedecordleChannel { get; set; }
+    public ulong ThirtyToodleChannel { get; set; }
 }
