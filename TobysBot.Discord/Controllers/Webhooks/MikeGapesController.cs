@@ -35,7 +35,7 @@ public class MikeGapesController : ControllerBase
         var octordle = new Regex(@"Daily Octordle #\d*");
         var quordle = new Regex(@"Daily Quordle \d*");
         var wordle = new Regex(@"Wordle \d* \d/6");
-        var thirtytoodle = new Regex(@"I solved 32 wordle games at once at(.*\r?\n)*#thirtytoodle #wordle");
+        var thirtytoodle = new Regex(@"I solved 32 wordle games at once at(.*\r?\n)* #thirtytoodle #wordle");
 
         Func<MikeGapesServerOptions, ulong> channelSelector = tweet.Text switch
         {
