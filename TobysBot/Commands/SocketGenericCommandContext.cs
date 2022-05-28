@@ -15,6 +15,7 @@ public class SocketGenericCommandContext : ICommandContext
         User = message.Author;
 
         Message = message;
+        Response = new SocketTextCommandResponseService(message);
     }
 
     public SocketGenericCommandContext(DiscordSocketClient client, SocketSlashCommand command)
