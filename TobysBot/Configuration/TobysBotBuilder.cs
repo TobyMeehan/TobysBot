@@ -23,6 +23,8 @@ public class TobysBotBuilder
         services.AddSingleton<CommandService>();
         services.AddSingleton<CommandHandler>();
         services.AddSingleton<IEventService, EventService>();
+
+        services.AddTransient<EmbedService>();
         
         services.SubscribeEvent<DiscordClientLogEventArgs, DiscordClientLogger>();
 

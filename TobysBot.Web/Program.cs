@@ -1,5 +1,6 @@
 using TobysBot.Commands.Modules;
 using TobysBot.Configuration;
+using TobysBot.Voice.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,8 @@ builder.Configuration.AddJsonFile($"secrets.{builder.Environment.EnvironmentName
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddTobysBot(builder.Configuration)
-    .AddModule<PongModule>();
+    .AddModule<PongModule>()
+    .AddVoiceModule();
 
 var app = builder.Build();
 
