@@ -88,17 +88,11 @@ public class LavalinkVoiceService : IVoiceService
 
     public IPlayerStatus Status(IGuild guild)
     {
-        if (!_lavaNode.TryGetPlayer(guild, out var player))
+        if (_lavaNode.TryGetPlayer(guild, out var player))
         {
             return new NotConnectedStatus();
         }
 
-        return player.PlayerState switch
-        {
-            PlayerState.Stopped => new NotPlayingStatus(player.VoiceChannel, player.TextChannel),
-            PlayerState.Playing or PlayerState.Paused => new PlayingStatus(player.VoiceChannel, player.TextChannel,
-                player.Sound, player.Track.Position, player.PlayerState is PlayerState.Paused),
-            _ => new NotConnectedStatus()
-        };
+        return player.Status;
     }
 }
