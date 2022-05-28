@@ -1,8 +1,18 @@
+using TobysBot.Commands.Modules;
+using TobysBot.Configuration;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddEnvironmentVariables("TOBYSBOT_");
+
+builder.Configuration.AddJsonFile("secrets.json", true);
+builder.Configuration.AddJsonFile($"secrets.{builder.Environment.EnvironmentName}.json", true);
 
 // Add services to the container.
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddTobysBot(builder.Configuration)
+    .AddModule<PongModule>();
 
 var app = builder.Build();
 
