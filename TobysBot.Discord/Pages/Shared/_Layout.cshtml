@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    
+
     @if (ViewData.TryGetValue("PrependTitle", out var prependTitle))
     {
         if (prependTitle is true)
@@ -21,7 +21,6 @@
         {
             <title>Toby's Bot</title>
         }
-        
     }
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
@@ -38,7 +37,19 @@
         <div class="container">
             <a class="navbar-brand" asp-area="" asp-page="/Index">
                 <img src="img/discord.png" width="30" height="30" class="d-inline-block align-top" alt=""/>
-                <span class="font-title">TOBYSBOT</span>
+                <span class="font-title">
+                    TOBYSBOT
+                </span>
+                <environment names="Staging">
+                    <span class="text-muted font-weight-light">
+                        PREVIEW
+                    </span>
+                </environment>
+                <environment names="Development">
+                    <span class="text-muted font-weight-light">
+                        TESTING
+                    </span>
+                </environment>
             </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
