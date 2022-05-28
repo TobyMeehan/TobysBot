@@ -27,6 +27,16 @@ public class CommandHandler
         _logger = logger;
     }
 
+    private SocketGuild GetDebugGuild() =>_client.Guilds.FirstOrDefault(x => x.Id == _options.DebugGuild);
+
+    private IEnumerable<SlashCommandProperties> GetSlashCommands()
+    {
+        return from command in _commands.Commands select new SlashCommandBuilder()
+            .WithName(command.Aliases[0])
+            .WithDescription(command.Summary)
+            .Build();
+    }
+
     public async Task InstallCommandsAsync()
     {
         foreach (var type in _modules.GetModules()) // add explicit modules
@@ -39,22 +49,42 @@ public class CommandHandler
             await _commands.AddModulesAsync(assembly, _services);
         }
 
-        var debugGuild = _client.Guilds.FirstOrDefault(x => x.Id == _options.DebugGuild);
-
-        foreach (var command in _commands.Commands) // add slash commands
+        // remove redundant commands
+        
+        var slashCommands = GetSlashCommands();
+        var existingCommands = await _client.GetGlobalApplicationCommandsAsync();
+        
+        foreach (var redundantCommand in existingCommands.Where(x => slashCommands.Any(c => x.Name == c.Name.Value)))
         {
-            var slashCommand = new SlashCommandBuilder()
-                .WithName(command.Aliases[0])
-                .WithDescription(command.Summary)
-                .Build();
-
-            await _client.CreateGlobalApplicationCommandAsync(slashCommand);
-
-            debugGuild?.CreateApplicationCommandAsync(slashCommand);
+            await redundantCommand.DeleteAsync();
         }
 
+        var debugGuild = GetDebugGuild();
+        
+        foreach (var command in slashCommands) // add / re-add slash commands
+        {
+            await _client.CreateGlobalApplicationCommandAsync(command);
+            
+            debugGuild?.CreateApplicationCommandAsync(command);
+        }
+        
         _client.MessageReceived += HandleTextCommandAsync; // subscribe text commands
         _client.SlashCommandExecuted += HandleSlashCommandAsync; // subscribe slash commands
+    }
+
+    public async Task UninstallCommandsAsync() // delete guild commands after session
+    {
+        var debugGuild = GetDebugGuild();
+
+        if (debugGuild is null)
+        {
+            return;
+        }
+        
+        foreach (var command in await debugGuild.GetApplicationCommandsAsync())
+        {
+            await command.DeleteAsync();
+        }
     }
 
     public async Task HandleTextCommandAsync(SocketMessage arg)
