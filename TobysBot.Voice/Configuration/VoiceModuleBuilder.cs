@@ -28,5 +28,6 @@ public class VoiceModuleBuilder
         services.AddHostedService<LavalinkHostedService>();
         
         services.SubscribeEvent<LavalinkLogEventArgs, LavalinkLogger>();
+        services.SubscribeEvent<DiscordClientReadyEventArgs, LavalinkHostedService>();
     }
 }

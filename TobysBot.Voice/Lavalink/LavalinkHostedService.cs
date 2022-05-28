@@ -6,22 +6,34 @@ using Victoria.EventArgs;
 
 namespace TobysBot.Voice.Lavalink;
 
-public class LavalinkHostedService : IHostedService
+public class LavalinkHostedService : IHostedService, IEventHandler<DiscordClientReadyEventArgs>
 {
-    private readonly LavaNode _lavaNode;
+    private readonly LavaNode<SoundPlayer> _lavaNode;
     private readonly IEventService _events;
 
-    public LavalinkHostedService(LavaNode lavaNode, IEventService events)
+    public LavalinkHostedService(LavaNode<SoundPlayer> lavaNode, IEventService events)
     {
         _lavaNode = lavaNode;
         _events = events;
     }
     
-    public async Task StartAsync(CancellationToken cancellationToken)
+    async Task IEventHandler<DiscordClientReadyEventArgs>.HandleAsync(DiscordClientReadyEventArgs args)
     {
-        await _lavaNode.ConnectAsync();
-        
+        try
+        {
+            await _lavaNode.ConnectAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+    
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
         SubscribeEvents();
+        
+        return Task.CompletedTask;;
     }
 
     public void SubscribeEvents()
