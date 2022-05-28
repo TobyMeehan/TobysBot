@@ -2,6 +2,8 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using TobysBot.Configuration;
 
 namespace TobysBot.Commands;
 
@@ -11,14 +13,17 @@ public class CommandHandler
     private readonly CommandService _commands;
     private readonly ModuleCollection _modules;
     private readonly IServiceProvider _services;
+    private readonly TobysBotOptions _options;
     private readonly ILogger<CommandHandler> _logger;
 
-    public CommandHandler(DiscordSocketClient client, CommandService commands, ModuleCollection modules, IServiceProvider services, ILogger<CommandHandler> logger)
+    public CommandHandler(DiscordSocketClient client, CommandService commands, ModuleCollection modules,
+        IServiceProvider services, IOptions<TobysBotOptions> options, ILogger<CommandHandler> logger)
     {
         _client = client;
         _commands = commands;
         _modules = modules;
         _services = services;
+        _options = options.Value;
         _logger = logger;
     }
 
@@ -34,17 +39,22 @@ public class CommandHandler
             await _commands.AddModulesAsync(assembly, _services);
         }
 
+        var debugGuild = _client.Guilds.FirstOrDefault(x => x.Id == _options.DebugGuild);
+
         foreach (var command in _commands.Commands) // add slash commands
         {
-            await _client.CreateGlobalApplicationCommandAsync(new SlashCommandBuilder()
+            var slashCommand = new SlashCommandBuilder()
                 .WithName(command.Aliases[0])
                 .WithDescription(command.Summary)
-                .Build());
+                .Build();
+
+            await _client.CreateGlobalApplicationCommandAsync(slashCommand);
+
+            debugGuild?.CreateApplicationCommandAsync(slashCommand);
         }
-        
+
         _client.MessageReceived += HandleTextCommandAsync; // subscribe text commands
         _client.SlashCommandExecuted += HandleSlashCommandAsync; // subscribe slash commands
-
     }
 
     public async Task HandleTextCommandAsync(SocketMessage arg)
@@ -66,7 +76,7 @@ public class CommandHandler
         }
 
         var context = new SocketGenericCommandContext(_client, message);
-        
+
         var result = await _commands.ExecuteAsync(context, argPos, _services);
 
         if (!result.IsSuccess)
@@ -79,29 +89,28 @@ public class CommandHandler
     {
         var context = new SocketGenericCommandContext(_client, arg);
 
-        var searchResult = _commands.Search(context, 0);
+        var command = _commands.Commands.FirstOrDefault(
+            c => c.Aliases.Any(alias => alias == arg.CommandName));
 
-        if (!searchResult.IsSuccess)
+        if (command is null)
         {
-            _logger.LogError("Slash command parse error: {Error}", searchResult.ErrorReason);
-            
+            _logger.LogError("Slash command not found: {Name}", arg.CommandName);
+
             return;
         }
-
-        var command = searchResult.Commands[0].Command;
 
         var preconditionResult = await command.CheckPreconditionsAsync(context, _services);
 
         if (!preconditionResult.IsSuccess)
         {
             _logger.LogError("Slash command precondition failure: {Error}", preconditionResult.ErrorReason);
-            
+
             return;
         }
 
         var argList = from option in arg.Data.Options select option.Name;
         var paramList = from option in arg.Data.Options select option.Value;
-        
+
         var result = await command.ExecuteAsync(context, argList, paramList, _services);
 
         if (!result.IsSuccess)
