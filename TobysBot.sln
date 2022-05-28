@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TobysBot.Discord", "TobysBo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TobysBot.Discord.Audio", "TobysBot.Discord.Audio\TobysBot.Discord.Audio.csproj", "{86A5D6AD-E6ED-4070-A76F-3EE25BBA079F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TobysBot", "TobysBot\TobysBot.csproj", "{8F077EB6-7EE9-49A1-9531-C6C7E4C56E17}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{86A5D6AD-E6ED-4070-A76F-3EE25BBA079F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86A5D6AD-E6ED-4070-A76F-3EE25BBA079F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{86A5D6AD-E6ED-4070-A76F-3EE25BBA079F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F077EB6-7EE9-49A1-9531-C6C7E4C56E17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F077EB6-7EE9-49A1-9531-C6C7E4C56E17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F077EB6-7EE9-49A1-9531-C6C7E4C56E17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F077EB6-7EE9-49A1-9531-C6C7E4C56E17}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
