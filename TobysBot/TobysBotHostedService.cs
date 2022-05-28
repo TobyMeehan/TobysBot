@@ -38,11 +38,19 @@ public class TobysBotHostedService : IHostedService
 
     private async Task ClientReadyAsync()
     {
-            await _client.SetActivityAsync(new Game(_options.StartupStatus));
+        
+        await _client.SetActivityAsync(new Game(_options.StartupStatus));
 
+        try
+        {
             await _commandHandler.InstallCommandsAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Failed to install commands: {Message}", ex.Message);
+        }
 
-            await _client.SetActivityAsync(new Game(_options.Prefix, ActivityType.Listening));
+        await _client.SetActivityAsync(new Game(_options.Prefix, ActivityType.Listening));
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
