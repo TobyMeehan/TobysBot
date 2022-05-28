@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TobysBot.Commands;
+using TobysBot.Events;
 
 namespace TobysBot.Configuration;
 
@@ -21,6 +22,9 @@ public class TobysBotBuilder
         services.AddSingleton<DiscordSocketClient>();
         services.AddSingleton<CommandService>();
         services.AddSingleton<CommandHandler>();
+        services.AddSingleton<IEventService, EventService>();
+        
+        services.SubscribeEvent<DiscordClientLogEventArgs, DiscordClientLogEventHandler>();
 
         services.AddHostedService<TobysBotHostedService>();
     }
