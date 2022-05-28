@@ -20,6 +20,7 @@ public class DiscordHostedService : IHostedService
     private readonly ILogger<DiscordHostedService> _logger;
     private readonly IEnumerable<IDiscordReadyEventListener> _readyEventListeners;
     private readonly DiscordClientOptions _options;
+    private Timer _timer;
 
     public DiscordHostedService(DiscordSocketClient client, CommandHandler commandHandler, ILogger<DiscordHostedService> logger, IEnumerable<IDiscordReadyEventListener> readyEventListeners, IOptions<DiscordClientOptions> options)
     {
@@ -39,8 +40,17 @@ public class DiscordHostedService : IHostedService
         
         await _client.LoginAsync(TokenType.Bot, _options.Token);
         await _client.StartAsync();
+
+        _timer = new Timer(UpdateStatusAsync, null, TimeSpan.Zero, TimeSpan.FromMinutes(15));
     }
 
+    private async void UpdateStatusAsync(object state)
+    {
+        await _client.SetActivityAsync(new Game($"{_options.Prefix} in " +
+                                                $"{(_client.Guilds.Count < 2 ? "this guild." : $"{_client.Guilds.Count} guilds.")} ",
+        ActivityType.Listening));
+    }
+    
     private Task ClientOnLog(LogMessage arg)
     {
         switch (arg.Severity)

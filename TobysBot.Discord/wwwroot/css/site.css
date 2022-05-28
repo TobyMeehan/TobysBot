@@ -2,7 +2,11 @@
 for details on configuring this project to bundle and minify static web assets. */
 
 .bg-darker {
-  background-color: #18191c;
+  background-color: #18191C;
+}
+
+.bg-600 {
+  background-color: #292B2F;
 }
 
 .circle {
@@ -16,6 +20,10 @@ a.navbar-brand {
   white-space: normal;
   text-align: center;
   word-break: break-all;
+}
+
+.discord-banner {
+  background: url("/img/discord.svg") right bottom no-repeat;
 }
 
 /* Provide sufficient contrast against white background */
