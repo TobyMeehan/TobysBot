@@ -24,5 +24,9 @@ public class VoiceModuleBuilder
         });
 
         services.AddTransient<IVoiceService, LavalinkVoiceService>();
+
+        services.AddHostedService<LavalinkHostedService>();
+        
+        services.SubscribeEvent<LavalinkLogEventArgs, LavalinkLogger>();
     }
 }
