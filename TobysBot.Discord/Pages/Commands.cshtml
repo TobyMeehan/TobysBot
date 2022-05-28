@@ -8,53 +8,49 @@
     ViewData["PrependTitle"] = true;
 }
 
-<div class="row">
-    <div class="col-md-4">
-        <nav id="nav-modules" class="nav nav-pills flex-column">
-            @foreach (var module in Model.Modules)
-            {
-                <a class="nav-link" href="#@module.Name">@module.Name</a>
-            }
-        </nav>
-    </div>
+<div class="container pt-3">
+    <div class="row">
+        <div class="col-md-4">
+            <nav id="nav-modules" class="flex-column">
+                @foreach (var module in Model.Modules)
+                {
+                    <a class="btn btn-block btn-outline-primary" href="#@module.Name">@module.Name</a>
+                }
+            </nav>
+        </div>
 
-    <div class="col-md-8">
-        <div data-spy="scroll" data-target="#nav-modules" data-offset="0">
-            @foreach (var module in Model.Modules)
-            {
-                <h2 id="@module.Name">@module.Name</h2>
-
-                <div id="module-accordion-@module.Name" class="accordion">
+        <div class="col-md-8">
+            <div>
+                @foreach (var module in Model.Modules)
+                {
+                    <h2 id="@module.Name">@module.Name</h2>
                     @foreach (var command in module.Commands)
                     {
                         if (command.Attributes.OfType<HideInHelpAttribute>().Any())
                         {
                             continue;
                         }
-                        
+
                         var commandName = command.Name.Replace(" ", "-");
 
-                        <div class="card bg-dark">
-
+                        <div class="card bg-600 mb-3">
                             <div class="card-header" id="heading-@commandName">
                                 <h4>
-                                    <a class="text-reset" data-toggle="collapse" href="#collapse-@commandName" role="button" aria-expanded="False" aria-controls="collapse-@commandName">
+                                    <a class="text-reset stretched-link font-weight-bold text-decoration-none" data-toggle="collapse" href="#collapse-@commandName" role="button" aria-expanded="False" aria-controls="collapse-@commandName">
                                         @command.ToHelpString()
                                     </a>
                                 </h4>
                             </div>
-
-                            <div class="collapse" id="collapse-@commandName" aria-labelledby="heading-@commandName" data-parent="#module-accordion-@module.Name">
+                            
+                            <div class="collapse" id="collapse-@commandName" aria-labelledby="heading-@commandName">
                                 <div class="card-body">
                                     <p>@command.Summary</p>
                                 </div>
                             </div>
-
-
                         </div>
                     }
-                </div>
-            }
+                }
+            </div>
         </div>
     </div>
 </div>
