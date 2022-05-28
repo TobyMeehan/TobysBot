@@ -1,6 +1,7 @@
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
 
 namespace TobysBot.Commands;
 
@@ -10,13 +11,15 @@ public class CommandHandler
     private readonly CommandService _commands;
     private readonly ModuleCollection _modules;
     private readonly IServiceProvider _services;
+    private readonly ILogger<CommandHandler> _logger;
 
-    public CommandHandler(DiscordSocketClient client, CommandService commands, ModuleCollection modules, IServiceProvider services)
+    public CommandHandler(DiscordSocketClient client, CommandService commands, ModuleCollection modules, IServiceProvider services, ILogger<CommandHandler> logger)
     {
         _client = client;
         _commands = commands;
         _modules = modules;
         _services = services;
+        _logger = logger;
     }
 
     public async Task InstallCommandsAsync()
@@ -63,12 +66,12 @@ public class CommandHandler
         }
 
         var context = new SocketGenericCommandContext(_client, message);
-
+        
         var result = await _commands.ExecuteAsync(context, argPos, _services);
 
         if (!result.IsSuccess)
         {
-            // TODO: log error
+            _logger.LogError("Text command error result: {Error}", result.ErrorReason);
         }
     }
 
@@ -80,7 +83,8 @@ public class CommandHandler
 
         if (!searchResult.IsSuccess)
         {
-            // TODO: log error
+            _logger.LogError("Slash command parse error: {Error}", searchResult.ErrorReason);
+            
             return;
         }
 
@@ -90,7 +94,8 @@ public class CommandHandler
 
         if (!preconditionResult.IsSuccess)
         {
-            // TODO: log error
+            _logger.LogError("Slash command precondition failure: {Error}", preconditionResult.ErrorReason);
+            
             return;
         }
 
@@ -101,7 +106,7 @@ public class CommandHandler
 
         if (!result.IsSuccess)
         {
-            // TODO: log error
+            _logger.LogError("Slash command error result: {Error}", result.ErrorReason);
         }
     }
 }
