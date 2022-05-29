@@ -10,4 +10,13 @@ public class PongModule : CommandModuleBase
     {
         await Response.ReplyAsync("pong");
     }
+
+    [Command("say")]
+    [Summary("Say something")]
+    public async Task SayAsync(
+        [Summary("Message to say.")]
+        [Remainder] string message)
+    {
+        await Response.ReplyAsync(message);
+    }
 }

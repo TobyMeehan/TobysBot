@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TobysBot.Configuration;
+using TobysBot.Extensions;
 
 namespace TobysBot.Commands;
 
@@ -31,10 +32,68 @@ public class CommandHandler
 
     private IEnumerable<SlashCommandProperties> GetSlashCommands()
     {
-        return from command in _commands.Commands select new SlashCommandBuilder()
-            .WithName(command.Aliases[0])
-            .WithDescription(command.Summary)
-            .Build();
+        foreach (var command in _commands.Commands)
+        {
+            var builder = new SlashCommandBuilder()
+                .WithName(command.Aliases[0])
+                .WithDescription(command.Summary);
+
+            foreach (var parameter in command.Parameters)
+            {
+                builder.AddOption(new SlashCommandOptionBuilder()
+                    .WithName(parameter.Name)
+                    .WithDescription(parameter.Summary)
+                    .WithRequired(parameter.IsOptional)
+                    .WithType(ParseType(parameter.Type)));
+            }
+            
+            yield return builder.Build();
+        }
+    }
+
+    private ApplicationCommandOptionType ParseType(Type parameterType)
+    {
+        if (parameterType == typeof(bool))
+        {
+            return ApplicationCommandOptionType.Boolean;
+        }
+        
+        if (parameterType == typeof(string))
+        {
+            return ApplicationCommandOptionType.String;
+        }
+
+        if (parameterType == typeof(int))
+        {
+            return ApplicationCommandOptionType.Integer;
+        }
+
+        if (parameterType == typeof(float) || parameterType == typeof(double) || parameterType == typeof(decimal))
+        {
+            return ApplicationCommandOptionType.Number;
+        }
+
+        if (parameterType.IsAssignableTo<IChannel>())
+        {
+            return ApplicationCommandOptionType.Channel;
+        }
+        
+        if (parameterType.IsAssignableTo<IUser>())
+        {
+            return ApplicationCommandOptionType.User;
+        }
+
+        if (parameterType.IsAssignableTo<IRole>())
+        {
+            return ApplicationCommandOptionType.Role;
+        }
+
+        if (parameterType.IsAssignableTo<IMentionable>())
+        {
+            return ApplicationCommandOptionType.Mentionable;
+        }
+
+        throw new ArgumentOutOfRangeException(nameof(parameterType),"Could not parse slash command type.");
     }
 
     public async Task InstallCommandsAsync()
@@ -138,8 +197,8 @@ public class CommandHandler
             return;
         }
 
-        var argList = from option in arg.Data.Options select option.Name;
-        var paramList = from option in arg.Data.Options select option.Value;
+        var paramList = from option in arg.Data.Options select option.Name;
+        var argList = from option in arg.Data.Options select option.Value;
 
         var result = await command.ExecuteAsync(context, argList, paramList, _services);
 
