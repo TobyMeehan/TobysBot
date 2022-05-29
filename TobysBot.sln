@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TobysBot.Web", "TobysBot.We
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TobysBot.Voice", "TobysBot.Voice\TobysBot.Voice.csproj", "{2816BC2E-35F7-4C0F-8A0F-97E270E5DDFC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TobysBot.Music", "TobysBot.Music\TobysBot.Music.csproj", "{556314C7-E9EA-4974-99B1-A72ED4576DCA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{2816BC2E-35F7-4C0F-8A0F-97E270E5DDFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2816BC2E-35F7-4C0F-8A0F-97E270E5DDFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2816BC2E-35F7-4C0F-8A0F-97E270E5DDFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{556314C7-E9EA-4974-99B1-A72ED4576DCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{556314C7-E9EA-4974-99B1-A72ED4576DCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{556314C7-E9EA-4974-99B1-A72ED4576DCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{556314C7-E9EA-4974-99B1-A72ED4576DCA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
