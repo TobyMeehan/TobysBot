@@ -96,7 +96,7 @@ public class CommandHandler
 
         var argPos = 0;
 
-        var prefix = "\\"; // TODO: get prefix from db
+        var prefix = _options.Prefix; // TODO: get prefix from db
 
         if (!(message.HasStringPrefix(prefix, ref argPos) ||
               message.HasMentionPrefix(_client.CurrentUser, ref argPos)) ||

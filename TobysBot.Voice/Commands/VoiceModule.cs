@@ -1,6 +1,5 @@
 using Discord.Commands;
 using TobysBot.Commands;
-using TobysBot.Commands.Modules;
 
 namespace TobysBot.Voice.Commands;
 

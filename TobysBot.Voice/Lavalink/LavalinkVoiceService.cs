@@ -29,6 +29,11 @@ public class LavalinkVoiceService : IVoiceService
     
     public async Task JoinAsync(IVoiceChannel channel, ITextChannel textChannel = null)
     {
+        if (_lavaNode.TryGetPlayer(channel.Guild, out var player))
+        {
+            await _lavaNode.LeaveAsync(player.VoiceChannel);
+        }
+        
         await _lavaNode.JoinAsync(channel, textChannel);
     }
 
@@ -88,7 +93,7 @@ public class LavalinkVoiceService : IVoiceService
 
     public IPlayerStatus Status(IGuild guild)
     {
-        if (_lavaNode.TryGetPlayer(guild, out var player))
+        if (!_lavaNode.TryGetPlayer(guild, out var player))
         {
             return new NotConnectedStatus();
         }

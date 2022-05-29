@@ -52,12 +52,12 @@ public abstract class VoiceCommandModuleBase : CommandModuleBase
 
         return true;
     }
-    
-    protected async Task JoinVoiceChannelAsync(bool required = true, bool moveChannel = true)
+
+    protected async Task JoinVoiceChannelAsync(bool errorMessage = true, bool moveChannel = true)
     {
         if (!IsUserInVoiceChannel(out var voiceState))
         {
-            if (required)
+            if (errorMessage)
             {
                 await Response.ReplyAsync(embed: _embeds.Builder()
                     .WithJoinVoiceError()
@@ -73,7 +73,7 @@ public abstract class VoiceCommandModuleBase : CommandModuleBase
             return;
         }
 
-        await _voiceService.JoinAsync(voiceState.VoiceChannel);
+        await _voiceService.JoinAsync(voiceState.VoiceChannel, Context.Channel as ITextChannel);
     }
 
     protected async Task LeaveVoiceChannelAsync()

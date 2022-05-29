@@ -17,12 +17,16 @@ public class SoundPlayer : LavaPlayer
     {
         get
         {
+            if (!IsConnected)
+            {
+                return new NotConnectedStatus();
+            }
+            
             return PlayerState switch
             {
-                PlayerState.Stopped => new NotPlayingStatus(VoiceChannel, TextChannel),
                 PlayerState.Playing or PlayerState.Paused => new PlayingStatus(VoiceChannel, TextChannel,
                     Sound, Track.Position, PlayerState is PlayerState.Paused),
-                _ => new NotConnectedStatus()
+                _ => new NotPlayingStatus(VoiceChannel, TextChannel)
             };
         }
     }
