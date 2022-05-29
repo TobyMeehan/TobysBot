@@ -17,6 +17,24 @@ public static class EmbedBuilderExtensions
         return service;
     }
 
+    public static EmbedBuilder WithJoinVoiceAction(this EmbedBuilder builder)
+    {
+        var embed = ThrowIfNoService(builder);
+
+        return embed
+            .WithContext(EmbedContext.Action)
+            .WithDescription(embed.Service.Options<VoiceEmbedOptions>().JoinVoiceAction);
+    }
+
+    public static EmbedBuilder WithLeaveVoiceAction(this EmbedBuilder builder)
+    {
+        var embed = ThrowIfNoService(builder);
+
+        return embed
+            .WithContext(EmbedContext.Action)
+            .WithDescription(embed.Service.Options<VoiceEmbedOptions>().LeaveVoiceAction);
+    }
+    
     public static EmbedBuilder WithJoinVoiceError(this EmbedBuilder builder)
     {
         var embed = ThrowIfNoService(builder);

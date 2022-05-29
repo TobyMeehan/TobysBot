@@ -23,6 +23,8 @@ public class VoiceModuleBuilder
             config.ResumeKey = "superstrongpassword";
         });
 
+        services.Configure<VoiceEmbedOptions>(x => {});
+
         services.AddTransient<IVoiceService, LavalinkVoiceService>();
 
         services.AddHostedService<LavalinkHostedService>();
