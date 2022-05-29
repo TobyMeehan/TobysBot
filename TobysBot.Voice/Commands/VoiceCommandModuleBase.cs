@@ -1,6 +1,8 @@
 using Discord;
 using TobysBot.Commands;
 using TobysBot.Commands.Modules;
+using TobysBot.Extensions;
+using TobysBot.Voice.Extensions;
 using TobysBot.Voice.Status;
 
 namespace TobysBot.Voice.Commands;
@@ -41,8 +43,8 @@ public abstract class VoiceCommandModuleBase : CommandModuleBase
     {
         if (!IsUserInSameVoiceChannel(out _))
         {
-            await Response.ReplyAsync(embed: _embeds.Error()
-                .WithDescription("We need to be in the same voice channel to do that.")
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithJoinSameVoiceError()
                 .Build());
 
             return false;
@@ -57,8 +59,8 @@ public abstract class VoiceCommandModuleBase : CommandModuleBase
         {
             if (required)
             {
-                await Response.ReplyAsync(embed: _embeds.Error()
-                    .WithDescription("Join the voice channel you square.")
+                await Response.ReplyAsync(embed: _embeds.Builder()
+                    .WithJoinVoiceError()
                     .Build());
             }
 

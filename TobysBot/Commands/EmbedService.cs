@@ -1,4 +1,5 @@
 using Discord;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using TobysBot.Configuration;
 
@@ -6,28 +7,41 @@ namespace TobysBot.Commands;
 
 public class EmbedService
 {
+    private readonly IServiceProvider _services;
     private readonly TobysBotOptions _options;
 
-    public EmbedService(IOptions<TobysBotOptions> options)
+    public TobysBotEmbedOptions EmbedOptions => _options.Embeds;
+    
+    public EmbedService(IOptions<TobysBotOptions> options, IServiceProvider services)
     {
+        _services = services;
         _options = options.Value;
     }
 
-    public EmbedBuilder Action()
+    public EmbedBuilder Builder()
     {
-        return new EmbedBuilder()
-            .WithColor(new Color(_options.Embeds.Colors.Action));
+        return new EmbedServiceBuilder(this);
     }
 
-    public EmbedBuilder Information()
+    public TOptions Options<TOptions>() where TOptions : class
     {
-        return new EmbedBuilder()
-            .WithColor(new Color(_options.Embeds.Colors.Information));
+        return _services.GetRequiredService<IOptions<TOptions>>().Value;
     }
+}
 
-    public EmbedBuilder Error()
+public enum EmbedContext
+{
+    Action,
+    Information,
+    Error
+}
+
+public class EmbedServiceBuilder : EmbedBuilder
+{
+    public EmbedService Service { get; }
+
+    public EmbedServiceBuilder(EmbedService service)
     {
-        return new EmbedBuilder()
-            .WithColor(new Color(_options.Embeds.Colors.Information));
+        Service = service;
     }
 }
