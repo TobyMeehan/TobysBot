@@ -1,9 +1,9 @@
-using System.Reflection;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TobysBot.Commands;
+using TobysBot.Commands.Modules;
 using TobysBot.Events;
 
 namespace TobysBot.Configuration;
@@ -11,13 +11,13 @@ namespace TobysBot.Configuration;
 public class TobysBotBuilder
 {
     public IServiceCollection Services { get; }
-    public ModuleCollection Modules { get; } = new();
+    public ModuleCollection Commands { get; } = new();
 
     public TobysBotBuilder(IServiceCollection services)
     {
         Services = services;
         
-        services.AddSingleton(Modules);
+        services.AddSingleton(Commands);
 
         services.AddSingleton<DiscordSocketClient>();
         services.AddSingleton<CommandService>();
@@ -29,6 +29,8 @@ public class TobysBotBuilder
         services.SubscribeEvent<DiscordClientLogEventArgs, DiscordClientLogger>();
 
         services.AddHostedService<TobysBotHostedService>();
+        
+        Commands.AddModule<PongModule>();
     }
 
     public TobysBotBuilder(IServiceCollection services, Action<TobysBotOptions> configureOptions) : this(services)
@@ -41,16 +43,11 @@ public class TobysBotBuilder
         Services.Configure<TobysBotOptions>(configuration);
     }
 
-    public TobysBotBuilder AddModule<T>() where T : IModuleBase
+    public TobysBotBuilder AddModule(Action<IServiceCollection> configureServices,
+        Action<ModuleCollection> configureCommands)
     {
-        Modules.AddModule<T>();
-
-        return this;
-    }
-
-    public TobysBotBuilder AddModulesFromAssembly(Assembly assembly)
-    {
-        Modules.AddModulesFromAssembly(assembly);
+        configureServices(Services);
+        configureCommands(Commands);
 
         return this;
     }

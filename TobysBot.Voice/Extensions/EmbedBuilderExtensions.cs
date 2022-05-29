@@ -23,7 +23,7 @@ public static class EmbedBuilderExtensions
 
         return embed
             .WithContext(EmbedContext.Action)
-            .WithDescription(embed.Service.Options<VoiceEmbedOptions>().JoinVoiceAction);
+            .WithDescription(embed.Service.Options<VoiceOptions>().Embeds.JoinVoiceAction);
     }
 
     public static EmbedBuilder WithLeaveVoiceAction(this EmbedBuilder builder)
@@ -32,7 +32,7 @@ public static class EmbedBuilderExtensions
 
         return embed
             .WithContext(EmbedContext.Action)
-            .WithDescription(embed.Service.Options<VoiceEmbedOptions>().LeaveVoiceAction);
+            .WithDescription(embed.Service.Options<VoiceOptions>().Embeds.LeaveVoiceAction);
     }
     
     public static EmbedBuilder WithJoinVoiceError(this EmbedBuilder builder)
@@ -41,7 +41,7 @@ public static class EmbedBuilderExtensions
 
         return embed
             .WithContext(EmbedContext.Error)
-            .WithDescription(embed.Service.Options<VoiceEmbedOptions>().JoinVoiceErrorDescription);
+            .WithDescription(embed.Service.Options<VoiceOptions>().Embeds.JoinVoiceErrorDescription);
     }
 
     public static EmbedBuilder WithJoinSameVoiceError(this EmbedBuilder builder)
@@ -50,6 +50,6 @@ public static class EmbedBuilderExtensions
 
         return embed
             .WithContext(EmbedContext.Error)
-            .WithDescription(embed.Service.Options<VoiceEmbedOptions>().JoinSameVoiceErrorDescription);
+            .WithDescription(embed.Service.Options<VoiceOptions>().Embeds.JoinSameVoiceErrorDescription);
     }
 }

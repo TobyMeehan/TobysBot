@@ -13,8 +13,7 @@ builder.Configuration.AddJsonFile($"secrets.{builder.Environment.EnvironmentName
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddTobysBot(builder.Configuration)
-    .AddModule<PongModule>()
-    .AddVoiceModule();
+    .AddVoiceModule(builder.Configuration.GetSection("Voice"));
 
 var app = builder.Build();
 
