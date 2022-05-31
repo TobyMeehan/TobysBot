@@ -56,6 +56,28 @@ public class SearchService : ISearchService
 
     public async Task<ISearchResult> LoadAttachmentsAsync(IMessage message)
     {
-        throw new NotImplementedException();
+        var tracks = new List<TrackResult>();
+
+        foreach (var attachment in message.Attachments)
+        {
+            var result = await ResolveAsync(new Uri(attachment.Url));
+
+            if (result is TrackResult track)
+            {
+                tracks.Add(track);
+            }
+        }
+
+        if (!tracks.Any())
+        {
+            return new NotFoundSearchResult();
+        }
+
+        if (tracks.Count is 1)
+        {
+            return tracks[0];
+        }
+
+        return new PlaylistResult(tracks, "Attachments", message.GetJumpUrl());
     }
 }
