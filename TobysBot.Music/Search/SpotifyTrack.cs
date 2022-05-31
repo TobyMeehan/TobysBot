@@ -2,7 +2,7 @@ using SpotifyAPI.Web;
 
 namespace TobysBot.Music.Search;
 
-public class SpotifyTrack : ITrack, ISearchResult
+public class SpotifyTrack : ITrack
 {
     public SpotifyTrack(FullTrack track, string audioUrl, TimeSpan duration)
     {

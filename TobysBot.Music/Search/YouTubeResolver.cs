@@ -1,4 +1,5 @@
 using System.Web;
+using TobysBot.Music.Search.Result;
 using YoutubeExplode;
 
 namespace TobysBot.Music.Search;
@@ -35,14 +36,16 @@ public class YouTubeResolver : ISearchResolver
         var playlist = await _youtube.Playlists.GetAsync(id);
         var videos = _youtube.Playlists.GetVideosAsync(playlist.Id).ToEnumerable();
 
-        return new YouTubePlaylist(playlist, videos);
+        return new PlaylistResult(
+            new YouTubePlaylist(playlist, videos));
     }
 
     private async Task<ISearchResult> LoadYouTubeTrackAsync(string id)
     {
         var video = await _youtube.Videos.GetAsync(id);
 
-        return new YouTubeTrack(video);
+        return new TrackResult(
+            new YouTubeTrack(video));
     }
 
     public int Priority => 100;

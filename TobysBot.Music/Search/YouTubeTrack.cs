@@ -2,7 +2,7 @@ using YoutubeExplode.Videos;
 
 namespace TobysBot.Music.Search;
 
-public class YouTubeTrack : ITrack, ISearchResult
+public class YouTubeTrack : ITrack
 {
     public YouTubeTrack(IVideo video)
     {

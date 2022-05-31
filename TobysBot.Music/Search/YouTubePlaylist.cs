@@ -2,7 +2,7 @@ using YoutubeExplode.Videos;
 
 namespace TobysBot.Music.Search;
 
-public class YouTubePlaylist : IPlaylist, ISearchResult
+public class YouTubePlaylist : IPlaylist
 {
     public YouTubePlaylist(YoutubeExplode.Playlists.IPlaylist playlist, IEnumerable<IVideo> videos)
     {

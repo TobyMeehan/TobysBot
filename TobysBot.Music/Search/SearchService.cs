@@ -1,5 +1,6 @@
 using Discord;
 using TobysBot.Music.Exceptions;
+using TobysBot.Music.Search.Result;
 using YoutubeExplode;
 
 namespace TobysBot.Music.Search;
@@ -11,10 +12,23 @@ public class SearchService : ISearchService
 
     public SearchService(IEnumerable<ISearchResolver> resolvers, YoutubeClient youtube)
     {
-        _resolvers = resolvers;
+        _resolvers = resolvers.OrderByDescending(x => x.Priority);
         _youtube = youtube;
     }
-    
+
+    private async Task<ISearchResult> ResolveAsync(Uri uri)
+    {
+        foreach (var resolver in _resolvers)
+        {
+            if (resolver.CanResolve(uri))
+            {
+                return await resolver.ResolveAsync(uri);
+            }
+        }
+
+        return new LoadFailedSearchResult("Could not resolve url.");
+    }
+
     public async Task<ISearchResult> SearchAsync(string query)
     {
         if (query is null)
@@ -24,13 +38,7 @@ public class SearchService : ISearchService
         
         if (Uri.TryCreate(query, UriKind.Absolute, out var uri))
         {
-            foreach (var resolver in _resolvers.OrderByDescending(x => x.Priority))
-            {
-                if (resolver.CanResolve(uri))
-                {
-                    return await resolver.ResolveAsync(uri);
-                }
-            }
+            return await ResolveAsync(uri);
         }
 
         var result = _youtube.Search.GetVideosAsync(query);
@@ -42,7 +50,8 @@ public class SearchService : ISearchService
             throw new NoResultsException(query);
         }
 
-        return new YouTubeTrack(video);
+        return new TrackResult(
+            new YouTubeTrack(video));
     }
 
     public async Task<ISearchResult> LoadAttachmentsAsync(IMessage message)

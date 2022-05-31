@@ -1,4 +1,5 @@
-﻿using Victoria;
+﻿using TobysBot.Music.Search.Result;
+using Victoria;
 using Victoria.Responses.Search;
 
 namespace TobysBot.Music.Search;
@@ -25,10 +26,10 @@ public class VictoriaResolver : ISearchResolver
 
         return result.Status switch
         {
-            SearchStatus.TrackLoaded => new TrackResult(track.Title, track.Url, track.Url, track.Duration),
+            SearchStatus.TrackLoaded => new TrackResult(
+                new Track(track.Title, track.Url, track.Url, track.Duration)),
             SearchStatus.PlaylistLoaded => new PlaylistResult(
-                from t in result.Tracks select new TrackResult(t.Title, t.Url, t.Url, t.Duration), result.Playlist.Name,
-                uri.AbsoluteUri, result.Playlist.SelectedTrack),
+                new Playlist(result.Tracks.Select(x => new Track(x.Title, x.Url, x.Duration)), result.Playlist.Name, uri.AbsoluteUri, result.Playlist.SelectedTrack)),
             SearchStatus.NoMatches => new NotFoundSearchResult(),
             _ => new LoadFailedSearchResult()
         };

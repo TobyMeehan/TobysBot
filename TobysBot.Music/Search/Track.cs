@@ -1,12 +1,20 @@
 namespace TobysBot.Music.Search;
 
-public class TrackResult : ITrack, ISearchResult
+public class Track : ITrack
 {
-    public TrackResult(string title, string url, string audioUrl, TimeSpan duration)
+    public Track(string title, string url, string audioUrl, TimeSpan duration)
     {
         Title = title;
         Url = url;
         AudioUrl = audioUrl;
+        Duration = duration;
+    }
+
+    public Track(string title, string url, TimeSpan duration)
+    {
+        Title = title;
+        Url = url;
+        AudioUrl = url;
         Duration = duration;
     }
 

@@ -1,8 +1,8 @@
 ﻿namespace TobysBot.Music.Search;
 
-public class PlaylistResult : IPlaylist, ISearchResult
+public class Playlist : IPlaylist
 {
-    public PlaylistResult(IEnumerable<ITrack> tracks, string title, string url, int startPos)
+    public Playlist(IEnumerable<ITrack> tracks, string title, string url, int startPos)
     {
         Tracks = tracks.Skip(startPos);
         

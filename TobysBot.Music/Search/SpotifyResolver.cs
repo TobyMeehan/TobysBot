@@ -1,4 +1,5 @@
 using SpotifyAPI.Web;
+using TobysBot.Music.Search.Result;
 using YoutubeExplode;
 
 namespace TobysBot.Music.Search;
@@ -40,7 +41,7 @@ public class SpotifyResolver : ISearchResolver
                 new NullReferenceException("Playlist items was null."));
         }
 
-        var tracks = new List<SpotifyTrack>();
+        var tracks = new List<ITrack>();
 
         foreach (var item in playlist.Tracks.Items)
         {
@@ -51,9 +52,9 @@ public class SpotifyResolver : ISearchResolver
 
             var track = await LoadSpotifyTrackAsync((item.Track as FullTrack)?.Id);
 
-            if (track is SpotifyTrack spotifyTrack)
+            if (track is TrackResult spotifyTrack)
             {
-                tracks.Add(spotifyTrack);
+                tracks.Add(spotifyTrack.Track);
             }
         }
 
@@ -63,7 +64,8 @@ public class SpotifyResolver : ISearchResolver
                 new Exception("Playlist's tracks was empty."));
         }
 
-        return new SpotifyPlaylist(playlist, tracks);
+        return new PlaylistResult(
+            new SpotifyPlaylist(playlist, tracks));
     }
 
     private async Task<ISearchResult> LoadSpotifyAlbumAsync(string id)
@@ -76,15 +78,15 @@ public class SpotifyResolver : ISearchResolver
                 new NullReferenceException("Album items was null."));
         }
 
-        var tracks = new List<SpotifyTrack>();
+        var tracks = new List<ITrack>();
 
         foreach (var item in album.Tracks.Items)
         {
             var track = await LoadSpotifyTrackAsync(item.Id);
 
-            if (track is SpotifyTrack spotifyTrack)
+            if (track is TrackResult spotifyTrack)
             {
-                tracks.Add(spotifyTrack);
+                tracks.Add(spotifyTrack.Track);
             }
         }
 
@@ -94,7 +96,8 @@ public class SpotifyResolver : ISearchResolver
                 new Exception("Album's tracks was empty."));
         }
 
-        return new SpotifyPlaylist(album, tracks);
+        return new PlaylistResult(
+            new SpotifyPlaylist(album, tracks));
     }
 
     private async Task<ISearchResult> LoadSpotifyTrackAsync(string id)
@@ -110,9 +113,9 @@ public class SpotifyResolver : ISearchResolver
             return new LoadFailedSearchResult($"Failed to load Spotify track {track.Name}.",
                 new NullReferenceException("YouTube video duration was null."));
         }
-        
-        return new SpotifyTrack(track, video.Url,
-            video.Duration.Value);
+
+        return new TrackResult(
+            new SpotifyTrack(track, video.Url, video.Duration.Value));
     }
 
     public int Priority => 200;

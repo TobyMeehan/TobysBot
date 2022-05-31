@@ -1,4 +1,4 @@
-namespace TobysBot.Music.Search;
+namespace TobysBot.Music.Search.Result;
 
 public class LoadFailedSearchResult : ISearchResult
 {
