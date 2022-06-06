@@ -30,7 +30,7 @@ public class VoiceModule : VoiceCommandModuleBase
     [Summary("Leaves the voice channel.")]
     public async Task LeaveAsync()
     {
-        if (!await EnsureUserInSameVoiceAsync())
+        if (!await EnsureUserInVoiceAsync(sameChannel: true))
         {
             return;
         }

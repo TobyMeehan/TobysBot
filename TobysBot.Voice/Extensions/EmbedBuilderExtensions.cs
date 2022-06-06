@@ -7,49 +7,31 @@ namespace TobysBot.Voice.Extensions;
 
 public static class EmbedBuilderExtensions
 {
-    private static EmbedServiceBuilder ThrowIfNoService(EmbedBuilder builder)
+    public static EmbedBuilder WithJoinVoiceAction(this EmbedBuilder embed)
     {
-        if (builder is not EmbedServiceBuilder service)
-        {
-            throw new Exception("Invalid builder type.");
-        }
-
-        return service;
-    }
-
-    public static EmbedBuilder WithJoinVoiceAction(this EmbedBuilder builder)
-    {
-        var embed = ThrowIfNoService(builder);
-
         return embed
             .WithContext(EmbedContext.Action)
-            .WithDescription(embed.Service.Options<VoiceOptions>().Embeds.JoinVoiceAction);
+            .WithDescription(x => x.Service.Options<VoiceOptions>().Embeds.JoinVoiceAction);
     }
 
     public static EmbedBuilder WithLeaveVoiceAction(this EmbedBuilder builder)
     {
-        var embed = ThrowIfNoService(builder);
-
-        return embed
+        return builder
             .WithContext(EmbedContext.Action)
-            .WithDescription(embed.Service.Options<VoiceOptions>().Embeds.LeaveVoiceAction);
+            .WithDescription(x => x.Service.Options<VoiceOptions>().Embeds.LeaveVoiceAction);
     }
     
-    public static EmbedBuilder WithJoinVoiceError(this EmbedBuilder builder)
+    public static EmbedBuilder WithJoinVoiceError(this EmbedBuilder embed)
     {
-        var embed = ThrowIfNoService(builder);
-
         return embed
             .WithContext(EmbedContext.Error)
-            .WithDescription(embed.Service.Options<VoiceOptions>().Embeds.JoinVoiceErrorDescription);
+            .WithDescription(x => x.Service.Options<VoiceOptions>().Embeds.JoinVoiceErrorDescription);
     }
 
-    public static EmbedBuilder WithJoinSameVoiceError(this EmbedBuilder builder)
+    public static EmbedBuilder WithJoinSameVoiceError(this EmbedBuilder embed)
     {
-        var embed = ThrowIfNoService(builder);
-
         return embed
             .WithContext(EmbedContext.Error)
-            .WithDescription(embed.Service.Options<VoiceOptions>().Embeds.JoinSameVoiceErrorDescription);
+            .WithDescription(x => x.Service.Options<VoiceOptions>().Embeds.JoinSameVoiceErrorDescription);
     }
 }

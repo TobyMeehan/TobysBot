@@ -18,17 +18,23 @@ public abstract class VoiceCommandModuleBase : CommandModuleBase
         _embeds = embeds;
     }
 
-    protected bool IsUserInVoiceChannel(out IVoiceState voiceState)
+    protected bool IsUserInVoiceChannel(bool sameChannel = false)
+    {
+        return IsUserInVoiceChannel(out _, sameChannel);
+    }
+    
+    protected bool IsUserInVoiceChannel(out IVoiceState voiceState, bool sameChannel = false)
     {
         voiceState = Context.User as IVoiceState;
-        return voiceState?.VoiceChannel is not null;
-    }
 
-    protected bool IsUserInSameVoiceChannel(out IVoiceState voiceState)
-    {
-        if (!IsUserInVoiceChannel(out voiceState))
+        if (voiceState?.VoiceChannel is null)
         {
             return false;
+        }
+
+        if (!sameChannel)
+        {
+            return true;
         }
 
         if (_voiceService.Status(Context.Guild) is not IConnectedStatus status)
@@ -39,23 +45,16 @@ public abstract class VoiceCommandModuleBase : CommandModuleBase
         return voiceState.VoiceChannel.Id == status.VoiceChannel.Id;
     }
 
-    protected async Task<bool> EnsureUserInSameVoiceAsync()
+    protected async Task<bool> EnsureUserInVoiceAsync(bool errorMessage = true, bool sameChannel = false, bool required = true)
     {
-        if (!IsUserInSameVoiceChannel(out _))
+        if (IsUserInVoiceChannel(sameChannel: true))
         {
-            await Response.ReplyAsync(embed: _embeds.Builder()
-                .WithJoinSameVoiceError()
-                .Build());
-
-            return false;
+            return true;
         }
-
-        return true;
-    }
-
-    protected async Task JoinVoiceChannelAsync(bool errorMessage = true, bool moveChannel = true)
-    {
-        if (!IsUserInVoiceChannel(out var voiceState))
+        
+        // User is not in same channel
+        
+        if (!IsUserInVoiceChannel() && required)
         {
             if (errorMessage)
             {
@@ -63,17 +62,48 @@ public abstract class VoiceCommandModuleBase : CommandModuleBase
                     .WithJoinVoiceError()
                     .Build());
             }
-
-            return;
+            
+            return false;
         }
 
-        if (_voiceService.Status(Context.Guild) is IConnectedStatus status &&
-            status.VoiceChannel.Id != voiceState.VoiceChannel.Id && !moveChannel)
+        // User is in voice channel
+        
+        if (_voiceService.Status(Context.Guild) is IConnectedStatus && sameChannel)
         {
-            return;
+            if (errorMessage)
+            {
+                await Response.ReplyAsync(embed: _embeds.Builder()
+                    .WithJoinSameVoiceError()
+                    .Build());
+            }
+            
+            return false;
         }
 
+        return true;
+    }
+
+    protected async Task<bool> JoinVoiceChannelAsync(bool errorMessage = true, bool moveChannel = true)
+    {
+        if (!await EnsureUserInVoiceAsync(errorMessage))
+        {
+            return false;
+        }
+
+        // user is in voice channel
+        
+        IsUserInVoiceChannel(out var voiceState);
+        var status = _voiceService.Status(Context.Guild);
+
+        if (status is IConnectedStatus && !moveChannel) // user and bot are in voice channels
+        {
+            return await EnsureUserInVoiceAsync(errorMessage, sameChannel: true); // make sure channels are the same
+        }
+        
         await _voiceService.JoinAsync(voiceState.VoiceChannel, Context.Channel as ITextChannel);
+        
+        return true;
+
     }
 
     protected async Task LeaveVoiceChannelAsync()

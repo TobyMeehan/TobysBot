@@ -35,7 +35,9 @@ public class MemoryMusicService : IMusicService
 
     public async Task<ITrack> EnqueueAsync(IGuild guild, IEnumerable<ITrack> t)
     {
-        var status = ThrowIfNotConnected(guild);
+        // TODO: investigate
+        // var status = ThrowIfNotConnected(guild);
+        var status = _voice.Status(guild);
 
         var tracks = t.ToList();
         
