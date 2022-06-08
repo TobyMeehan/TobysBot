@@ -1,12 +1,14 @@
 using System.Collections.Concurrent;
 using Discord;
+using TobysBot.Events;
 using TobysBot.Music.Extensions;
 using TobysBot.Voice;
+using TobysBot.Voice.Events;
 using TobysBot.Voice.Status;
 
 namespace TobysBot.Music.MemoryQueue;
 
-public class MemoryMusicService : IMusicService
+public class MemoryMusicService : IMusicService, IEventHandler<PlayerUpdatedEventArgs>
 {
     private readonly IVoiceService _voice;
     private readonly ConcurrentQueueDictionary _queues = new();
@@ -209,5 +211,15 @@ public class MemoryMusicService : IMusicService
     public Task<IQueue> GetQueueAsync(IGuild guild)
     {
         return Task.FromResult<IQueue>(new Queue(_queues[guild.Id]));
+    }
+
+    Task IEventHandler<PlayerUpdatedEventArgs>.HandleAsync(PlayerUpdatedEventArgs args)
+    {
+        if (args.Position.HasValue)
+        {
+            _queues[args.Guild.Id].Progress(args.Position.Value);
+        }
+        
+        return Task.CompletedTask;
     }
 }

@@ -2,9 +2,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using SpotifyAPI.Web;
 using TobysBot.Configuration;
+using TobysBot.Events;
 using TobysBot.Music.Commands;
 using TobysBot.Music.MemoryQueue;
 using TobysBot.Music.Search;
+using TobysBot.Voice.Events;
 using Victoria;
 using YoutubeExplode;
 
@@ -53,6 +55,8 @@ public static class TobysBotBuilderExtensions
                         options.Spotify.ClientSecret)));
 
                 services.AddTransient<ISpotifyClient, SpotifyClient>();
+                
+                services.SubscribeEvent<PlayerUpdatedEventArgs, MemoryMusicService>();
             },
             commands =>
             {

@@ -43,6 +43,17 @@ public class LavalinkHostedService : IHostedService, IEventHandler<DiscordClient
         _lavaNode.OnTrackException += OnTrackException;
         _lavaNode.OnTrackStarted += OnTrackStarted;
         _lavaNode.OnTrackStuck += OnTrackStuck;
+        _lavaNode.OnPlayerUpdated += OnPlayerUpdated;
+    }
+
+    private Task OnPlayerUpdated(PlayerUpdateEventArgs arg)
+    {
+        if (arg.Player is not SoundPlayer player)
+        {
+            return Task.CompletedTask;;
+        }
+
+        return _events.InvokeAsync(new PlayerUpdatedEventArgs(player.Status, arg.Position, player.VoiceChannel.Guild));
     }
 
     private Task OnTrackStuck(TrackStuckEventArgs arg)
