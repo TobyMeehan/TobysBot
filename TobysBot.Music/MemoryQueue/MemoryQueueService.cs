@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 
 namespace TobysBot.Music.MemoryQueue;
 
-public class ConcurrentQueueDictionary
+public class MemoryQueueService : IMemoryQueueService
 {
     private readonly ConcurrentDictionary<ulong, TrackCollection> _queues = new();
 

@@ -8,14 +8,15 @@ using TobysBot.Voice.Status;
 
 namespace TobysBot.Music.MemoryQueue;
 
-public class MemoryMusicService : IMusicService, IEventHandler<PlayerUpdatedEventArgs>
+public class MemoryMusicService : IMusicService
 {
     private readonly IVoiceService _voice;
-    private readonly ConcurrentQueueDictionary _queues = new();
+    private readonly IMemoryQueueService _queues;
 
-    public MemoryMusicService(IVoiceService voice)
+    public MemoryMusicService(IVoiceService voice, IMemoryQueueService queues)
     {
         _voice = voice;
+        _queues = queues;
     }
 
     private IPlayerStatus ThrowIfNotConnected(IGuild guild)
@@ -211,15 +212,5 @@ public class MemoryMusicService : IMusicService, IEventHandler<PlayerUpdatedEven
     public Task<IQueue> GetQueueAsync(IGuild guild)
     {
         return Task.FromResult<IQueue>(new Queue(_queues[guild.Id]));
-    }
-
-    Task IEventHandler<PlayerUpdatedEventArgs>.HandleAsync(PlayerUpdatedEventArgs args)
-    {
-        if (args.Position.HasValue)
-        {
-            _queues[args.Guild.Id].Progress(args.Position.Value);
-        }
-        
-        return Task.CompletedTask;
     }
 }

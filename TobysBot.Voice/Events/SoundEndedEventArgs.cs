@@ -1,15 +1,18 @@
+using Discord;
 using TobysBot.Voice.Status;
 
 namespace TobysBot.Voice.Events;
 
 public class SoundEndedEventArgs
 {
+    public IGuild Guild { get; }
     public ISound Sound { get; }
     public IPlayerStatus Status { get; }
     public SoundEndedReason Reason { get; }
 
-    public SoundEndedEventArgs(ISound sound, IPlayerStatus status, SoundEndedReason reason)
+    public SoundEndedEventArgs(IGuild guild, ISound sound, IPlayerStatus status, SoundEndedReason reason)
     {
+        Guild = guild;
         Sound = sound;
         Status = status;
         Reason = reason;

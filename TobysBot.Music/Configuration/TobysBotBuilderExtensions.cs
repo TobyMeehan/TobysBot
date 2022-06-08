@@ -4,6 +4,7 @@ using SpotifyAPI.Web;
 using TobysBot.Configuration;
 using TobysBot.Events;
 using TobysBot.Music.Commands;
+using TobysBot.Music.Events;
 using TobysBot.Music.MemoryQueue;
 using TobysBot.Music.Search;
 using TobysBot.Voice.Events;
@@ -45,7 +46,8 @@ public static class TobysBotBuilderExtensions
                     config.Port = options.Search.Port;
                 });
 
-                services.AddSingleton<IMusicService, MemoryMusicService>();
+                services.AddTransient<IMusicService, MemoryMusicService>();
+                services.AddSingleton<IMemoryQueueService, MemoryQueueService>();
                 
                 services.AddTransient<ISearchService, SearchService>();
                 services.AddTransient<ISearchResolver, YouTubeResolver>();
@@ -60,7 +62,10 @@ public static class TobysBotBuilderExtensions
                         options.Spotify.ClientSecret)));
                 services.AddTransient<ISpotifyClient, SpotifyClient>();
                 
-                services.SubscribeEvent<PlayerUpdatedEventArgs, MemoryMusicService>(s => s.GetService<IMusicService>() as MemoryMusicService);
+                services.SubscribeEvent<PlayerUpdatedEventArgs, TrackProgressEventHandler>();
+                services.SubscribeEvent<SoundEndedEventArgs, AutoplayEventHandler>();
+                
+                services.SubscribeEvent<SoundStartedEventArgs, TrackNotificationEventHandler>();
             },
             commands =>
             {
