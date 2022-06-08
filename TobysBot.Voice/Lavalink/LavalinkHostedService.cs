@@ -93,7 +93,7 @@ public class LavalinkHostedService : IHostedService, IEventHandler<DiscordClient
             return Task.CompletedTask;
         }
 
-        return _events.InvokeAsync(new SoundEndedEventArgs(player.Sound, player.Status, (SoundEndedReason)(byte) arg.Reason));
+        return _events.InvokeAsync(new SoundEndedEventArgs(new LavaSound(arg.Track), player.Status, (SoundEndedReason)(byte) arg.Reason));
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)

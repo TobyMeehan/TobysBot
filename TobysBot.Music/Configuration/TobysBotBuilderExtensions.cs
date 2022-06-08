@@ -46,14 +46,18 @@ public static class TobysBotBuilderExtensions
                 });
 
                 services.AddSingleton<IMusicService, MemoryMusicService>();
+                
                 services.AddTransient<ISearchService, SearchService>();
+                services.AddTransient<ISearchResolver, YouTubeResolver>();
+                services.AddTransient<ISearchResolver, SpotifyResolver>();
+                services.AddTransient<ISearchResolver, VictoriaResolver>();
+                
                 services.AddTransient<YoutubeClient>();
                 
                 services.AddSingleton(SpotifyClientConfig
                     .CreateDefault()
                     .WithAuthenticator(new ClientCredentialsAuthenticator(options.Spotify.ClientId,
                         options.Spotify.ClientSecret)));
-
                 services.AddTransient<ISpotifyClient, SpotifyClient>();
                 
                 services.SubscribeEvent<PlayerUpdatedEventArgs, MemoryMusicService>(s => s.GetService<IMusicService>() as MemoryMusicService);
