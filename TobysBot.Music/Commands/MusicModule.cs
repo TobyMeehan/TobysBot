@@ -324,6 +324,101 @@ public class MusicModule : VoiceCommandModuleBase
         await Response.ReactAsync(RewindEmote);
     }
 
+    [Command("stop")]
+    [Summary("Stops playback and returns to the start of the queue.")]
+    public async Task StopAsync()
+    {
+        if (!await EnsureUserInVoiceAsync(sameChannel: true))
+        {
+            return;
+        }
+
+        await _music.StopAsync(Context.Guild);
+
+        await Response.ReactAsync(StopEmote);
+    }
+
+    [Command("skip")]
+    [Summary("Skips to the next track.")]
+    public async Task SkipAsync()
+    {
+        if (!await EnsureUserInVoiceAsync(sameChannel: true))
+        {
+            return;
+        }
+
+        await _music.SkipAsync(Context.Guild);
+
+        await Response.ReactAsync(SkipEmote);
+    }
+
+    [Command("back")]
+    [Alias("previous")]
+    [Summary("Skips to the previous track.")]
+    public async Task BackAsync()
+    {
+        if (!await EnsureUserInVoiceAsync(sameChannel: true))
+        {
+            return;
+        }
+
+        var queue = await _music.GetQueueAsync(Context.Guild);
+
+        if (!queue.Previous.Any())
+        {
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithNoPreviousTrackError()
+                .Build());
+            
+            return;
+        }
+
+        await _music.BackAsync(Context.Guild);
+
+        await Response.ReactAsync(BackEmote);
+    }
+
+    [Command("jump")]
+    [Alias("Jumps to the specified track.")]
+    public async Task JumpAsync(
+        [Summary("Position to jump to.")]
+        int track)
+    {
+        if (!await EnsureUserInVoiceAsync(sameChannel: true))
+        {
+            return;
+        }
+
+        var queue = await _music.GetQueueAsync(Context.Guild);
+
+        if (track < 1 || track > queue.Length)
+        {
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithPositionOutOfRangeError()
+                .Build());
+            
+            return;
+        }
+
+        await _music.JumpAsync(Context.Guild, track);
+
+        await Response.ReactAsync(SkipEmote);
+    }
+
+    [Command("clear")]
+    [Summary("Clears the queue.")]
+    public async Task ClearAsync()
+    {
+        if (!await EnsureUserInVoiceAsync(sameChannel: true))
+        {
+            return;
+        }
+
+        await _music.ClearAsync(Context.Guild);
+
+        await Response.ReactAsync(ClearEmote);
+    }
+
     [Command("np")]
     [Summary("Shows the track currently playing.")]
     public async Task NowPlayingAsync()

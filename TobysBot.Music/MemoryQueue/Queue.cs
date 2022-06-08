@@ -25,4 +25,6 @@ public class Queue : IQueue
     public IActiveTrack CurrentTrack { get; }
     public ILoopSetting Loop { get; } = new DisabledLoopSetting();
     public bool Shuffle { get; }
+
+    public int Length => Previous.Append(CurrentTrack).Concat(Next).Count();
 }

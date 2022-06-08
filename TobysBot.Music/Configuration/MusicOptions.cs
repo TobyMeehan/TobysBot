@@ -19,6 +19,8 @@ public class MusicEmbedOptions
     public string TimestampTooLongErrorDescription { get; set; }
     public string FastForwardTooFarErrorDescription { get; set; }
     public string RewindTooFarErrorDescription { get; set; }
+    public string NoPreviousTrackErrorDescription { get; set; }
+    public string PositionOutOfRangeErrorDescription { get; set; }
 }
 
 public class SpotifyOptions

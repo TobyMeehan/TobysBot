@@ -94,6 +94,20 @@ public static class EmbedBuilderExtensions
             .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.RewindTooFarErrorDescription);
     }
 
+    public static EmbedBuilder WithNoPreviousTrackError(this EmbedBuilder embed)
+    {
+        return embed
+            .WithContext(EmbedContext.Error)
+            .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.NoPreviousTrackErrorDescription);
+    }
+
+    public static EmbedBuilder WithPositionOutOfRangeError(this EmbedBuilder embed)
+    {
+        return embed
+            .WithContext(EmbedContext.Error)
+            .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.PositionOutOfRangeErrorDescription);
+    }
+
     private static string GetProgressBar(TimeSpan position, TimeSpan duration)
     {
         var fraction = position.Ticks / (double)duration.Ticks;

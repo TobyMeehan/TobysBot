@@ -43,14 +43,16 @@ public class MemoryMusicService : IMusicService
         var status = _voice.Status(guild);
 
         var tracks = t.ToList();
+
+        var isStopped = status is not PlayingStatus;
         
-        if (status is not PlayingStatus)
+        if (isStopped)
         {
             await _voice.PlayAsync(tracks.First().ToSound(), guild);
         }
 
         _queues.GetOrAdd(guild.Id)
-            .AddRange(tracks);
+            .AddRange(tracks, advanceToTracks: isStopped);
 
         return _queues[guild.Id].CurrentTrack;
     }

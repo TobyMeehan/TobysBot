@@ -8,4 +8,6 @@ public interface IQueue
     
     ILoopSetting Loop { get; }
     bool Shuffle { get; }
+    
+    int Length { get; }
 }
