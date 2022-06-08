@@ -12,6 +12,13 @@ public class MusicOptions
 public class MusicEmbedOptions
 {
     public string NotFoundErrorDescription { get; set; }
+    public string NotPlayingErrorDescription { get; set; }
+    public string AlreadyPlayingErrorDescription { get; set; }
+    public string AlreadyPausedErrorDescription { get; set; }
+    public string CannotParseTimestampErrorDescription { get; set; }
+    public string TimestampTooLongErrorDescription { get; set; }
+    public string FastForwardTooFarErrorDescription { get; set; }
+    public string RewindTooFarErrorDescription { get; set; }
 }
 
 public class SpotifyOptions

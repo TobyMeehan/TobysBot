@@ -38,9 +38,7 @@ public class SocketTextCommandResponseService : ISocketResponseService
         return new SocketDeferredTextCommandResponse(_message, _message.Channel.EnterTypingState(options));
     }
 
-    public async Task ReactAsync(IEmote emote, string text = null, bool isTTS = false, bool ephemeral = false, Embed embed = null,
-        AllowedMentions allowedMentions = null, RequestOptions options = null, MessageComponent components = null,
-        ISticker[] stickers = null, Embed[] embeds = null)
+    public async Task ReactAsync(IEmote emote, RequestOptions options = null)
     {
         await _message.AddReactionAsync(emote, options);
     }

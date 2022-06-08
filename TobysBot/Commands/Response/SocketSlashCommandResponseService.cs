@@ -28,10 +28,8 @@ public class SocketSlashCommandResponseService : ISocketResponseService
         return new SocketSlashCommandResponse(_command);
     }
 
-    public async Task ReactAsync(IEmote emote, string text = null, bool isTTS = false, bool ephemeral = false, Embed embed = null,
-        AllowedMentions allowedMentions = null, RequestOptions options = null, MessageComponent components = null,
-        ISticker[] stickers = null, Embed[] embeds = null)
+    public async Task ReactAsync(IEmote emote, RequestOptions options = null)
     {
-        await _command.RespondAsync(text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options);
+        await _command.RespondAsync(emote.Name, options: options);
     }
 }

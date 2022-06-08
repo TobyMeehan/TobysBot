@@ -43,7 +43,7 @@ public static class TobysBotBuilderExtensions
                     config.Port = options.Search.Port;
                 });
 
-                services.AddTransient<IMusicService, MemoryMusicService>();
+                services.AddSingleton<IMusicService, MemoryMusicService>();
                 services.AddTransient<ISearchService, SearchService>();
                 services.AddTransient<YoutubeClient>();
                 

@@ -18,6 +18,8 @@ public abstract class VoiceCommandModuleBase : CommandModuleBase
         _embeds = embeds;
     }
 
+    protected IPlayerStatus Status => _voiceService.Status(Context.Guild);
+    
     protected bool IsUserInVoiceChannel(bool sameChannel = false)
     {
         return IsUserInVoiceChannel(out _, sameChannel);
@@ -37,7 +39,7 @@ public abstract class VoiceCommandModuleBase : CommandModuleBase
             return true;
         }
 
-        if (_voiceService.Status(Context.Guild) is not IConnectedStatus status)
+        if (Status is not IConnectedStatus status)
         {
             return false;
         }
@@ -68,7 +70,7 @@ public abstract class VoiceCommandModuleBase : CommandModuleBase
 
         // User is in voice channel
         
-        if (_voiceService.Status(Context.Guild) is IConnectedStatus && sameChannel)
+        if (Status is IConnectedStatus && sameChannel)
         {
             if (errorMessage)
             {
@@ -93,9 +95,8 @@ public abstract class VoiceCommandModuleBase : CommandModuleBase
         // user is in voice channel
         
         IsUserInVoiceChannel(out var voiceState);
-        var status = _voiceService.Status(Context.Guild);
 
-        if (status is IConnectedStatus && !moveChannel) // user and bot are in voice channels
+        if (Status is IConnectedStatus && !moveChannel) // user and bot are in voice channels
         {
             return await EnsureUserInVoiceAsync(errorMessage, sameChannel: true); // make sure channels are the same
         }

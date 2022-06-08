@@ -42,4 +42,53 @@ public static class EmbedBuilderExtensions
             .WithContext(EmbedContext.Error)
             .WithDescription(result.Reason);
     }
+
+    public static EmbedBuilder WithNotPlayingError(this EmbedBuilder embed)
+    {
+        return embed
+            .WithContext(EmbedContext.Error)
+            .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.NotPlayingErrorDescription);
+    }
+
+    public static EmbedBuilder WithAlreadyPlayingError(this EmbedBuilder embed)
+    {
+        return embed
+            .WithContext(EmbedContext.Error)
+            .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.AlreadyPlayingErrorDescription);
+    }
+
+    public static EmbedBuilder WithAlreadyPausedError(this EmbedBuilder embed)
+    {
+        return embed
+            .WithContext(EmbedContext.Error)
+            .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.AlreadyPausedErrorDescription);
+    }
+
+    public static EmbedBuilder WithCannotParseTimestampError(this EmbedBuilder embed)
+    {
+        return embed
+            .WithContext(EmbedContext.Error)
+            .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.CannotParseTimestampErrorDescription);
+    }
+
+    public static EmbedBuilder WithTimestampTooLongError(this EmbedBuilder embed)
+    {
+        return embed
+            .WithContext(EmbedContext.Error)
+            .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.TimestampTooLongErrorDescription);
+    }
+
+    public static EmbedBuilder WithFastForwardTooFarError(this EmbedBuilder embed)
+    {
+        return embed
+            .WithContext(EmbedContext.Error)
+            .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.FastForwardTooFarErrorDescription);
+    }
+
+    public static EmbedBuilder WithRewindTooFarError(this EmbedBuilder embed)
+    {
+        return embed
+            .WithContext(EmbedContext.Error)
+            .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.RewindTooFarErrorDescription);
+    }
 }

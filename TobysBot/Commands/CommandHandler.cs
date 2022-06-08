@@ -43,7 +43,7 @@ public class CommandHandler
                 builder.AddOption(new SlashCommandOptionBuilder()
                     .WithName(parameter.Name)
                     .WithDescription(parameter.Summary)
-                    .WithRequired(parameter.IsOptional)
+                    .WithRequired(!parameter.IsOptional)
                     .WithType(ParseType(parameter.Type)));
             }
             
@@ -168,6 +168,12 @@ public class CommandHandler
 
         var result = await _commands.ExecuteAsync(context, argPos, _services);
 
+        _logger.LogInformation("Text command executed \n" +
+                               "in guild {GuildId} ({GuildName}) \n" +
+                               "in channel {ChannelId} ({ChannelName}) \n" +
+                               "by user {UserId} ({Username})",
+            context.Guild.Id, context.Guild.Name, context.Channel.Id, context.Channel.Name, context.User.Id, context.User.Username);
+        
         if (!result.IsSuccess)
         {
             _logger.LogError("Text command error result: {Error}", result.ErrorReason);
@@ -197,11 +203,37 @@ public class CommandHandler
             return;
         }
 
-        var paramList = from option in arg.Data.Options select option.Name;
-        var argList = from option in arg.Data.Options select option.Value;
+        var parameters = command.Parameters.ToDictionary(
+                x => x,
+                x => x.IsOptional ? x.DefaultValue : null);
+        
+        foreach (var parameter in parameters.Keys.ToList())
+        {
+            var option = arg.Data.Options.FirstOrDefault(x => x.Name == parameter.Name);
+        
+            if (option is null)
+            {
+                continue;
+            }
+        
+            var value = option.Value;
+        
+            if (value is long and <= int.MaxValue && parameter.Type == typeof(int))
+            {
+                value = Convert.ToInt32(value);
+            }
+            
+            parameters[parameter] = value;
+        }
+        
+        var result = await command.ExecuteAsync(context, parameters.Values, parameters.Keys.Select(x => x.Name), _services);
 
-        var result = await command.ExecuteAsync(context, argList, paramList, _services);
-
+        _logger.LogInformation("Slash command '{Command}' executed \n" +
+                               "in guild {GuildId} ({GuildName}) \n" +
+                               "in channel {ChannelId} ({ChannelName}) \n" +
+                               "by user {UserId} ({Username})",
+            command.Name, context.Guild.Id, context.Guild.Name, context.Channel.Id, context.Channel.Name, context.User.Id, context.User.Username);
+        
         if (!result.IsSuccess)
         {
             _logger.LogError("Slash command error result: {Error}", result.ErrorReason);

@@ -10,7 +10,5 @@ public interface ISocketResponseService
 
     Task<ISocketResponse> DeferAsync(bool ephemeral = false, RequestOptions options = null);
     
-    Task ReactAsync(IEmote emote, string text = null, bool isTTS = false, bool ephemeral = false, Embed embed = null,
-        AllowedMentions allowedMentions = null, RequestOptions options = null, MessageComponent components = null,
-        ISticker[] stickers = null, Embed[] embeds = null);
+    Task ReactAsync(IEmote emote, RequestOptions options = null);
 }

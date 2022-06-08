@@ -9,6 +9,8 @@ public class VoiceModule : VoiceCommandModuleBase
 {
     private readonly EmbedService _embeds;
 
+    private IEmote OkEmote => new Emoji("👌");
+    
     public VoiceModule(IVoiceService voiceService, EmbedService embedService) : base(voiceService, embedService)
     {
         _embeds = embedService;
@@ -20,9 +22,7 @@ public class VoiceModule : VoiceCommandModuleBase
     {
         await JoinVoiceChannelAsync();
 
-        await Response.ReactAsync(new Emoji("👌"), embed: _embeds.Builder()
-            .WithJoinVoiceAction()
-            .Build());
+        await Response.ReactAsync(OkEmote);
     }
 
     [Command("leave", RunMode = RunMode.Async)]
@@ -37,8 +37,6 @@ public class VoiceModule : VoiceCommandModuleBase
 
         await LeaveVoiceChannelAsync();
 
-        await Response.ReactAsync(new Emoji("👌"), embed: _embeds.Builder()
-            .WithLeaveVoiceAction()
-            .Build());
+        await Response.ReactAsync(OkEmote);
     }
 }
