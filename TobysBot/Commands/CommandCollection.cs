@@ -3,10 +3,11 @@ using Discord.Commands;
 
 namespace TobysBot.Commands;
 
-public class ModuleCollection
+public class CommandCollection
 {
     private List<Type> _modules = new();
     private List<Assembly> _assemblies = new();
+    private List<(Type Type, TypeReader TypeReader)> _typeReaders = new();
 
     public void AddModule<T>() where T : IModuleBase
     {
@@ -18,6 +19,12 @@ public class ModuleCollection
         _assemblies.Add(assembly);
     }
 
+    public void AddTypeReader<TType, TReader>() where TReader : TypeReader, new()
+    {
+        _typeReaders.Add((typeof(TType), new TReader()));
+    }
+
     public IEnumerable<Type> GetModules() => _modules;
     public IEnumerable<Assembly> GetAssemblies() => _assemblies;
+    public IEnumerable<(Type Type, TypeReader TypeReader)> GetTypeReaders() => _typeReaders;
 }

@@ -11,18 +11,18 @@ namespace TobysBot.Commands;
 public class CommandHandler
 {
     private readonly DiscordSocketClient _client;
-    private readonly CommandService _commands;
-    private readonly ModuleCollection _modules;
+    private readonly CommandService _commandService;
+    private readonly CommandCollection _commands;
     private readonly IServiceProvider _services;
     private readonly TobysBotOptions _options;
     private readonly ILogger<CommandHandler> _logger;
 
-    public CommandHandler(DiscordSocketClient client, CommandService commands, ModuleCollection modules,
+    public CommandHandler(DiscordSocketClient client, CommandService commandService, CommandCollection commands,
         IServiceProvider services, IOptions<TobysBotOptions> options, ILogger<CommandHandler> logger)
     {
         _client = client;
+        _commandService = commandService;
         _commands = commands;
-        _modules = modules;
         _services = services;
         _options = options.Value;
         _logger = logger;
@@ -32,80 +32,27 @@ public class CommandHandler
 
     private IEnumerable<SlashCommandProperties> GetSlashCommands()
     {
-        foreach (var command in _commands.Commands)
+        foreach (var command in _commandService.Commands)
         {
             var builder = new SlashCommandBuilder()
                 .WithName(command.Aliases[0])
-                .WithDescription(command.Summary);
+                .WithDescription(command.Summary)
+                .AddOptions(command.Parameters);
 
-            foreach (var parameter in command.Parameters)
-            {
-                builder.AddOption(new SlashCommandOptionBuilder()
-                    .WithName(parameter.Name)
-                    .WithDescription(parameter.Summary)
-                    .WithRequired(!parameter.IsOptional)
-                    .WithType(ParseType(parameter.Type)));
-            }
-            
             yield return builder.Build();
         }
     }
 
-    private ApplicationCommandOptionType ParseType(Type parameterType)
-    {
-        if (parameterType == typeof(bool))
-        {
-            return ApplicationCommandOptionType.Boolean;
-        }
-        
-        if (parameterType == typeof(string))
-        {
-            return ApplicationCommandOptionType.String;
-        }
-
-        if (parameterType == typeof(int))
-        {
-            return ApplicationCommandOptionType.Integer;
-        }
-
-        if (parameterType == typeof(float) || parameterType == typeof(double) || parameterType == typeof(decimal))
-        {
-            return ApplicationCommandOptionType.Number;
-        }
-
-        if (parameterType.IsAssignableTo<IChannel>())
-        {
-            return ApplicationCommandOptionType.Channel;
-        }
-        
-        if (parameterType.IsAssignableTo<IUser>())
-        {
-            return ApplicationCommandOptionType.User;
-        }
-
-        if (parameterType.IsAssignableTo<IRole>())
-        {
-            return ApplicationCommandOptionType.Role;
-        }
-
-        if (parameterType.IsAssignableTo<IMentionable>())
-        {
-            return ApplicationCommandOptionType.Mentionable;
-        }
-
-        throw new ArgumentOutOfRangeException(nameof(parameterType),"Could not parse slash command type.");
-    }
-
     public async Task InstallCommandsAsync()
     {
-        foreach (var type in _modules.GetModules()) // add explicit modules
+        foreach (var type in _commands.GetModules()) // add explicit modules
         {
-            await _commands.AddModuleAsync(type, _services);
+            await _commandService.AddModuleAsync(type, _services);
         }
 
-        foreach (var assembly in _modules.GetAssemblies()) // add assembly modules
+        foreach (var assembly in _commands.GetAssemblies()) // add assembly modules
         {
-            await _commands.AddModulesAsync(assembly, _services);
+            await _commandService.AddModulesAsync(assembly, _services);
         }
 
         // remove redundant commands
@@ -166,7 +113,7 @@ public class CommandHandler
 
         var context = new SocketGenericCommandContext(_client, message);
 
-        var result = await _commands.ExecuteAsync(context, argPos, _services);
+        var result = await _commandService.ExecuteAsync(context, argPos, _services);
 
         _logger.LogInformation("Text command executed \n" +
                                "in guild {GuildId} ({GuildName}) \n" +
@@ -184,7 +131,7 @@ public class CommandHandler
     {
         var context = new SocketGenericCommandContext(_client, arg);
 
-        var command = _commands.Commands.FirstOrDefault(
+        var command = _commandService.Commands.FirstOrDefault(
             c => c.Aliases.Any(alias => alias == arg.CommandName));
 
         if (command is null)

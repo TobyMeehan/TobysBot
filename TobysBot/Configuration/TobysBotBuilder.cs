@@ -11,7 +11,7 @@ namespace TobysBot.Configuration;
 public class TobysBotBuilder
 {
     public IServiceCollection Services { get; }
-    public ModuleCollection Commands { get; } = new();
+    public CommandCollection Commands { get; } = new();
 
     public TobysBotBuilder(IServiceCollection services)
     {
@@ -44,10 +44,24 @@ public class TobysBotBuilder
     }
 
     public TobysBotBuilder AddModule(Action<IServiceCollection> configureServices,
-        Action<ModuleCollection> configureCommands)
+        Action<CommandCollection> configureCommands)
     {
         configureServices(Services);
         configureCommands(Commands);
+
+        return this;
+    }
+
+    public TobysBotBuilder AddTypeReader<TType, TReader>() where TReader : TypeReader, new()
+    {
+        Commands.AddTypeReader<TType, TReader>();
+
+        return this;
+    }
+
+    public TobysBotBuilder AddEnumTypeReader<T>() where T : struct, Enum
+    {
+        Commands.AddTypeReader<T, EnumTypeReader<T>>();
 
         return this;
     }
