@@ -56,7 +56,7 @@ public static class TobysBotBuilderExtensions
 
                 services.AddTransient<ISpotifyClient, SpotifyClient>();
                 
-                services.SubscribeEvent<PlayerUpdatedEventArgs, MemoryMusicService>();
+                services.SubscribeEvent<PlayerUpdatedEventArgs, MemoryMusicService>(s => s.GetService<IMusicService>() as MemoryMusicService);
             },
             commands =>
             {

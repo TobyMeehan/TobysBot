@@ -323,4 +323,45 @@ public class MusicModule : VoiceCommandModuleBase
 
         await Response.ReactAsync(RewindEmote);
     }
+
+    [Command("np")]
+    [Summary("Shows the track currently playing.")]
+    public async Task NowPlayingAsync()
+    {
+        if (Status is not PlayingStatus playingStatus)
+        {
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithNotPlayingError()
+                .Build());
+            
+            return;
+        }
+
+        var queue = await _music.GetQueueAsync(Context.Guild);
+
+        await Response.ReplyAsync(embed: _embeds.Builder()
+            .WithTrackStatusInformation(playingStatus, queue)
+            .Build());
+    }
+
+    [Command("queue")]
+    [Alias("q")]
+    [Summary("Displays the queue.")]
+    public async Task QueueAsync()
+    {
+        if (Status is not IConnectedStatus)
+        {
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithNotPlayingError()
+                .Build());
+            
+            return;
+        }
+
+        var queue = await _music.GetQueueAsync(Context.Guild);
+
+        await Response.ReplyAsync(embed: _embeds.Builder()
+            .WithQueueInformation(queue, Status)
+            .Build());
+    }
 }

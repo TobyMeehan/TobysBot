@@ -8,4 +8,10 @@ public static class ServiceCollectionExtensions
     {
         services.AddTransient<IEventHandler<TArgs>, THandler>();
     }
+
+    public static void SubscribeEvent<TArgs, THandler>(this IServiceCollection services,
+        Func<IServiceProvider, THandler> implementation) where THandler : class, IEventHandler<TArgs>
+    {
+        services.AddTransient<IEventHandler<TArgs>, THandler>(implementation);
+    }
 }
