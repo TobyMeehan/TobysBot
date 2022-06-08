@@ -442,7 +442,7 @@ public class MusicModule : VoiceCommandModuleBase
         }
 
         ILoopSetting setting;
-        
+
         switch (mode)
         {
             case LoopChoice.Off:
@@ -461,7 +461,7 @@ public class MusicModule : VoiceCommandModuleBase
             case LoopChoice.Toggle:
                 setting = new QueueLoopSetting();
                 break;
-            
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(mode), mode, "Invalid loop mode.");
         }
@@ -470,6 +470,24 @@ public class MusicModule : VoiceCommandModuleBase
 
         await Response.ReplyAsync(embed: _embeds.Builder()
             .WithLoopAction(setting)
+            .Build());
+    }
+
+    [Command("shuffle")]
+    [Summary("Toggle shuffle mode.")]
+    public async Task ShuffleAsync()
+    {
+        if (!await EnsureUserInVoiceAsync(sameChannel: true))
+        {
+            return;
+        }
+
+        var queue = await _music.GetQueueAsync(Context.Guild);
+
+        await _music.SetShuffleAsync(Context.Guild, !queue.Shuffle);
+        
+        await Response.ReplyAsync(embed: _embeds.Builder()
+            .WithShuffleAction(!queue.Shuffle)
             .Build());
     }
 

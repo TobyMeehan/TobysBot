@@ -45,6 +45,13 @@ public static class EmbedBuilderExtensions
             .WithDescription(description);
     }
 
+    public static EmbedBuilder WithShuffleAction(this EmbedBuilder embed, bool shuffle)
+    {
+        return embed
+            .WithContext(EmbedContext.Action)
+            .WithDescription($"Shuffle mode is **{(shuffle ? "enabled" : "disabled")}**.");
+    }
+
     public static EmbedBuilder WithNotFoundError(this EmbedBuilder embed)
     {
         return embed
