@@ -31,6 +31,20 @@ public static class EmbedBuilderExtensions
             .WithDescription($"Queued {playlist.Tracks.Count()} tracks from [{playlist.Title}]({playlist.Url})");
     }
 
+    public static EmbedBuilder WithLoopAction(this EmbedBuilder embed, ILoopSetting setting)
+    {
+        string description = setting switch
+        {
+            DisabledLoopSetting => "Looping is **disabled**.",
+            EnabledLoopSetting => $"Looping the **{(setting is TrackLoopSetting ? "current track" : "")}{(setting is QueueLoopSetting ? "queue" : "")}**.",
+            _ => throw new ArgumentOutOfRangeException(nameof(setting), "Unexpected loop setting.")
+        };
+
+        return embed
+            .WithContext(EmbedContext.Action)
+            .WithDescription(description);
+    }
+
     public static EmbedBuilder WithNotFoundError(this EmbedBuilder embed)
     {
         return embed

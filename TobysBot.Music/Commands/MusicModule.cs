@@ -29,8 +29,9 @@ public class MusicModule : VoiceCommandModuleBase
     private IEmote BackEmote => new Emoji("⏮");
     private IEmote MoveEmote => new Emoji("↔");
     private IEmote RemoveEmote => new Emoji("⤴");
-    
-    public MusicModule(IVoiceService voiceService, EmbedService embeds, ISearchService search, IMusicService music) : base(voiceService, embeds)
+
+    public MusicModule(IVoiceService voiceService, EmbedService embeds, ISearchService search, IMusicService music) :
+        base(voiceService, embeds)
     {
         _embeds = embeds;
         _search = search;
@@ -41,16 +42,17 @@ public class MusicModule : VoiceCommandModuleBase
     [Alias("p")]
     [Summary("Loads query and adds it to the queue.")]
     public async Task PlayAsync(
-        [Summary("Url or search for track to play.")]
-        [Remainder] string query = null)
+        [Summary("Url or search for track to play.")] [Remainder]
+        string query = null)
     {
-        if (!await EnsureUserInVoiceAsync(required: false, sameChannel: true)) // If in a voice channel, must be the same
+        if (!await EnsureUserInVoiceAsync(required: false,
+                sameChannel: true)) // If in a voice channel, must be the same
         {
             return;
         }
 
         ISocketResponse response;
-        
+
         try
         {
             response = await Response.DeferAsync();
@@ -74,9 +76,9 @@ public class MusicModule : VoiceCommandModuleBase
                         .WithNotFoundError()
                         .Build();
                 });
-            
+
                 return;
-            
+
             case LoadFailedSearchResult loadFailed:
                 await response.ModifyResponseAsync(x =>
                 {
@@ -84,12 +86,12 @@ public class MusicModule : VoiceCommandModuleBase
                         .WithLoadFailedError(loadFailed)
                         .Build();
                 });
-            
+
                 return;
         }
 
         await JoinVoiceChannelAsync(moveChannel: false);
-        
+
         switch (search)
         {
             case TrackResult track:
@@ -108,9 +110,9 @@ public class MusicModule : VoiceCommandModuleBase
                         .WithQueueTrackAction(track.Track)
                         .Build();
                 });
-                
+
                 break;
-            
+
             case PlaylistResult playlist:
                 await _music.EnqueueAsync(Context.Guild, playlist.Playlist.Tracks);
 
@@ -120,7 +122,7 @@ public class MusicModule : VoiceCommandModuleBase
                         .WithQueuePlaylistAction(playlist.Playlist)
                         .Build();
                 });
-                
+
                 break;
         }
     }
@@ -140,10 +142,10 @@ public class MusicModule : VoiceCommandModuleBase
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithNotPlayingError()
                 .Build());
-            
+
             return;
         }
-        
+
         if (Status is PlayingStatus { IsPaused: false })
         {
             await Response.ReplyAsync(embed: _embeds.Builder()
@@ -171,16 +173,16 @@ public class MusicModule : VoiceCommandModuleBase
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithNotPlayingError()
                 .Build());
-            
+
             return;
         }
-        
+
         if (Status is PlayingStatus { IsPaused: true })
         {
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithAlreadyPausedError()
                 .Build());
-            
+
             return;
         }
 
@@ -205,7 +207,7 @@ public class MusicModule : VoiceCommandModuleBase
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithNotPlayingError()
                 .Build());
-            
+
             return;
         }
 
@@ -216,7 +218,7 @@ public class MusicModule : VoiceCommandModuleBase
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithCannotParseTimestampError()
                 .Build());
-            
+
             return;
         }
 
@@ -227,7 +229,7 @@ public class MusicModule : VoiceCommandModuleBase
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithTimestampTooLongError()
                 .Build());
-            
+
             return;
         }
 
@@ -253,7 +255,7 @@ public class MusicModule : VoiceCommandModuleBase
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithNotPlayingError()
                 .Build());
-            
+
             return;
         }
 
@@ -271,7 +273,7 @@ public class MusicModule : VoiceCommandModuleBase
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithFastForwardTooFarError()
                 .Build());
-            
+
             return;
         }
 
@@ -297,7 +299,7 @@ public class MusicModule : VoiceCommandModuleBase
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithNotPlayingError()
                 .Build());
-            
+
             return;
         }
 
@@ -315,7 +317,7 @@ public class MusicModule : VoiceCommandModuleBase
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithRewindTooFarError()
                 .Build());
-            
+
             return;
         }
 
@@ -369,7 +371,7 @@ public class MusicModule : VoiceCommandModuleBase
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithNoPreviousTrackError()
                 .Build());
-            
+
             return;
         }
 
@@ -379,10 +381,9 @@ public class MusicModule : VoiceCommandModuleBase
     }
 
     [Command("jump")]
-    [Alias("Jumps to the specified track.")]
+    [Summary("Jumps to the specified track.")]
     public async Task JumpAsync(
-        [Summary("Position to jump to.")]
-        int track)
+        [Summary("Position to jump to.")] int track)
     {
         if (!await EnsureUserInVoiceAsync(sameChannel: true))
         {
@@ -396,7 +397,7 @@ public class MusicModule : VoiceCommandModuleBase
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithPositionOutOfRangeError()
                 .Build());
-            
+
             return;
         }
 
@@ -419,6 +420,59 @@ public class MusicModule : VoiceCommandModuleBase
         await Response.ReactAsync(ClearEmote);
     }
 
+    [Command("loop")]
+    [Summary("Toggles looping for the track or queue.")]
+    public async Task LoopAsync(
+        [Summary("Loop over track or queue.")] LoopChoice mode = LoopChoice.Toggle)
+    {
+        if (!await EnsureUserInVoiceAsync(sameChannel: true))
+        {
+            return;
+        }
+
+        var queue = await _music.GetQueueAsync(Context.Guild);
+
+        if (queue is null)
+        {
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithNotPlayingError()
+                .Build());
+
+            return;
+        }
+
+        ILoopSetting setting;
+        
+        switch (mode)
+        {
+            case LoopChoice.Off:
+            case LoopChoice.Toggle when queue.Loop is EnabledLoopSetting:
+            case LoopChoice.Track when queue.Loop is TrackLoopSetting:
+            case LoopChoice.Queue when queue.Loop is QueueLoopSetting:
+                setting = new DisabledLoopSetting();
+                break;
+
+            case LoopChoice.Track:
+            case LoopChoice.Toggle when queue.CurrentTrack is not null && !queue.Next.Any():
+                setting = new TrackLoopSetting();
+                break;
+
+            case LoopChoice.Queue:
+            case LoopChoice.Toggle:
+                setting = new QueueLoopSetting();
+                break;
+            
+            default:
+                throw new ArgumentOutOfRangeException(nameof(mode), mode, "Invalid loop mode.");
+        }
+
+        await _music.SetLoopAsync(Context.Guild, setting);
+
+        await Response.ReplyAsync(embed: _embeds.Builder()
+            .WithLoopAction(setting)
+            .Build());
+    }
+
     [Command("np")]
     [Summary("Shows the track currently playing.")]
     public async Task NowPlayingAsync()
@@ -428,7 +482,7 @@ public class MusicModule : VoiceCommandModuleBase
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithNotPlayingError()
                 .Build());
-            
+
             return;
         }
 
@@ -449,7 +503,7 @@ public class MusicModule : VoiceCommandModuleBase
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithNotPlayingError()
                 .Build());
-            
+
             return;
         }
 
