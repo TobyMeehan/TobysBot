@@ -23,9 +23,9 @@ public class SocketTextCommandResponseService : ISocketResponseService
         return new SocketTextCommandResponse(_message, response);
     }
 
-    public async Task<ISocketResponse> DeferAsync(bool ephemeral = false, RequestOptions options = null)
+    public Task<ISocketResponse> DeferAsync(bool ephemeral = false, RequestOptions options = null)
     {
-        return new SocketDeferredTextCommandResponse(_message, ephemeral, _message.Channel.EnterTypingState(options));
+        return Task.FromResult<ISocketResponse>(new SocketDeferredTextCommandResponse(_message, ephemeral, _message.Channel.EnterTypingState(options)));
     }
 
     public async Task ReactAsync(IEmote emote, RequestOptions options = null)

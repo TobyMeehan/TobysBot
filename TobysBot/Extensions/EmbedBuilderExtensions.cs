@@ -26,7 +26,8 @@ public static class EmbedBuilderExtensions
         {
             EmbedContext.Action => embed.Service.EmbedOptions.Colors.Action,
             EmbedContext.Information => embed.Service.EmbedOptions.Colors.Information,
-            EmbedContext.Error => embed.Service.EmbedOptions.Colors.Error
+            EmbedContext.Error => embed.Service.EmbedOptions.Colors.Error,
+            _ => Color.LightGrey
         });
 
         return embed.WithColor(color);
