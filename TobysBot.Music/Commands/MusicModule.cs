@@ -95,13 +95,12 @@ public class MusicModule : VoiceCommandModuleBase
         switch (search)
         {
             case TrackResult track:
-                try
+                var playing = await _music.EnqueueAsync(Context.Guild, track.Track);
+
+                if (playing == track.Track)
                 {
-                    await _music.EnqueueAsync(Context.Guild, track.Track);
-                }
-                catch (Exception e)
-                {
-                    await response.ModifyResponseAsync(x => x.Content = e.Message);
+                    await response.ReactAsync(PlayEmote);
+                    break;
                 }
 
                 await response.ModifyResponseAsync(x =>

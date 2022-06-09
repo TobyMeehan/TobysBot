@@ -24,4 +24,9 @@ public class SocketTextCommandResponse : ISocketResponse
     {
         await _message.ReplyAsync(text, isTTS, embed, allowedMentions, options, components, stickers, embeds);
     }
+
+    public async Task ReactAsync(IEmote emote, RequestOptions options = null)
+    {
+        await _message.AddReactionAsync(emote, options);
+    }
 }

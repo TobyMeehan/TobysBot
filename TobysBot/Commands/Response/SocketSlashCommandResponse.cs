@@ -23,4 +23,12 @@ public class SocketSlashCommandResponse : ISocketResponse
     {
         await _command.FollowupAsync(text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options);
     }
+
+    public async Task ReactAsync(IEmote emote, RequestOptions options = null)
+    {
+        await _command.ModifyOriginalResponseAsync(x =>
+        {
+            x.Content = emote.Name;
+        }, options);
+    }
 }
