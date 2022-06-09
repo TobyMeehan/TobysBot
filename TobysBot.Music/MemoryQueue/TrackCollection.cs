@@ -109,8 +109,8 @@ public class TrackCollection : IEnumerable<ITrack>
 
     public bool Remove(int index)
     {
-        var track = CurrentTrack;
-
+        var removed = index == _currentIndex;
+        
         if (index < _currentIndex)
         {
             _currentIndex--;
@@ -118,12 +118,12 @@ public class TrackCollection : IEnumerable<ITrack>
         
         _tracks.RemoveAt(index);
 
-        return track != CurrentTrack;
+        return removed;
     }
 
     public bool RemoveRange(int startIndex, int endIndex)
     {
-        var track = CurrentTrack;
+        var removed = startIndex <= _currentIndex && _currentIndex <= endIndex;
 
         if (startIndex < _currentIndex && endIndex >= _currentIndex)
         {
@@ -139,7 +139,7 @@ public class TrackCollection : IEnumerable<ITrack>
         
         _tracks.RemoveRange(startIndex, count);
 
-        return track != CurrentTrack;
+        return removed;
     }
 
     public void Clear()
@@ -147,26 +147,27 @@ public class TrackCollection : IEnumerable<ITrack>
         _tracks.Clear();
     }
 
-    public bool Move(int index, int destIndex)
+    public void Move(int index, int destIndex)
     {
-        var currentTrack = CurrentTrack;
-
         if (index < _currentIndex)
         {
             _currentIndex--;
         }
 
-        if (destIndex <= _currentIndex)
+        if (destIndex < _currentIndex)
         {
             _currentIndex++;
+        }
+
+        if (index == _currentIndex)
+        {
+            _currentIndex = destIndex;
         }
 
         var track = _tracks[index];
         
         _tracks.RemoveAt(index);
         _tracks.Insert(destIndex, track);
-
-        return currentTrack != CurrentTrack;
     }
 
     public void Stop()

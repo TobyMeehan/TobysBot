@@ -189,10 +189,7 @@ public class MemoryMusicService : IMusicService
     {
         ThrowIfNotConnected(guild);
 
-        if (_queues[guild.Id].Move(track - 1, newPos - 1))
-        {
-            await _voice.PlayAsync(_queues[guild.Id].CurrentTrack.ToSound(), guild);
-        }
+        _queues[guild.Id].Move(track - 1, newPos - 1);
     }
 
     public Task SetLoopAsync(IGuild guild, ILoopSetting setting)
