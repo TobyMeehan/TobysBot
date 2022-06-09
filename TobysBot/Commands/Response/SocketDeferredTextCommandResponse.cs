@@ -38,4 +38,14 @@ public class SocketDeferredTextCommandResponse : SocketTextCommandResponse
 
         return base.ReactAsync(emote, options);
     }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _typing.Dispose();
+        }
+        
+        base.Dispose(disposing);
+    }
 }

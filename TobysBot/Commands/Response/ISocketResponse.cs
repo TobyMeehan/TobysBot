@@ -2,7 +2,7 @@ using Discord;
 
 namespace TobysBot.Commands.Response;
 
-public interface ISocketResponse
+public interface ISocketResponse : IDisposable
 {
     Task ModifyResponseAsync(Action<MessageProperties> func, RequestOptions options = null);
 

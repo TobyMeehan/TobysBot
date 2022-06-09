@@ -51,17 +51,7 @@ public class MusicModule : VoiceCommandModuleBase
             return;
         }
 
-        ISocketResponse response;
-
-        try
-        {
-            response = await Response.DeferAsync();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-            return;
-        }
+        using var response = await Response.DeferAsync();
 
         var search = query is null
             ? await _search.LoadAttachmentsAsync(Context.Message)

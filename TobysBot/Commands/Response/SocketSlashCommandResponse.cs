@@ -31,4 +31,8 @@ public class SocketSlashCommandResponse : ISocketResponse
             x.Content = emote.Name;
         }, options);
     }
+
+    public void Dispose()
+    {
+    }
 }

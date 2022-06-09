@@ -31,4 +31,15 @@ public class SocketTextCommandResponse : ISocketResponse
     {
         await _response.AddReactionAsync(emote, options);
     }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        
+    }
+    
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 }
