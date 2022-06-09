@@ -99,7 +99,7 @@ public class MusicModule : VoiceCommandModuleBase
 
                 if (playing == track.Track)
                 {
-                    await response.ReactAsync(PlayEmote);
+                    await Response.ReactAsync(PlayEmote);
                     break;
                 }
 

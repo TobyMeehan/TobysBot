@@ -16,26 +16,16 @@ public class SocketTextCommandResponseService : ISocketResponseService
         AllowedMentions allowedMentions = null, RequestOptions options = null, MessageComponent components = null,
         ISticker[] stickers = null, Embed[] embeds = null)
     {
-        if (ephemeral)
-        {
-            await _message.Author.SendMessageAsync(text, isTTS, embed, options, allowedMentions, components, embeds);
-        }
-        else
-        {
-            await _message.ReplyAsync(text, isTTS, embed, allowedMentions, options, components, stickers, embeds);
-        }
+        var response = ephemeral
+            ? await _message.Author.SendMessageAsync(text, isTTS, embed, options, allowedMentions, components, embeds)
+            : await _message.ReplyAsync(text, isTTS, embed, allowedMentions, options, components, stickers, embeds);
 
-        return new SocketTextCommandResponse(_message);
+        return new SocketTextCommandResponse(_message, response);
     }
 
     public async Task<ISocketResponse> DeferAsync(bool ephemeral = false, RequestOptions options = null)
     {
-        if (ephemeral)
-        {
-            return new SocketTextCommandResponse(_message);
-        }
-        
-        return new SocketDeferredTextCommandResponse(_message, _message.Channel.EnterTypingState(options));
+        return new SocketDeferredTextCommandResponse(_message, ephemeral, _message.Channel.EnterTypingState(options));
     }
 
     public async Task ReactAsync(IEmote emote, RequestOptions options = null)

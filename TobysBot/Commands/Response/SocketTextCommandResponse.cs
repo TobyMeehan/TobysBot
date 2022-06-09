@@ -6,27 +6,29 @@ namespace TobysBot.Commands.Response;
 
 public class SocketTextCommandResponse : ISocketResponse
 {
-    private readonly SocketUserMessage _message;
+    private readonly SocketUserMessage _command;
+    private readonly IUserMessage _response;
 
-    public SocketTextCommandResponse(SocketUserMessage message)
+    public SocketTextCommandResponse(SocketUserMessage command, IUserMessage response)
     {
-        _message = message;
+        _command = command;
+        _response = response;
     }
     
     public virtual async Task ModifyResponseAsync(Action<MessageProperties> func, RequestOptions options = null)
     {
-        await _message.ModifyAsync(func, options);
+        await _response.ModifyAsync(func, options);
     }
 
     public async Task FollowupResponseAsync(string text = null, bool isTTS = false, bool ephemeral = false, Embed embed = null,
         AllowedMentions allowedMentions = null, RequestOptions options = null, MessageComponent components = null,
         ISticker[] stickers = null, Embed[] embeds = null)
     {
-        await _message.ReplyAsync(text, isTTS, embed, allowedMentions, options, components, stickers, embeds);
+        await _response.ReplyAsync(text, isTTS, embed, allowedMentions, options, components, stickers, embeds);
     }
 
-    public async Task ReactAsync(IEmote emote, RequestOptions options = null)
+    public virtual async Task ReactAsync(IEmote emote, RequestOptions options = null)
     {
-        await _message.AddReactionAsync(emote, options);
+        await _response.AddReactionAsync(emote, options);
     }
 }
