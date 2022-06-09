@@ -38,8 +38,6 @@ public class MemoryMusicService : IMusicService
 
     public async Task<ITrack> EnqueueAsync(IGuild guild, IEnumerable<ITrack> t)
     {
-        // TODO: investigate
-        // var status = ThrowIfNotConnected(guild);
         var status = _voice.Status(guild);
 
         var tracks = t.ToList();
@@ -54,7 +52,7 @@ public class MemoryMusicService : IMusicService
         _queues.GetOrAdd(guild.Id)
             .AddRange(tracks, advanceToTracks: isStopped);
 
-        return _queues[guild.Id].CurrentTrack;
+        return _queues[guild.Id].CurrentTrack.InnerTrack;
     }
 
     public async Task PauseAsync(IGuild guild)

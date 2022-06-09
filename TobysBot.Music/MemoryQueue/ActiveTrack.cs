@@ -2,20 +2,20 @@ namespace TobysBot.Music.MemoryQueue;
 
 public class ActiveTrack : IActiveTrack
 {
-    private readonly ITrack _innerTrack;
-
     public ActiveTrack(ITrack innerTrack, TimeSpan position, ActiveTrackStatus status)
     {
         Position = position;
         Status = status;
-        _innerTrack = innerTrack;
+        InnerTrack = innerTrack;
     }
 
-    public string Title => _innerTrack.Title;
-    public string Url => _innerTrack.Url;
-    public string AudioUrl => _innerTrack.AudioUrl;
-    public TimeSpan Duration => _innerTrack.Duration;
+    public string Title => InnerTrack.Title;
+    public string Url => InnerTrack.Url;
+    public string AudioUrl => InnerTrack.AudioUrl;
+    public TimeSpan Duration => InnerTrack.Duration;
     public TimeSpan Position { get; }
+    
+    public ITrack InnerTrack { get; }
     
     public ActiveTrackStatus Status { get; }
 }
