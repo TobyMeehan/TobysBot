@@ -474,10 +474,134 @@ public class MusicModule : VoiceCommandModuleBase
         var queue = await _music.GetQueueAsync(Context.Guild);
 
         await _music.SetShuffleAsync(Context.Guild, !queue.Shuffle);
-        
+
         await Response.ReplyAsync(embed: _embeds.Builder()
             .WithShuffleAction(!queue.Shuffle)
             .Build());
+    }
+
+    [Command("move")]
+    [Alias("mv")]
+    [Summary("Moves the specified track to the specified position.")]
+    public async Task MoveAsync(
+        [Summary("Position of track to move.")]
+        int track,
+        [Summary("Position to move track to.")]
+        int position)
+    {
+        if (!await EnsureUserInVoiceAsync(sameChannel: true))
+        {
+            return;
+        }
+
+        var queue = await _music.GetQueueAsync(Context.Guild);
+
+        if (queue.Empty)
+        {
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithNotPlayingError()
+                .Build());
+            
+            return;
+        }
+
+        if (track > queue.Length || track < 1)
+        {
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithPositionOutOfRangeError()
+                .Build());
+            
+            return;
+        }
+
+        if (position > queue.Length || position < 1)
+        {
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithPositionOutOfRangeError()
+                .Build());
+            
+            return;
+        }
+
+        await _music.MoveAsync(Context.Guild, track, position);
+
+        await Response.ReactAsync(MoveEmote);
+    }
+
+    [Command("remove")]
+    [Alias("rm")]
+    [Summary("Removes the specified track from the queue.")]
+    public async Task RemoveAsync(
+        [Summary("Position of track to remove.")]
+        int track)
+    {
+        if (!await EnsureUserInVoiceAsync(sameChannel: true))
+        {
+            return;
+        }
+
+        var queue = await _music.GetQueueAsync(Context.Guild);
+
+        if (queue.Empty)
+        {
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithNotPlayingError()
+                .Build());
+            
+            return;
+        }
+
+        if (track > queue.Length || track < 1)
+        {
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithPositionOutOfRangeError()
+                .Build());
+            
+            return;
+        }
+
+        await _music.RemoveAsync(Context.Guild, track);
+
+        await Response.ReactAsync(RemoveEmote);
+    }
+
+    [Command("removerange")]
+    [Alias("remove range", "rmrange", "rm range")]
+    [Summary("Removes the specified range of tracks from the queue.")]
+    public async Task RemoveRangeAsync(
+        [Summary("Position of first track to remove.")]
+        int start,
+        [Summary("Position of last track to remove.")]
+        int end)
+    {
+        if (!await EnsureUserInVoiceAsync(sameChannel: true))
+        {
+            return;
+        }
+
+        var queue = await _music.GetQueueAsync(Context.Guild);
+
+        if (queue.Empty)
+        {
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithNotPlayingError()
+                .Build());
+            
+            return;
+        }
+
+        if (start > queue.Length || start < 1 || end > queue.Length || end < 1)
+        {
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithPositionOutOfRangeError()
+                .Build());
+            
+            return;
+        }
+
+        await _music.RemoveRangeAsync(Context.Guild, start, end);
+
+        await Response.ReactAsync(RemoveEmote);
     }
 
     [Command("np")]
@@ -491,7 +615,7 @@ public class MusicModule : VoiceCommandModuleBase
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithNotPlayingError()
                 .Build());
-            
+
             return;
         }
 
@@ -512,10 +636,10 @@ public class MusicModule : VoiceCommandModuleBase
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithNotPlayingError()
                 .Build());
-            
+
             return;
         }
-        
+
         await Response.ReplyAsync(embed: _embeds.Builder()
             .WithQueueInformation(queue)
             .Build());

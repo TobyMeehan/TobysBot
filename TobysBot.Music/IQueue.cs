@@ -10,4 +10,5 @@ public interface IQueue
     bool Shuffle { get; }
     
     int Length { get; }
+    bool Empty { get; }
 }

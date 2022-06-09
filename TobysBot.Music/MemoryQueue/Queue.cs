@@ -27,4 +27,5 @@ public class Queue : IQueue
     public bool Shuffle { get; }
 
     public int Length => Previous.Append(CurrentTrack).Concat(Next).Count();
+    public bool Empty => Length < 1;
 }
