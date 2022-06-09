@@ -120,4 +120,22 @@ public static class SlashCommandBuilderExtensions
 
         return builder;
     }
+
+    public static async Task AddSlashCommandsAsync(this IGuild guild, IEnumerable<SlashCommandProperties> cmds)
+    {
+        var commands = cmds.ToList();
+        var commandNames = commands.Select(x => x.Name.Value);
+        
+        var existing = await guild.GetApplicationCommandsAsync();
+
+        foreach (var command in existing.Where(x => !commandNames.Contains(x.Name)))
+        {
+            await command.DeleteAsync();
+        }
+        
+        foreach (var command in commands)
+        {
+            await guild.CreateApplicationCommandAsync(command);
+        }
+    }
 }

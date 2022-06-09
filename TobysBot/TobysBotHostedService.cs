@@ -55,8 +55,6 @@ public class TobysBotHostedService : IHostedService
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        await _commandHandler.UninstallCommandsAsync();
-        
-        await _client.StopAsync();
+         await _client.StopAsync();
     }
 }

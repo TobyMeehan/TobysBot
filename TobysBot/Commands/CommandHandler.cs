@@ -45,6 +45,8 @@ public class CommandHandler
 
     public async Task InstallCommandsAsync()
     {
+        // text commands
+        
         foreach (var type in _commands.GetModules()) // add explicit modules
         {
             await _commandService.AddModuleAsync(type, _services);
@@ -55,42 +57,17 @@ public class CommandHandler
             await _commandService.AddModulesAsync(assembly, _services);
         }
 
-        // remove redundant commands
+        // slash commands
         
-        var slashCommands = GetSlashCommands();
-        var existingCommands = await _client.GetGlobalApplicationCommandsAsync();
-        
-        foreach (var redundantCommand in existingCommands.Where(x => slashCommands.Any(c => x.Name == c.Name.Value)))
-        {
-            await redundantCommand.DeleteAsync();
-        }
+        var slashCommands = GetSlashCommands().ToList();
 
-        var debugGuild = GetDebugGuild();
-        
-        foreach (var command in slashCommands) // add / re-add slash commands
+        foreach (var guild in _client.Guilds)
         {
-            await _client.CreateGlobalApplicationCommandAsync(command);
-            
-            debugGuild?.CreateApplicationCommandAsync(command);
+            await guild.AddSlashCommandsAsync(slashCommands);
         }
         
         _client.MessageReceived += HandleTextCommandAsync; // subscribe text commands
         _client.SlashCommandExecuted += HandleSlashCommandAsync; // subscribe slash commands
-    }
-
-    public async Task UninstallCommandsAsync() // delete guild commands after session
-    {
-        var debugGuild = GetDebugGuild();
-
-        if (debugGuild is null)
-        {
-            return;
-        }
-        
-        foreach (var command in await debugGuild.GetApplicationCommandsAsync())
-        {
-            await command.DeleteAsync();
-        }
     }
 
     public async Task HandleTextCommandAsync(SocketMessage arg)
