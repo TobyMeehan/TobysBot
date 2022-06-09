@@ -495,19 +495,19 @@ public class MusicModule : VoiceCommandModuleBase
     [Summary("Shows the track currently playing.")]
     public async Task NowPlayingAsync()
     {
-        if (Status is not PlayingStatus playingStatus)
+        var queue = await _music.GetQueueAsync(Context.Guild);
+
+        if (queue.CurrentTrack is null)
         {
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithNotPlayingError()
                 .Build());
-
+            
             return;
         }
 
-        var queue = await _music.GetQueueAsync(Context.Guild);
-
         await Response.ReplyAsync(embed: _embeds.Builder()
-            .WithTrackStatusInformation(playingStatus, queue)
+            .WithTrackStatusInformation(queue)
             .Build());
     }
 
@@ -516,19 +516,19 @@ public class MusicModule : VoiceCommandModuleBase
     [Summary("Displays the queue.")]
     public async Task QueueAsync()
     {
-        if (Status is not IConnectedStatus)
+        var queue = await _music.GetQueueAsync(Context.Guild);
+
+        if (queue.Length == 0)
         {
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithNotPlayingError()
                 .Build());
-
+            
             return;
         }
-
-        var queue = await _music.GetQueueAsync(Context.Guild);
-
+        
         await Response.ReplyAsync(embed: _embeds.Builder()
-            .WithQueueInformation(queue, Status)
+            .WithQueueInformation(queue)
             .Build());
     }
 }

@@ -19,14 +19,9 @@ public class TrackNotificationEventHandler : IEventHandler<SoundStartedEventArgs
     
     public async Task HandleAsync(SoundStartedEventArgs args)
     {
-        if (args.Status is not IConnectedStatus status)
-        {
-            return;
-        }
+        var track = await _music.GetTrackAsync(args.Guild);
 
-        var track = await _music.GetTrackAsync(status.VoiceChannel.Guild);
-
-        await status.TextChannel.SendMessageAsync(embed: _embeds.Builder()
+        await args.TextChannel.SendMessageAsync(embed: _embeds.Builder()
             .WithPlayTrackAction(track)
             .Build());
     }

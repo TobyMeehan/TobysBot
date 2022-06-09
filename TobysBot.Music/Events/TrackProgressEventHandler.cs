@@ -1,6 +1,7 @@
 ﻿using TobysBot.Events;
 using TobysBot.Music.MemoryQueue;
 using TobysBot.Voice.Events;
+using TobysBot.Voice.Status;
 
 namespace TobysBot.Music.Events;
 
@@ -17,7 +18,7 @@ public class TrackProgressEventHandler : IEventHandler<PlayerUpdatedEventArgs>
     {
         if (args.Position.HasValue)
         {
-            _queues[args.Guild.Id].Progress(args.Position.Value);
+            _queues[args.Guild.Id].Update(args.Position.Value, args.Status is PlayingStatus {IsPaused: true});
         }
         
         return Task.CompletedTask;

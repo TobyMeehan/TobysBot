@@ -149,20 +149,20 @@ public class MemoryMusicService : IMusicService
         return track;
     }
 
-    public Task ClearAsync(IGuild guild)
+    public async Task ClearAsync(IGuild guild)
     {
         ThrowIfNotConnected(guild);
         
         _queues[guild.Id].Clear();
-        
-        return Task.CompletedTask;
+
+        await _voice.StopAsync(guild);
     }
 
     public async Task StopAsync(IGuild guild)
     {
         ThrowIfNotConnected(guild);
         
-        _queues[guild.Id].Reset();
+        _queues[guild.Id].Stop();
 
         await _voice.StopAsync(guild);
     }

@@ -142,27 +142,51 @@ public static class EmbedBuilderExtensions
         return progress.Remove(percent, 1).Insert(percent, "⬤");
     }
     
-    public static EmbedBuilder WithTrackStatusInformation(this EmbedBuilder embed, PlayingStatus status, IQueue queue)
+    public static EmbedBuilder WithTrackStatusInformation(this EmbedBuilder embed, IQueue queue)
     {
         var track = queue.CurrentTrack;
 
+        var sb = new StringBuilder();
+
+        sb.AppendLine($"[{track.Title}]({track.Url})");
+
+        sb.Append($"`{track.Position.ToTimeStamp()}`");
+        sb.Append(' ');
+        sb.Append(GetProgressBar(track.Position, track.Duration));
+        sb.Append(' ');
+        sb.Append($"`{track.Duration.ToTimeStamp()}`");
+
+        sb.AppendLine();
+
+        sb.Append(track.Status switch
+        {
+            ActiveTrackStatus.Playing => "▶",
+            ActiveTrackStatus.Paused => "⏸",
+            ActiveTrackStatus.Stopped => "⏹",
+            _ => ""
+        });
+
+        sb.Append(' ');
+        
+        sb.Append(queue.Loop switch
+        {
+            TrackLoopSetting => "🔂",
+            QueueLoopSetting => "🔁",
+            _ => ""
+        });
+
+        if (queue.Shuffle)
+        {
+            sb.Append(' ');
+            sb.Append("🔀"); 
+        }
+        
         return embed
             .WithContext(EmbedContext.Information)
-            .WithDescription($"[{track.Title}]({track.Url}) \n" +
-                             
-                             $"`{track.Position.ToTimeStamp()}` " +
-                             $"{GetProgressBar(track.Position, track.Duration)} " +
-                             $"`{track.Duration.ToTimeStamp()}` \n" +
-                             
-                             $"{(status.IsPaused ? "⏸" : "▶")}" +
-                             $"{(queue.Loop is TrackLoopSetting ? " 🔂" : "")}" +
-                             $"{(queue.Loop is QueueLoopSetting ? " 🔁" : "")}" +
-                             $"{(queue.Shuffle ? " 🔀" : "")}" +
-                             
-                             $"");
+            .WithDescription(sb.ToString());
     }
 
-    public static EmbedBuilder WithQueueInformation(this EmbedBuilder embed, IQueue queue, IPlayerStatus status)
+    public static EmbedBuilder WithQueueInformation(this EmbedBuilder embed, IQueue queue)
     {
         var previous = new Queue<ITrack>(queue.Previous.Reverse());
         var next = new Queue<ITrack>(queue.Next);
@@ -181,15 +205,15 @@ public static class EmbedBuilderExtensions
             sb.Append($"**{currentPosition + 1}. ");
             sb.Append('(');
 
-            switch (status)
+            switch (queue.CurrentTrack.Status)
             {
-                case PlayingStatus {IsPaused: true}:
+                case ActiveTrackStatus.Paused:
                     sb.Append('⏸');
                     break;
-                case PlayingStatus {IsPaused: false}:
+                case ActiveTrackStatus.Playing:
                     sb.Append('▶');
                     break;
-                case IConnectedStatus:
+                case ActiveTrackStatus.Stopped:
                     sb.Append('⏹');
                     break;
             }

@@ -8,21 +8,40 @@ public class TrackCollection : IEnumerable<ITrack>
 
     private int _currentIndex;
     private TimeSpan _currentPosition = TimeSpan.Zero;
+    private bool _paused;
+    private bool _stopped = true;
     private readonly Random _rng = new();
 
     public IEnumerable<ITrack> Previous => _tracks.Take(_currentIndex);
     public IEnumerable<ITrack> Next => _tracks.Skip(_currentIndex + 1);
 
     public IActiveTrack CurrentTrack => _currentIndex < _tracks.Count
-        ? new ActiveTrack(_tracks.ElementAtOrDefault(_currentIndex), _currentPosition)
+        ? new ActiveTrack(_tracks.ElementAtOrDefault(_currentIndex), _currentPosition, CurrentStatus())
         : null;
 
+    private ActiveTrackStatus CurrentStatus()
+    {
+        if (_stopped)
+        {
+            return ActiveTrackStatus.Stopped;
+        }
+
+        if (_paused)
+        {
+            return ActiveTrackStatus.Paused;
+        }
+
+        return ActiveTrackStatus.Playing;
+    }
+    
     public ILoopSetting LoopEnabled { get; set; } = new DisabledLoopSetting();
     public bool Shuffle { get; set; } = false;
 
-    public void Progress(TimeSpan position)
+    public void Update(TimeSpan position, bool isPaused)
     {
         _currentPosition = position;
+        _paused = isPaused;
+        _stopped = false;
     }
 
     public ITrack Advance(bool forceSkip)
@@ -150,9 +169,11 @@ public class TrackCollection : IEnumerable<ITrack>
         return currentTrack != CurrentTrack;
     }
 
-    public void Reset()
+    public void Stop()
     {
         _currentIndex = 0;
+        _currentPosition = TimeSpan.Zero;
+        _stopped = true;
     }
 
     public IEnumerator<ITrack> GetEnumerator()
