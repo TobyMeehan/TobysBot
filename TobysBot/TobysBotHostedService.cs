@@ -12,16 +12,18 @@ namespace TobysBot;
 public class TobysBotHostedService : IHostedService
 {
     private readonly DiscordSocketClient _client;
-    private readonly CommandHandler _commandHandler;
+    private readonly CommandCollection _commands;
     private readonly IEventService _events;
+    private readonly IServiceProvider _services;
     private readonly ILogger<TobysBotHostedService> _logger;
     private readonly TobysBotOptions _options;
 
-    public TobysBotHostedService(DiscordSocketClient client, CommandHandler commandHandler, IEventService events, IOptions<TobysBotOptions> options, ILogger<TobysBotHostedService> logger)
+    public TobysBotHostedService(DiscordSocketClient client, CommandCollection commands, IEventService events, IServiceProvider services, IOptions<TobysBotOptions> options, ILogger<TobysBotHostedService> logger)
     {
         _client = client;
-        _commandHandler = commandHandler;
+        _commands = commands;
         _events = events;
+        _services = services;
         _logger = logger;
         _options = options.Value;
     }
@@ -43,7 +45,7 @@ public class TobysBotHostedService : IHostedService
 
         try
         {
-            await _commandHandler.InstallCommandsAsync();
+            await _commands.InstallCommandsAsync(_services);
         }
         catch (Exception ex)
         {

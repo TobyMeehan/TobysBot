@@ -4,75 +4,32 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TobysBot.Configuration;
+using TobysBot.Events;
 using TobysBot.Extensions;
 
 namespace TobysBot.Commands;
 
-public class CommandHandler
+public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHandler<SlashCommandExecutedEventArgs>
 {
     private readonly DiscordSocketClient _client;
     private readonly CommandService _commandService;
-    private readonly CommandCollection _commands;
     private readonly IServiceProvider _services;
     private readonly TobysBotOptions _options;
     private readonly ILogger<CommandHandler> _logger;
 
-    public CommandHandler(DiscordSocketClient client, CommandService commandService, CommandCollection commands,
+    public CommandHandler(DiscordSocketClient client, CommandService commandService,
         IServiceProvider services, IOptions<TobysBotOptions> options, ILogger<CommandHandler> logger)
     {
         _client = client;
         _commandService = commandService;
-        _commands = commands;
         _services = services;
         _options = options.Value;
         _logger = logger;
     }
 
-    private SocketGuild GetDebugGuild() =>_client.Guilds.FirstOrDefault(x => x.Id == _options.DebugGuild);
-
-    private IEnumerable<SlashCommandProperties> GetSlashCommands()
+    async Task IEventHandler<MessageReceivedEventArgs>.HandleAsync(MessageReceivedEventArgs args)
     {
-        foreach (var command in _commandService.Commands)
-        {
-            var builder = new SlashCommandBuilder()
-                .WithName(command.Aliases[0])
-                .WithDescription(command.Summary)
-                .AddOptions(command.Parameters);
-
-            yield return builder.Build();
-        }
-    }
-
-    public async Task InstallCommandsAsync()
-    {
-        // text commands
-        
-        foreach (var type in _commands.GetModules()) // add explicit modules
-        {
-            await _commandService.AddModuleAsync(type, _services);
-        }
-
-        foreach (var assembly in _commands.GetAssemblies()) // add assembly modules
-        {
-            await _commandService.AddModulesAsync(assembly, _services);
-        }
-
-        // slash commands
-        
-        var slashCommands = GetSlashCommands().ToList();
-
-        foreach (var guild in _client.Guilds)
-        {
-            await guild.AddSlashCommandsAsync(slashCommands);
-        }
-        
-        _client.MessageReceived += HandleTextCommandAsync; // subscribe text commands
-        _client.SlashCommandExecuted += HandleSlashCommandAsync; // subscribe slash commands
-    }
-
-    public async Task HandleTextCommandAsync(SocketMessage arg)
-    {
-        if (arg is not SocketUserMessage message)
+        if (args.Message is not SocketUserMessage message)
         {
             return;
         }
@@ -104,16 +61,16 @@ public class CommandHandler
         }
     }
 
-    public async Task HandleSlashCommandAsync(SocketSlashCommand arg)
+    async Task IEventHandler<SlashCommandExecutedEventArgs>.HandleAsync(SlashCommandExecutedEventArgs args)
     {
-        var context = new SocketGenericCommandContext(_client, arg);
+        var context = new SocketGenericCommandContext(_client, args.Command);
 
         var command = _commandService.Commands.FirstOrDefault(
-            c => c.Aliases.Any(alias => alias == arg.CommandName));
+            c => c.Aliases.Any(alias => alias == args.Command.CommandName));
 
         if (command is null)
         {
-            _logger.LogError("Slash command not found: {Name}", arg.CommandName);
+            _logger.LogError("Slash command not found: {Name}", args.Command.CommandName);
 
             return;
         }
@@ -133,7 +90,7 @@ public class CommandHandler
         
         foreach (var parameter in parameters.Keys.ToList())
         {
-            var option = arg.Data.Options.FirstOrDefault(x => x.Name == parameter.Name);
+            var option = args.Command.Data.Options.FirstOrDefault(x => x.Name == parameter.Name);
         
             if (option is null)
             {
