@@ -28,7 +28,7 @@ public class SocketSlashCommandResponse : ISocketResponse
     {
         await _command.ModifyOriginalResponseAsync(x =>
         {
-            x.Content = emote.Name;
+            x.Content = $"{emote.Name}\u2800";
         }, options);
     }
 

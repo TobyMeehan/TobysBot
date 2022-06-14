@@ -30,6 +30,6 @@ public class SocketSlashCommandResponseService : ISocketResponseService
 
     public async Task ReactAsync(IEmote emote, RequestOptions options = null)
     {
-        await _command.RespondAsync(emote.Name, options: options);
+        await _command.RespondAsync($"{emote.Name}\u2800", options: options);
     }
 }
