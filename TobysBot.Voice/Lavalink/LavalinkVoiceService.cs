@@ -31,6 +31,11 @@ public class LavalinkVoiceService : IVoiceService
     {
         if (_lavaNode.TryGetPlayer(channel.Guild, out var player))
         {
+            if (player.VoiceChannel?.Id == channel.Id)
+            {
+                return;
+            }
+            
             await _lavaNode.LeaveAsync(player.VoiceChannel);
         }
         
