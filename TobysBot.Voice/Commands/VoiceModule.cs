@@ -18,6 +18,7 @@ public class VoiceModule : VoiceCommandModuleBase
     
     [Command("join", RunMode = RunMode.Async)]
     [Summary("Joins the voice channel.")]
+    [CheckVoice]
     public async Task JoinAsync()
     {
         await JoinVoiceChannelAsync();
@@ -28,13 +29,9 @@ public class VoiceModule : VoiceCommandModuleBase
     [Command("leave", RunMode = RunMode.Async)]
     [Alias("disconnect", "fuckoff")]
     [Summary("Leaves the voice channel.")]
+    [CheckVoice(sameChannel: true)]
     public async Task LeaveAsync()
     {
-        if (!await EnsureUserInVoiceAsync(sameChannel: true))
-        {
-            return;
-        }
-
         await LeaveVoiceChannelAsync();
 
         await Response.ReactAsync(OkEmote);

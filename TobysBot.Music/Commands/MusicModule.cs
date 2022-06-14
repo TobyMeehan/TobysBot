@@ -41,16 +41,11 @@ public class MusicModule : VoiceCommandModuleBase
     [Command("play", RunMode = RunMode.Async)]
     [Alias("p")]
     [Summary("Loads query and adds it to the queue.")]
+    [CheckVoice(required: false, sameChannel: true)]
     public async Task PlayAsync(
         [Summary("Url or search for track to play.")] [Remainder]
         string query = null)
     {
-        if (!await EnsureUserInVoiceAsync(required: false,
-                sameChannel: true)) // If in a voice channel, must be the same
-        {
-            return;
-        }
-
         using var response = await Response.DeferAsync();
 
         var search = query is null
@@ -80,7 +75,7 @@ public class MusicModule : VoiceCommandModuleBase
                 return;
         }
 
-        await JoinVoiceChannelAsync(moveChannel: false);
+        await JoinVoiceChannelAsync();
 
         switch (search)
         {
@@ -119,12 +114,9 @@ public class MusicModule : VoiceCommandModuleBase
     [Command("unpause")]
     [Alias("resume")]
     [Summary("Resumes playback.")]
+    [CheckVoice(sameChannel: true)]
     public async Task ResumeAsync()
     {
-        if (!await EnsureUserInVoiceAsync(sameChannel: true))
-        {
-            return;
-        }
 
         if (Status is not PlayingStatus)
         {
@@ -150,13 +142,9 @@ public class MusicModule : VoiceCommandModuleBase
 
     [Command("pause")]
     [Summary("Pauses playback.")]
+    [CheckVoice(sameChannel: true)]
     public async Task PauseAsync()
     {
-        if (!await EnsureUserInVoiceAsync(sameChannel: true))
-        {
-            return;
-        }
-
         if (Status is not PlayingStatus)
         {
             await Response.ReplyAsync(embed: _embeds.Builder()
@@ -182,15 +170,11 @@ public class MusicModule : VoiceCommandModuleBase
 
     [Command("seek")]
     [Summary("Skips to the timestamp in the current track.")]
+    [CheckVoice(sameChannel: true)]
     public async Task SeekAsync(
         [Summary("Timestamp in the current track to skip to.")]
         string timestamp)
     {
-        if (!await EnsureUserInVoiceAsync(sameChannel: true))
-        {
-            return;
-        }
-
         if (Status is not PlayingStatus)
         {
             await Response.ReplyAsync(embed: _embeds.Builder()
@@ -230,15 +214,11 @@ public class MusicModule : VoiceCommandModuleBase
     [Command("fastforward")]
     [Alias("ff")]
     [Summary("Fast forwards the track by the specified amount.")]
+    [CheckVoice(sameChannel: true)]
     public async Task FastForwardAsync(
         [Summary("Number of seconds to fast forward by.")]
         int seconds = 10)
     {
-        if (!await EnsureUserInVoiceAsync(sameChannel: true))
-        {
-            return;
-        }
-
         if (Status is not PlayingStatus)
         {
             await Response.ReplyAsync(embed: _embeds.Builder()
@@ -274,15 +254,11 @@ public class MusicModule : VoiceCommandModuleBase
     [Command("rewind")]
     [Alias("rw")]
     [Summary("Rewinds the track by the specified amount.")]
+    [CheckVoice(sameChannel: true)]
     public async Task RewindAsync(
         [Summary("Number of seconds to rewind by.")]
         int seconds = 10)
     {
-        if (!await EnsureUserInVoiceAsync(sameChannel: true))
-        {
-            return;
-        }
-
         if (Status is not PlayingStatus)
         {
             await Response.ReplyAsync(embed: _embeds.Builder()
@@ -317,13 +293,9 @@ public class MusicModule : VoiceCommandModuleBase
 
     [Command("stop")]
     [Summary("Stops playback and returns to the start of the queue.")]
+    [CheckVoice(sameChannel: true)]
     public async Task StopAsync()
     {
-        if (!await EnsureUserInVoiceAsync(sameChannel: true))
-        {
-            return;
-        }
-
         await _music.StopAsync(Context.Guild);
 
         await Response.ReactAsync(StopEmote);
@@ -331,13 +303,9 @@ public class MusicModule : VoiceCommandModuleBase
 
     [Command("skip")]
     [Summary("Skips to the next track.")]
+    [CheckVoice(sameChannel: true)]
     public async Task SkipAsync()
     {
-        if (!await EnsureUserInVoiceAsync(sameChannel: true))
-        {
-            return;
-        }
-
         await _music.SkipAsync(Context.Guild);
 
         await Response.ReactAsync(SkipEmote);
@@ -346,13 +314,9 @@ public class MusicModule : VoiceCommandModuleBase
     [Command("back")]
     [Alias("previous")]
     [Summary("Skips to the previous track.")]
+    [CheckVoice(sameChannel: true)]
     public async Task BackAsync()
     {
-        if (!await EnsureUserInVoiceAsync(sameChannel: true))
-        {
-            return;
-        }
-
         var queue = await _music.GetQueueAsync(Context.Guild);
 
         if (!queue.Previous.Any())
@@ -371,14 +335,10 @@ public class MusicModule : VoiceCommandModuleBase
 
     [Command("jump")]
     [Summary("Jumps to the specified track.")]
+    [CheckVoice(sameChannel: true)]
     public async Task JumpAsync(
         [Summary("Position to jump to.")] int track)
     {
-        if (!await EnsureUserInVoiceAsync(sameChannel: true))
-        {
-            return;
-        }
-
         var queue = await _music.GetQueueAsync(Context.Guild);
 
         if (track < 1 || track > queue.Length)
@@ -397,13 +357,9 @@ public class MusicModule : VoiceCommandModuleBase
 
     [Command("clear")]
     [Summary("Clears the queue.")]
+    [CheckVoice(sameChannel: true)]
     public async Task ClearAsync()
     {
-        if (!await EnsureUserInVoiceAsync(sameChannel: true))
-        {
-            return;
-        }
-
         await _music.ClearAsync(Context.Guild);
 
         await Response.ReactAsync(ClearEmote);
@@ -411,14 +367,10 @@ public class MusicModule : VoiceCommandModuleBase
 
     [Command("loop")]
     [Summary("Toggles looping for the track or queue.")]
+    [CheckVoice(sameChannel: true)]
     public async Task LoopAsync(
         [Summary("Loop over track or queue.")] LoopChoice mode = LoopChoice.Toggle)
     {
-        if (!await EnsureUserInVoiceAsync(sameChannel: true))
-        {
-            return;
-        }
-
         var queue = await _music.GetQueueAsync(Context.Guild);
 
         if (queue is null)
@@ -464,13 +416,9 @@ public class MusicModule : VoiceCommandModuleBase
 
     [Command("shuffle")]
     [Summary("Toggle shuffle mode.")]
+    [CheckVoice(sameChannel: true)]
     public async Task ShuffleAsync()
     {
-        if (!await EnsureUserInVoiceAsync(sameChannel: true))
-        {
-            return;
-        }
-
         var queue = await _music.GetQueueAsync(Context.Guild);
 
         await _music.SetShuffleAsync(Context.Guild, !queue.Shuffle);
@@ -483,17 +431,13 @@ public class MusicModule : VoiceCommandModuleBase
     [Command("move")]
     [Alias("mv")]
     [Summary("Moves the specified track to the specified position.")]
+    [CheckVoice(sameChannel: true)]
     public async Task MoveAsync(
         [Summary("Position of track to move.")]
         int track,
         [Summary("Position to move track to.")]
         int position)
     {
-        if (!await EnsureUserInVoiceAsync(sameChannel: true))
-        {
-            return;
-        }
-
         var queue = await _music.GetQueueAsync(Context.Guild);
 
         if (queue.Empty)
@@ -531,15 +475,11 @@ public class MusicModule : VoiceCommandModuleBase
     [Command("remove")]
     [Alias("rm")]
     [Summary("Removes the specified track from the queue.")]
+    [CheckVoice(sameChannel: true)]
     public async Task RemoveAsync(
         [Summary("Position of track to remove.")]
         int track)
     {
-        if (!await EnsureUserInVoiceAsync(sameChannel: true))
-        {
-            return;
-        }
-
         var queue = await _music.GetQueueAsync(Context.Guild);
 
         if (queue.Empty)
@@ -568,17 +508,13 @@ public class MusicModule : VoiceCommandModuleBase
     [Command("removerange")]
     [Alias("remove range", "rmrange", "rm range")]
     [Summary("Removes the specified range of tracks from the queue.")]
+    [CheckVoice(sameChannel: true)]
     public async Task RemoveRangeAsync(
         [Summary("Position of first track to remove.")]
         int start,
         [Summary("Position of last track to remove.")]
         int end)
     {
-        if (!await EnsureUserInVoiceAsync(sameChannel: true))
-        {
-            return;
-        }
-
         var queue = await _music.GetQueueAsync(Context.Guild);
 
         if (queue.Empty)

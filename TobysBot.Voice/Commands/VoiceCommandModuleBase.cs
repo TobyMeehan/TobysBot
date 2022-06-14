@@ -19,92 +19,15 @@ public abstract class VoiceCommandModuleBase : CommandModuleBase
     }
 
     protected IPlayerStatus Status => _voiceService.Status(Context.Guild);
-    
-    protected bool IsUserInVoiceChannel(bool sameChannel = false)
+
+    protected async Task JoinVoiceChannelAsync()
     {
-        return IsUserInVoiceChannel(out _, sameChannel);
-    }
-    
-    protected bool IsUserInVoiceChannel(out IVoiceState voiceState, bool sameChannel = false)
-    {
-        voiceState = Context.User as IVoiceState;
-
-        if (voiceState?.VoiceChannel is null)
+        if (!Context.User.IsInVoiceChannel(out var voiceState))
         {
-            return false;
+            return;
         }
 
-        if (!sameChannel)
-        {
-            return true;
-        }
-
-        if (Status is not IConnectedStatus status)
-        {
-            return false;
-        }
-
-        return voiceState.VoiceChannel.Id == status.VoiceChannel.Id;
-    }
-
-    protected async Task<bool> EnsureUserInVoiceAsync(bool errorMessage = true, bool sameChannel = false, bool required = true)
-    {
-        if (IsUserInVoiceChannel(sameChannel: true))
-        {
-            return true;
-        }
-        
-        // User is not in same channel
-        
-        if (!IsUserInVoiceChannel() && required)
-        {
-            if (errorMessage)
-            {
-                await Response.ReplyAsync(embed: _embeds.Builder()
-                    .WithJoinVoiceError()
-                    .Build());
-            }
-            
-            return false;
-        }
-
-        // User is in voice channel
-        
-        if (Status is IConnectedStatus && sameChannel)
-        {
-            if (errorMessage)
-            {
-                await Response.ReplyAsync(embed: _embeds.Builder()
-                    .WithJoinSameVoiceError()
-                    .Build());
-            }
-            
-            return false;
-        }
-
-        return true;
-    }
-
-    protected async Task<bool> JoinVoiceChannelAsync(bool errorMessage = true, bool moveChannel = true)
-    {
-        if (!await EnsureUserInVoiceAsync(errorMessage))
-        {
-            return false;
-        }
-
-        // user is in voice channel
-        
-        IsUserInVoiceChannel(out var voiceState);
-
-        if (Status is IConnectedStatus && !moveChannel) // user and bot are in voice channels
-        {
-            return await EnsureUserInVoiceAsync(errorMessage, sameChannel: true); // make sure channels are the same
-        }
-        
         await _voiceService.JoinAsync(voiceState.VoiceChannel, Context.Channel as ITextChannel);
-        
-        return true;
-
     }
 
     protected async Task LeaveVoiceChannelAsync()
