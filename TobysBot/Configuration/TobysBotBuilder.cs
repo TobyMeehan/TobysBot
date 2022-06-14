@@ -27,6 +27,9 @@ public class TobysBotBuilder
         services.AddTransient<EmbedService>();
         
         services.SubscribeEvent<DiscordClientLogEventArgs, DiscordClientLogger>();
+        
+        services.SubscribeEvent<MessageReceivedEventArgs, CommandHandler>();
+        services.SubscribeEvent<SlashCommandExecutedEventArgs, CommandHandler>();
 
         services.AddHostedService<TobysBotHostedService>();
         

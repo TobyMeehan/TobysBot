@@ -34,6 +34,9 @@ public class TobysBotHostedService : IHostedService
         _client.Ready += () => _events.InvokeAsync(new DiscordClientReadyEventArgs());
         _client.Log += (message) => _events.InvokeAsync(new DiscordClientLogEventArgs(message));
 
+        _client.MessageReceived += (message) => _events.InvokeAsync(new MessageReceivedEventArgs(message));
+        _client.SlashCommandExecuted += (command) => _events.InvokeAsync(new SlashCommandExecutedEventArgs(command));
+
         await _client.LoginAsync(TokenType.Bot, _options.Authorization.Token);
         await _client.StartAsync();
     }

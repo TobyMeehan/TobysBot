@@ -13,15 +13,17 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
 {
     private readonly DiscordSocketClient _client;
     private readonly CommandService _commandService;
+    private readonly EmbedService _embeds;
     private readonly IServiceProvider _services;
     private readonly TobysBotOptions _options;
     private readonly ILogger<CommandHandler> _logger;
 
-    public CommandHandler(DiscordSocketClient client, CommandService commandService,
+    public CommandHandler(DiscordSocketClient client, CommandService commandService, EmbedService embeds,
         IServiceProvider services, IOptions<TobysBotOptions> options, ILogger<CommandHandler> logger)
     {
         _client = client;
         _commandService = commandService;
+        _embeds = embeds;
         _services = services;
         _options = options.Value;
         _logger = logger;
@@ -57,6 +59,11 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
         
         if (!result.IsSuccess)
         {
+            if (result.Error is CommandError.UnmetPrecondition)
+            {
+                await HandlePreconditionAsync(context, result);
+            }
+            
             _logger.LogError("Text command error result: {Error}", result.ErrorReason);
         }
     }
@@ -79,6 +86,8 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
 
         if (!preconditionResult.IsSuccess)
         {
+            await HandlePreconditionAsync(context, preconditionResult);
+            
             _logger.LogError("Slash command precondition failure: {Error}", preconditionResult.ErrorReason);
 
             return;
@@ -119,5 +128,13 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
         {
             _logger.LogError("Slash command error result: {Error}", result.ErrorReason);
         }
+    }
+
+    private async Task HandlePreconditionAsync(SocketGenericCommandContext context, IResult result)
+    {
+        await context.Response.ReplyAsync(embed: _embeds.Builder()
+            .WithContext(EmbedContext.Error)
+            .WithDescription(result.ErrorReason)
+            .Build());
     }
 }
