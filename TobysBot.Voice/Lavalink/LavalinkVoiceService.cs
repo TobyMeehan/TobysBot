@@ -61,11 +61,17 @@ public class LavalinkVoiceService : IVoiceService
 
     // Player
     
-    public async Task PlayAsync(ISound sound, IGuild guild)
+    public async Task PlayAsync(IGuild guild, ISound sound, TimeSpan startTime)
     {
         var player = ThrowIfNoPlayer(guild);
 
-        await player.PlayAsync(await _lavaNode.LoadSoundAsync(sound));
+        var track = await _lavaNode.LoadSoundAsync(sound);
+
+        await player.PlayAsync(x =>
+        {
+            x.Track = track;
+            x.StartTime = startTime;
+        });
     }
 
     public async Task PauseAsync(IGuild guild)

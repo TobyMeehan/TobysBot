@@ -15,7 +15,7 @@ public interface IVoiceService
     
     // Player
 
-    Task PlayAsync(ISound sound, IGuild guild);
+    Task PlayAsync(IGuild guild, ISound sound, TimeSpan startTime);
 
     Task PauseAsync(IGuild guild);
 

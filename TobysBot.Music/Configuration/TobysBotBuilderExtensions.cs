@@ -66,6 +66,7 @@ public static class TobysBotBuilderExtensions
                 services.SubscribeEvent<SoundEndedEventArgs, AutoplayEventHandler>();
                 
                 services.SubscribeEvent<SoundStartedEventArgs, TrackNotificationEventHandler>();
+                services.SubscribeEvent<SoundExceptionEventArgs, TrackExceptionEventHandler>();
             },
             commands =>
             {

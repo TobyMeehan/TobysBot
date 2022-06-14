@@ -46,7 +46,7 @@ public class MemoryMusicService : IMusicService
         
         if (isStopped)
         {
-            await _voice.PlayAsync(tracks.First().ToSound(), guild);
+            await _voice.PlayAsync(guild, tracks.First().ToSound(), TimeSpan.Zero);
         }
 
         _queues.GetOrAdd(guild.Id)
@@ -81,7 +81,7 @@ public class MemoryMusicService : IMusicService
                 return;
             }
 
-            await _voice.PlayAsync(track.ToSound(), guild);
+            await _voice.PlayAsync(guild, track.ToSound(), TimeSpan.Zero);
         }
     }
 
@@ -104,7 +104,7 @@ public class MemoryMusicService : IMusicService
         }
         else
         {
-            await _voice.PlayAsync(nextTrack.ToSound(), guild);
+            await _voice.PlayAsync(guild, nextTrack.ToSound(), TimeSpan.Zero);
         }
 
         return nextTrack;
@@ -121,7 +121,7 @@ public class MemoryMusicService : IMusicService
             throw new Exception("No previous track to play.");
         }
 
-        await _voice.PlayAsync(previousTrack.ToSound(), guild);
+        await _voice.PlayAsync(guild, previousTrack.ToSound(), TimeSpan.Zero);
 
         return previousTrack;
     }
@@ -142,7 +142,7 @@ public class MemoryMusicService : IMusicService
             throw new Exception("Invalid track or index.");
         }
 
-        await _voice.PlayAsync(track.ToSound(), guild);
+        await _voice.PlayAsync(guild, track.ToSound(), TimeSpan.Zero);
 
         return track;
     }
@@ -171,7 +171,7 @@ public class MemoryMusicService : IMusicService
 
         if (_queues[guild.Id].Remove(track - 1))
         {
-            await _voice.PlayAsync(_queues[guild.Id].CurrentTrack.ToSound(), guild);
+            await _voice.PlayAsync(guild, _queues[guild.Id].CurrentTrack.ToSound(), TimeSpan.Zero);
         }
     }
 
@@ -181,7 +181,7 @@ public class MemoryMusicService : IMusicService
 
         if (_queues[guild.Id].RemoveRange(startTrack - 1, endTrack - 1))
         {
-            await _voice.PlayAsync(_queues[guild.Id].CurrentTrack.ToSound(), guild);
+            await _voice.PlayAsync(guild, _queues[guild.Id].CurrentTrack.ToSound(), TimeSpan.Zero);
         }
     }
 

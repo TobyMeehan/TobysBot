@@ -31,6 +31,6 @@ public class AutoplayEventHandler : IEventHandler<SoundEndedEventArgs>
             return;
         }
 
-        await _voice.PlayAsync(track.ToSound(), args.Guild);
+        await _voice.PlayAsync(args.Guild, track.ToSound(), TimeSpan.Zero);
     }
 }

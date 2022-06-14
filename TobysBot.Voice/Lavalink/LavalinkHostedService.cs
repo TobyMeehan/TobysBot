@@ -83,7 +83,7 @@ public class LavalinkHostedService : IHostedService, IEventHandler<DiscordClient
             return Task.CompletedTask;
         }
 
-        return _events.InvokeAsync(new SoundExceptionEventArgs(player.Sound, player.Status, arg.Exception.Message));
+        return _events.InvokeAsync(new SoundExceptionEventArgs(player.Status, arg.Exception.Message, player.VoiceChannel.Guild));
     }
 
     private Task OnTrackEnded(TrackEndedEventArgs arg)
