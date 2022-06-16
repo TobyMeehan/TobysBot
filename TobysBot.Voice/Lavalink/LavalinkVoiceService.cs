@@ -1,8 +1,10 @@
 using Discord;
+using TobysBot.Voice.Effects;
 using TobysBot.Voice.Extensions;
 using TobysBot.Voice.Status;
 using Victoria;
 using Victoria.Enums;
+using Victoria.Filters;
 
 namespace TobysBot.Voice.Lavalink;
 
@@ -101,6 +103,13 @@ public class LavalinkVoiceService : IVoiceService
         var player = ThrowIfNoPlayer(guild);
 
         await player.StopAsync();
+    }
+
+    public async Task SetEffectAsync(IGuild guild, IEffect effect)
+    {
+        var player = ThrowIfNoPlayer(guild);
+
+        await player.EqualizerAsync(effect.ToLavalinkEqualizer());
     }
 
     public IPlayerStatus Status(IGuild guild)
