@@ -61,11 +61,4 @@ public class TobysBotBuilder
 
         return this;
     }
-
-    public TobysBotBuilder AddEnumTypeReader<T>() where T : struct, Enum
-    {
-        Commands.AddTypeReader<T, EnumTypeReader<T>>();
-
-        return this;
-    }
 }

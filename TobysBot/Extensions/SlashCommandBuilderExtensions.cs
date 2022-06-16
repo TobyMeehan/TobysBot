@@ -1,5 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
+using TobysBot.Commands;
 
 namespace TobysBot.Extensions;
 
@@ -11,12 +13,12 @@ public static class SlashCommandBuilderExtensions
         {
             return Enum.GetUnderlyingType(type).ToSlashCommandType();
         }
-        
+
         if (type == typeof(bool))
         {
             return ApplicationCommandOptionType.Boolean;
         }
-        
+
         if (type == typeof(string))
         {
             return ApplicationCommandOptionType.String;
@@ -36,7 +38,7 @@ public static class SlashCommandBuilderExtensions
         {
             return ApplicationCommandOptionType.Channel;
         }
-        
+
         if (type.IsAssignableTo<IUser>())
         {
             return ApplicationCommandOptionType.User;
@@ -52,16 +54,15 @@ public static class SlashCommandBuilderExtensions
             return ApplicationCommandOptionType.Mentionable;
         }
 
-        throw new ArgumentOutOfRangeException(nameof(type),"Could not parse slash command type.");
+        throw new ArgumentOutOfRangeException(nameof(type), "Could not parse slash command type.");
     }
-    
+
     public static SlashCommandBuilder AddOption(this SlashCommandBuilder builder, ParameterInfo parameter)
     {
         var optionBuilder = new SlashCommandOptionBuilder()
             .WithName(parameter.Name)
             .WithDescription(parameter.Summary)
             .WithRequired(!parameter.IsOptional)
-            .AddChoices(parameter.Type)
             .WithType(parameter.Type.ToSlashCommandType());
 
         return builder.AddOption(optionBuilder);
@@ -78,64 +79,231 @@ public static class SlashCommandBuilderExtensions
         return builder;
     }
 
-    public static SlashCommandOptionBuilder AddChoices(this SlashCommandOptionBuilder builder, Type enumType)
+    public static SlashCommandOptionBuilder AddOption(this SlashCommandOptionBuilder builder, ParameterInfo parameter)
     {
-        if (!enumType.IsEnum)
-        {
-            return builder;
-        }
+        var optionBuilder = new SlashCommandOptionBuilder()
+            .WithName(parameter.Name)
+            .WithDescription(parameter.Summary)
+            .WithRequired(!parameter.IsOptional)
+            .WithType(parameter.Type.ToSlashCommandType());
 
-        foreach (var choice in Enum.GetValues(enumType))
+        return builder.AddOption(optionBuilder);
+    }
+
+    public static SlashCommandOptionBuilder AddOptions(this SlashCommandOptionBuilder builder,
+        IEnumerable<ParameterInfo> parameters)
+    {
+        foreach (var parameter in parameters)
         {
-            var name = Enum.GetName(enumType, choice)?.ToLower();
-            
-            switch (choice)
-            {
-                case byte b:
-                    builder.AddChoice(name, b);
-                    break;
-                case sbyte sb:
-                    builder.AddChoice(name, sb);
-                    break;
-                case short s:
-                    builder.AddChoice(name, s);
-                    break;
-                case ushort us:
-                    builder.AddChoice(name, us);
-                    break;
-                case int i:
-                    builder.AddChoice(name, i);
-                    break;
-                case uint ui:
-                    builder.AddChoice(name, ui);
-                    break;
-                case long l:
-                    builder.AddChoice(name, l);
-                    break;
-                case ulong ul:
-                    builder.AddChoice(name, ul);
-                    break;
-            }
+            builder.AddOption(parameter);
         }
 
         return builder;
     }
 
-    public static async Task AddSlashCommandsAsync(this IGuild guild, IEnumerable<SlashCommandProperties> cmds)
+    public static List<SlashCommandBuilder> AddModules(this List<SlashCommandBuilder> collection,
+        IEnumerable<ModuleInfo> modules)
     {
-        var commands = cmds.ToList();
-        var commandNames = commands.Select(x => x.Name.Value);
-        
-        var existing = await guild.GetApplicationCommandsAsync();
-
-        foreach (var command in existing.Where(x => !commandNames.Contains(x.Name)))
+        foreach (var module in modules)
         {
-            await command.DeleteAsync();
+            collection.AddModule(module);
+        }
+
+        return collection;
+    }
+
+    public static List<SlashCommandBuilder> AddModule(this List<SlashCommandBuilder> collection,
+        ModuleInfo module)
+    {
+        if (module.Attributes.OfType<PluginAttribute>().Any())
+        {
+            collection.AddModules(module.Submodules);
+        }
+
+        if (module.Group is null)
+        {
+            collection.AddCommands(module);
+            return collection;
+        }
+
+        if (module.Submodules.Any())
+        {
+            collection.AddModuleGroup(module);
+        }
+
+        if (module.Commands.Any())
+        {
+            collection.AddGroup(module);
+        }
+
+        return collection;
+    }
+
+    public static List<SlashCommandBuilder> AddCommands(this List<SlashCommandBuilder> collection,
+        ModuleInfo module)
+    {
+        var groups =
+            from command in module.Commands
+            group command by command.SubCommandGroup()
+            into newGroup1
+            from newGroup2 in (
+                from command in newGroup1
+                group command by command.SubCommandParent()
+            )
+            group newGroup2 by newGroup1.Key;
+
+
+        foreach (var command in groups)
+        {
+            if (command.Key is not null)
+            {
+                collection.AddSubCommandGroup(command);
+                continue;
+            }
+
+            foreach (var group in command)
+            {
+                if (group.Key is not null)
+                {
+                    collection.AddSubCommands(group);
+                    continue;
+                }
+
+                collection.AddCommands(group);
+            }
+        }
+
+        return collection;
+    }
+
+    public static List<SlashCommandBuilder> AddSubCommandGroup(this List<SlashCommandBuilder> collection, IGrouping<string, IGrouping<string, CommandInfo>> command)
+    {
+        var commandBuilder = new SlashCommandBuilder()
+            .WithName(command.Key)
+            .WithDescription("Foo");
+        
+        foreach (var group in command)
+        {
+            var optionBuilder = new SlashCommandOptionBuilder()
+                .WithName(group.Key)
+                .WithDescription("Bar")
+                .WithType(ApplicationCommandOptionType.SubCommandGroup);
+            
+            foreach (var subcommand in group)
+            {
+                optionBuilder.AddOption(new SlashCommandOptionBuilder()
+                    .WithName(subcommand.Aliases[0][(command.Key.Length + group.Key.Length + 2)..])
+                    .WithDescription(subcommand.Summary)
+                    .AddOptions(subcommand.Parameters)
+                    .WithType(ApplicationCommandOptionType.SubCommand));
+            }
+
+            commandBuilder.AddOption(optionBuilder);
         }
         
+        collection.Add(commandBuilder);
+
+        return collection;
+    }
+
+    public static List<SlashCommandBuilder> AddSubCommands(this List<SlashCommandBuilder> collection,
+        IGrouping<string, CommandInfo> command)
+    {
+        var commandBuilder = new SlashCommandBuilder()
+            .WithName(command.Key)
+            .WithDescription("Foo");
+
+        foreach (var subcommand in command)
+        {
+            commandBuilder.AddOption(new SlashCommandOptionBuilder()
+                .WithName(subcommand.Aliases[0][(command.Key.Length + 1)..])
+                .WithDescription(subcommand.Summary)
+                .AddOptions(subcommand.Parameters)
+                .WithType(ApplicationCommandOptionType.SubCommand));
+        }
+
+        collection.Add(commandBuilder);
+
+        return collection;
+    }
+
+    public static List<SlashCommandBuilder> AddCommands(this List<SlashCommandBuilder> collection,
+        IEnumerable<CommandInfo> commands)
+    {
         foreach (var command in commands)
         {
-            await guild.CreateApplicationCommandAsync(command);
+            collection.Add(new SlashCommandBuilder()
+                .WithName(command.Aliases[0])
+                .WithDescription(command.Summary)
+                .AddOptions(command.Parameters));
+        }
+
+        return collection;
+    }
+
+    public static List<SlashCommandBuilder> AddModuleGroup(this List<SlashCommandBuilder> collection,
+        ModuleInfo module)
+    {
+        var command = new SlashCommandBuilder()
+            .WithName(module.Group)
+            .WithDescription(module.Summary);
+
+        foreach (var group in module.Submodules)
+        {
+            var commandGroup = new SlashCommandOptionBuilder()
+                .WithName(group.Summary)
+                .WithDescription(group.Summary)
+                .WithType(ApplicationCommandOptionType.SubCommandGroup);
+
+            foreach (var subcommand in group.Commands)
+            {
+                commandGroup.AddOption(new SlashCommandOptionBuilder()
+                    .WithName(subcommand.Aliases[0])
+                    .WithDescription(subcommand.Summary)
+                    .WithType(ApplicationCommandOptionType.SubCommand)
+                    .AddOptions(subcommand.Parameters));
+            }
+
+            command.AddOption(commandGroup);
+        }
+
+        collection.Add(command);
+
+        return collection;
+    }
+
+    public static List<SlashCommandBuilder> AddGroup(this List<SlashCommandBuilder> collection,
+        ModuleInfo module)
+    {
+        var command = new SlashCommandBuilder()
+            .WithName(module.Group)
+            .WithDescription(module.Summary);
+
+        foreach (var subcommand in module.Commands)
+        {
+            command.AddOption(new SlashCommandOptionBuilder()
+                .WithName(subcommand.Aliases[0])
+                .WithDescription(subcommand.Summary)
+                .WithType(ApplicationCommandOptionType.SubCommand)
+                .AddOptions(subcommand.Parameters));
+        }
+
+        collection.Add(command);
+
+        return collection;
+    }
+
+    public static async Task InstallSlashCommandsAsync(this DiscordSocketClient client, IEnumerable<ModuleInfo> modules)
+    {
+        var commands = new List<SlashCommandBuilder>()
+            .AddModules(modules);
+
+        foreach (var guild in client.Guilds)
+        {
+            await guild.BulkOverwriteApplicationCommandAsync(commands
+                .Select(x => x.Build())
+                .Cast<ApplicationCommandProperties>()
+                .ToArray());
         }
     }
 }

@@ -70,10 +70,22 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
 
     async Task IEventHandler<SlashCommandExecutedEventArgs>.HandleAsync(SlashCommandExecutedEventArgs args)
     {
+        var commandName = args.Command.CommandName;
+
+        foreach (var group in args.Command.Data.Options.Where(x => x.Type is ApplicationCommandOptionType.SubCommandGroup))
+        {
+            commandName += $" {group.Name}";
+        }
+
+        foreach (var subcommand in args.Command.Data.Options.Where(x => x.Type is ApplicationCommandOptionType.SubCommand))
+        {
+            commandName += $" {subcommand.Name}";
+        }
+        
         var context = new SocketGenericCommandContext(_client, args.Command);
 
         var command = _commandService.Commands.FirstOrDefault(
-            c => c.Aliases.Any(alias => alias == args.Command.CommandName));
+            c => c.Aliases.Contains(commandName));
 
         if (command is null)
         {
