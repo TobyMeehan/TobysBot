@@ -50,16 +50,14 @@ public class CommandCollection
         var commandService = services.GetRequiredService<CommandService>();
         var client = services.GetRequiredService<DiscordSocketClient>();
 
-        var slashCommands = commandService.Commands.Select(command => 
-            new SlashCommandBuilder()
-                .WithName(command.Aliases[0])
-                .WithDescription(command.Summary)
-                .AddOptions(command.Parameters)
-                .Build()).ToList();
-
         foreach (var guild in client.Guilds)
         {
-            await guild.AddSlashCommandsAsync(slashCommands);
+            await guild.BulkOverwriteApplicationCommandAsync(commandService.Commands.Select(command => new SlashCommandBuilder()
+                    .WithName(command.Aliases[0])
+                    .WithDescription(command.Summary)
+                    .AddOptions(command.Parameters)
+                    .Build())
+                .Cast<ApplicationCommandProperties>().ToArray());
         }
     }
 
