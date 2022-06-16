@@ -365,11 +365,28 @@ public class MusicModule : VoiceCommandModuleBase
         await Response.ReactAsync(ClearEmote);
     }
 
-    [Command("loop")]
-    [Summary("Toggles looping for the track or queue.")]
+    [Command("loop track")]
+    [Summary("Toggles looping the current track.")]
     [CheckVoice(sameChannel: true)]
-    public async Task LoopAsync(
-        [Summary("Loop over track or queue.")] LoopChoice mode = LoopChoice.Toggle)
+    public Task LoopTrackAsync() => LoopAsync(new TrackLoopSetting());
+
+    [Command("loop queue")]
+    [Summary("Toggles looping the queue.")]
+    [CheckVoice(sameChannel: true)]
+    public Task LoopQueueAsync() => LoopAsync(new QueueLoopSetting());
+
+    [Command("loop off")]
+    [Summary("Disables looping.")]
+    [CheckVoice(sameChannel: true)]
+    public Task LoopOffAsync() => LoopAsync(new DisabledLoopSetting());
+
+    [Command("loop toggle")]
+    [Alias("loop")]
+    [Summary("Toggles looping.")]
+    [CheckVoice(sameChannel: true)]
+    public Task LoopToggleAsync() => LoopAsync();
+
+    private async Task LoopAsync(ILoopSetting setting = null)
     {
         var queue = await _music.GetQueueAsync(Context.Guild);
 
@@ -382,29 +399,27 @@ public class MusicModule : VoiceCommandModuleBase
             return;
         }
 
-        ILoopSetting setting;
-
-        switch (mode)
+        switch (setting)
         {
-            case LoopChoice.Off:
-            case LoopChoice.Toggle when queue.Loop is EnabledLoopSetting:
-            case LoopChoice.Track when queue.Loop is TrackLoopSetting:
-            case LoopChoice.Queue when queue.Loop is QueueLoopSetting:
+            case DisabledLoopSetting:
+            case null when queue.Loop is EnabledLoopSetting:
+            case TrackLoopSetting when queue.Loop is TrackLoopSetting:
+            case QueueLoopSetting when queue.Loop is QueueLoopSetting:
                 setting = new DisabledLoopSetting();
                 break;
 
-            case LoopChoice.Track:
-            case LoopChoice.Toggle when queue.CurrentTrack is not null && !queue.Next.Any():
+            case TrackLoopSetting:
+            case null when queue.CurrentTrack is not null && !queue.Next.Any():
                 setting = new TrackLoopSetting();
                 break;
 
-            case LoopChoice.Queue:
-            case LoopChoice.Toggle:
+            case QueueLoopSetting:
+            case null:
                 setting = new QueueLoopSetting();
                 break;
 
             default:
-                throw new ArgumentOutOfRangeException(nameof(mode), mode, "Invalid loop mode.");
+                throw new ArgumentOutOfRangeException(nameof(setting), setting, "Invalid loop mode.");
         }
 
         await _music.SetLoopAsync(Context.Guild, setting);
