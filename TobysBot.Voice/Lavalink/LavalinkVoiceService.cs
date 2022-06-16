@@ -29,17 +29,18 @@ public class LavalinkVoiceService : IVoiceService
     
     public async Task JoinAsync(IVoiceChannel channel, ITextChannel textChannel = null)
     {
-        if (_lavaNode.TryGetPlayer(channel.Guild, out var player))
+        if (!_lavaNode.TryGetPlayer(channel.Guild, out var player) || !player.IsConnected)
         {
-            if (player.VoiceChannel?.Id == channel.Id)
-            {
-                return;
-            }
-            
-            await _lavaNode.LeaveAsync(player.VoiceChannel);
+            await _lavaNode.JoinAsync(channel, textChannel);
+            return;
         }
         
-        await _lavaNode.JoinAsync(channel, textChannel);
+        if (player.VoiceChannel?.Id == channel.Id)
+        {
+            return;
+        }
+
+        await _lavaNode.MoveChannelAsync(channel);
     }
 
     public async Task LeaveAsync(IGuild guild)

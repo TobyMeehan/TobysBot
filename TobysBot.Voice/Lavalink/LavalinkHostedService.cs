@@ -53,7 +53,7 @@ public class LavalinkHostedService : IHostedService, IEventHandler<DiscordClient
             return Task.CompletedTask;;
         }
 
-        return _events.InvokeAsync(new PlayerUpdatedEventArgs(player.Status, arg.Position, player.VoiceChannel.Guild));
+        return _events.InvokeAsync(new PlayerUpdatedEventArgs(player.Status, arg.Position, player.VoiceChannel?.Guild));
     }
 
     private Task OnTrackStuck(TrackStuckEventArgs arg)

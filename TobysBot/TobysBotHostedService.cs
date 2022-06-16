@@ -37,6 +37,9 @@ public class TobysBotHostedService : IHostedService
         _client.MessageReceived += (message) => _events.InvokeAsync(new MessageReceivedEventArgs(message));
         _client.SlashCommandExecuted += (command) => _events.InvokeAsync(new SlashCommandExecutedEventArgs(command));
 
+        _client.UserVoiceStateUpdated += (user, oldVoiceState, newVoiceState) =>
+            _events.InvokeAsync(new VoiceStateUpdatedEventArgs(user, oldVoiceState, newVoiceState));
+
         await _client.LoginAsync(TokenType.Bot, _options.Authorization.Token);
         await _client.StartAsync();
     }

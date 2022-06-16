@@ -1,3 +1,4 @@
+using Discord;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TobysBot.Configuration;
@@ -43,6 +44,7 @@ public static class TobysBotBuilderExtensions
                     config.EnableResume = options.Lavalink.EnableResume;
                     config.ResumeKey = options.Lavalink.ResumeKey;
                     config.SelfDeaf = options.Lavalink.SelfDeaf;
+                    config.LogSeverity = LogSeverity.Debug;
                 });
 
                 services.AddTransient<IVoiceService, LavalinkVoiceService>();
@@ -51,10 +53,12 @@ public static class TobysBotBuilderExtensions
                 
                 services.SubscribeEvent<LavalinkLogEventArgs, LavalinkLogger>();
                 services.SubscribeEvent<DiscordClientReadyEventArgs, LavalinkHostedService>();
+                
+                services.SubscribeEvent<VoiceStateUpdatedEventArgs, VoiceStateUpdatedEventHandler>();
             },
             commands =>
             {
-               commands.AddModule<VoiceModule>(); 
+               commands.AddModule<VoiceModule>();
             });
 
         return builder;
