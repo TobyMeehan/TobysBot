@@ -33,8 +33,11 @@ public class SocketTextCommandResponseService : ISocketResponseService
         return Task.FromResult<ISocketResponse>(new SocketDeferredTextCommandResponse(_message, ephemeral, _message.Channel.EnterTypingState(options)));
     }
 
-    public async Task ReactAsync(IEmote emote, RequestOptions options = null)
+    public async Task ReactAsync(IEmote emote, Visibility visibility = Visibility.Public, RequestOptions options = null)
     {
-        await _message.AddReactionAsync(emote, options);
+        if (visibility is Visibility.Public or Visibility.Ephemeral)
+        {
+            await _message.AddReactionAsync(emote, options);
+        }
     }
 }

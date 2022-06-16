@@ -10,5 +10,5 @@ public interface ISocketResponseService
 
     Task<ISocketResponse> DeferAsync(bool ephemeral = false, RequestOptions options = null);
     
-    Task ReactAsync(IEmote emote, RequestOptions options = null);
+    Task ReactAsync(IEmote emote, Visibility visibility = Visibility.Public, RequestOptions options = null);
 }

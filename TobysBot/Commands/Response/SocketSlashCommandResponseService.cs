@@ -28,8 +28,8 @@ public class SocketSlashCommandResponseService : ISocketResponseService
         return new SocketSlashCommandResponse(_command);
     }
 
-    public async Task ReactAsync(IEmote emote, RequestOptions options = null)
+    public async Task ReactAsync(IEmote emote, Visibility visibility = Visibility.Public, RequestOptions options = null)
     {
-        await _command.RespondAsync($"{emote.Name}\u2800", options: options);
+        await _command.RespondAsync($"{emote.Name}\u2800", ephemeral: visibility is not Visibility.Public, options: options);
     }
 }
