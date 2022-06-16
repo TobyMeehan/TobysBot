@@ -17,11 +17,11 @@ public class SocketSlashCommandResponse : ISocketResponse
         await _command.ModifyOriginalResponseAsync(func, options);
     }
 
-    public async Task FollowupResponseAsync(string text = null, bool isTTS = false, bool ephemeral = false, Embed embed = null,
+    public async Task FollowupResponseAsync(string text = null, bool isTTS = false, Visibility visibility = Visibility.Public, Embed embed = null,
         AllowedMentions allowedMentions = null, RequestOptions options = null, MessageComponent components = null,
         ISticker[] stickers = null, Embed[] embeds = null)
     {
-        await _command.FollowupAsync(text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options);
+        await _command.FollowupAsync(text, embeds, isTTS, visibility is not Visibility.Public, allowedMentions, components, embed, options);
     }
 
     public async Task ReactAsync(IEmote emote, RequestOptions options = null)

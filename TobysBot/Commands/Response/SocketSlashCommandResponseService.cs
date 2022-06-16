@@ -12,11 +12,11 @@ public class SocketSlashCommandResponseService : ISocketResponseService
         _command = command;
     }
     
-    public async Task<ISocketResponse> ReplyAsync(string text = null, bool isTTS = false, bool ephemeral = false, Embed embed = null,
+    public async Task<ISocketResponse> ReplyAsync(string text = null, bool isTTS = false, Visibility visibility = Visibility.Public, Embed embed = null,
         AllowedMentions allowedMentions = null, RequestOptions options = null, MessageComponent components = null,
         ISticker[] stickers = null, Embed[] embeds = null)
     {
-        await _command.RespondAsync(text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options);
+        await _command.RespondAsync(text, embeds, isTTS, visibility is not Visibility.Public, allowedMentions, components, embed, options);
 
         return new SocketSlashCommandResponse(_command);
     }

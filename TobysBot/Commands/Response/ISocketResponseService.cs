@@ -4,7 +4,7 @@ namespace TobysBot.Commands.Response;
 
 public interface ISocketResponseService
 {
-    Task<ISocketResponse> ReplyAsync(string text = null, bool isTTS = false, bool ephemeral = false, Embed embed = null,
+    Task<ISocketResponse> ReplyAsync(string text = null, bool isTTS = false, Visibility visibility = Visibility.Public, Embed embed = null,
         AllowedMentions allowedMentions = null, RequestOptions options = null, MessageComponent components = null,
         ISticker[] stickers = null, Embed[] embeds = null);
 

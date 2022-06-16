@@ -12,13 +12,18 @@ public class SocketTextCommandResponseService : ISocketResponseService
         _message = message;
     }
     
-    public async Task<ISocketResponse> ReplyAsync(string text = null, bool isTTS = false, bool ephemeral = false, Embed embed = null,
+    public async Task<ISocketResponse> ReplyAsync(string text = null, bool isTTS = false, Visibility visibility = Visibility.Public, Embed embed = null,
         AllowedMentions allowedMentions = null, RequestOptions options = null, MessageComponent components = null,
         ISticker[] stickers = null, Embed[] embeds = null)
     {
-        var response = ephemeral
-            ? await _message.Author.SendMessageAsync(text, isTTS, embed, options, allowedMentions, components, embeds)
-            : await _message.ReplyAsync(text, isTTS, embed, allowedMentions, options, components, stickers, embeds);
+        var response = visibility switch
+        {
+            Visibility.Private => await _message.Author.SendMessageAsync(text, isTTS, embed, options, allowedMentions,
+                components, embeds),
+            Visibility.Public or Visibility.Ephemeral => await _message.ReplyAsync(text, isTTS, embed, allowedMentions,
+                options, components, stickers, embeds),
+            _ => null
+        };
 
         return new SocketTextCommandResponse(_message, response);
     }
