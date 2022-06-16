@@ -1,5 +1,6 @@
 using TobysBot.Commands.Modules;
 using TobysBot.Configuration;
+using TobysBot.Misc.Configuration;
 using TobysBot.Music.Configuration;
 using TobysBot.Voice.Configuration;
 
@@ -15,7 +16,8 @@ builder.Configuration.AddJsonFile($"secrets.{builder.Environment.EnvironmentName
 builder.Services.AddControllersWithViews();
 builder.Services.AddTobysBot(builder.Configuration)
     .AddVoiceModule(builder.Configuration.GetSection("Voice"))
-    .AddMusicModule(builder.Configuration.GetSection("Music"));
+    .AddMusicModule(builder.Configuration.GetSection("Music"))
+    .AddMiscModule(builder.Configuration.GetSection("Star"));
 
 var app = builder.Build();
 
