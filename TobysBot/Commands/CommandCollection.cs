@@ -13,14 +13,19 @@ public class CommandCollection
     private List<Assembly> _assemblies = new();
     private List<(Type Type, TypeReader TypeReader)> _typeReaders = new();
     
-    public void AddModule<T>() where T : IModuleBase
+    public void AddPlugin<T>() where T : PluginBase
     {
         _modules.Add(typeof(T));
     }
 
-    public void AddModulesFromAssembly(Assembly assembly)
+    public void AddPluginFromAssembly(Assembly assembly, string name, string summary)
     {
         _assemblies.Add(assembly);
+    }
+
+    public void AddGlobalModule<T>() where T : IModuleBase
+    {
+        _modules.Add(typeof(T));
     }
 
     public void AddTypeReader<TType, TReader>() where TReader : TypeReader, new()

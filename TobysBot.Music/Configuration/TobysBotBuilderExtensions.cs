@@ -72,7 +72,7 @@ public static class TobysBotBuilderExtensions
             },
             commands =>
             {
-                commands.AddModule<MusicModule>();
+                commands.AddPlugin<MusicPlugin>();
             });
     }
 }

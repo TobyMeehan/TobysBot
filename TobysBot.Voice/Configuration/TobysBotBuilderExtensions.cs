@@ -58,7 +58,7 @@ public static class TobysBotBuilderExtensions
             },
             commands =>
             {
-               commands.AddModule<VoiceModule>();
+               commands.AddPlugin<VoicePlugin>();
             });
 
         return builder;

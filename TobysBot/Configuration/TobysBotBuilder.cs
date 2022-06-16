@@ -33,7 +33,7 @@ public class TobysBotBuilder
 
         services.AddHostedService<TobysBotHostedService>();
         
-        Commands.AddModule<PongModule>();
+        Commands.AddGlobalModule<PongModule>();
     }
 
     public TobysBotBuilder(IServiceCollection services, Action<TobysBotOptions> configureOptions) : this(services)

@@ -35,7 +35,7 @@ public static class TobysBotBuilderExtensions
             },
             commands =>
             {
-                commands.AddModule<ClassicModule>();
+                commands.AddGlobalModule<ClassicModule>();
             });
     }
 }
