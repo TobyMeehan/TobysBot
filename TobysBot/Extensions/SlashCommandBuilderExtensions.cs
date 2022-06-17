@@ -24,7 +24,7 @@ public static class SlashCommandBuilderExtensions
             return ApplicationCommandOptionType.String;
         }
 
-        if (type == typeof(int))
+        if (type == typeof(int) || type == typeof(long))
         {
             return ApplicationCommandOptionType.Integer;
         }
