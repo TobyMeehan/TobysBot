@@ -27,4 +27,11 @@ public static class CommandServiceExtensions
 
         return commands.Modules;
     }
+
+    public static IEnumerable<ModuleInfo> Plugins(this CommandService commands)
+    {
+        return from module in commands.Modules
+            where module.Attributes.OfType<PluginAttribute>().Any() && !module.IsSubmodule
+            select module;
+    }
 }
