@@ -27,9 +27,9 @@ public class VictoriaResolver : ISearchResolver
         return result.Status switch
         {
             SearchStatus.TrackLoaded => new TrackResult(
-                new Track(track.Title, track.Url, track.Url, track.Duration)),
+                new Track(track.Title, track.Author, track.Url, track.Url, track.Duration)),
             SearchStatus.PlaylistLoaded => new PlaylistResult(
-                new Playlist(result.Tracks.Select(x => new Track(x.Title, x.Url, x.Duration)), result.Playlist.Name, uri.AbsoluteUri, result.Playlist.SelectedTrack)),
+                new Playlist(result.Tracks.Select(x => new Track(x.Title, x.Author, x.Url, x.Duration)), result.Playlist.Name, uri.AbsoluteUri, result.Playlist.SelectedTrack)),
             SearchStatus.NoMatches => new NotFoundSearchResult(),
             _ => new LoadFailedSearchResult()
         };

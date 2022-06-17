@@ -10,6 +10,7 @@ public class ActiveTrack : IActiveTrack
     }
 
     public string Title => InnerTrack.Title;
+    public string Author => InnerTrack.Author;
     public string Url => InnerTrack.Url;
     public string AudioUrl => InnerTrack.AudioUrl;
     public TimeSpan Duration => InnerTrack.Duration;
