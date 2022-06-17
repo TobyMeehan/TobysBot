@@ -34,4 +34,18 @@ public static class EmbedBuilderExtensions
             .WithContext(EmbedContext.Error)
             .WithDescription(x => x.Service.Options<VoiceOptions>().Embeds.JoinSameVoiceErrorDescription);
     }
+
+    public static EmbedBuilder WithAlreadyBoundError(this EmbedBuilder embed, ITextChannel channel)
+    {
+        return embed
+            .WithContext(EmbedContext.Error)
+            .WithDescription($"Already bound to {channel.Mention}.");
+    }
+
+    public static EmbedBuilder WithRebindAction(this EmbedBuilder embed, ITextChannel channel)
+    {
+        return embed
+            .WithContext(EmbedContext.Action)
+            .WithDescription($"Player messages now bound to {channel.Mention}");
+    }
 }

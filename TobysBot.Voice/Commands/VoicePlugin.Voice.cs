@@ -3,6 +3,7 @@ using Discord.Commands;
 using TobysBot.Commands;
 using TobysBot.Extensions;
 using TobysBot.Voice.Extensions;
+using TobysBot.Voice.Status;
 
 namespace TobysBot.Voice.Commands;
 
@@ -42,6 +43,116 @@ public partial class VoicePlugin
             await Response.ReactAsync(OkEmote);
         }
 
+        [Command("rebind")]
+        [Summary("Rebinds track notifications to the specified text channel.")]
+        [CheckVoice(sameChannel: SameChannel.Required)]
+        public async Task RebindAsync(
+            [Summary("Channel to rebind to.")]
+            ITextChannel channel = null, 
+            [Summary("Name of channel to rebind to.")]
+            string channelname = null)
+        {
+            if (channelname is not null)
+            {
+                await Rebind(channelname);
+                return;
+            }
+
+            if (channel is not null)
+            {
+                await Rebind(channel);
+                return;
+            }
+
+            await Rebind();
+        }
+
+        private async Task Rebind()
+        {
+            if (Context.Channel is not ITextChannel channel)
+            {
+                return;
+            }
+
+            if (Status is not IConnectedStatus status)
+            {
+                return;
+            }
+
+            if (status.TextChannel.Id == channel.Id)
+            {
+                await Response.ReplyAsync(embed: _embeds.Builder()
+                    .WithAlreadyBoundError(channel)
+                    .Build());
+                
+                return;
+            }
+
+            await _voiceService.RebindChannelAsync(channel);
+
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithRebindAction(channel)
+                .Build());
+        }
+
+        private async Task Rebind(string channelName)
+        {
+            var channel = Context.Guild.TextChannels.FirstOrDefault(x => x.Name == channelName);
+
+            if (channel is null)
+            {
+                await Response.ReplyAsync(embed: _embeds.Builder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription($"Could not find text channel with name {channelName}.")
+                    .Build());
+                
+                return;
+            }
+
+            if (Status is not IConnectedStatus status)
+            {
+                return;
+            }
+
+            if (status.TextChannel.Id == channel.Id)
+            {
+                await Response.ReplyAsync(embed: _embeds.Builder()
+                    .WithAlreadyBoundError(channel)
+                    .Build());
+                
+                return;
+            }
+
+            await _voiceService.RebindChannelAsync(channel);
+
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithRebindAction(channel)
+                .Build());
+        }
+
+        private async Task Rebind(ITextChannel channel)
+        {
+            if (Status is not IConnectedStatus status)
+            {
+                return;
+            }
+
+            if (status.TextChannel.Id == channel.Id)
+            {
+                await Response.ReplyAsync(embed: _embeds.Builder()
+                    .WithAlreadyBoundError(channel)
+                    .Build());
+                
+                return;
+            }
+
+            await _voiceService.RebindChannelAsync(channel);
+
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithRebindAction(channel)
+                .Build());
+        }
+        
         // effects
 
         [Command("volume")]
