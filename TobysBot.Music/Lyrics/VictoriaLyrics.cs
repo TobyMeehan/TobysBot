@@ -2,30 +2,32 @@
 
 public struct VictoriaLyrics : ILyrics
 {
-    public VictoriaLyrics(IProvider provider, IEnumerable<ILine> lines)
+    public VictoriaLyrics(IProvider provider, IEnumerable<ILine> lines, ITrack track)
     {
         Provider = provider;
         Lines = lines;
+        Track = track;
     }
 
     public IProvider Provider { get; }
     public IEnumerable<ILine> Lines { get; }
+    public ITrack Track { get; }
 
-    public static VictoriaLyrics Parse(IProvider provider, string title, string lyrics)
+    public static VictoriaLyrics Parse(IProvider provider, ITrack track, string lyrics)
     {
-        var lines = new List<ILine> { new Title(title) };
+        var lines = new List<ILine>();
 
-        foreach (var line in lyrics.Split("\n"))
+        foreach (var line in lyrics.Split(Environment.NewLine))
         {
             if (line.Contains('['))
             {
-                lines.Add(new Header(line.TrimStart('[').TrimEnd(']')));
+                lines.Add(new Header(line.Replace("[", "").Replace("]", "")));
                 continue;
             }
             
             lines.Add(new Line(line));
         }
 
-        return new VictoriaLyrics(provider, lines);
+        return new VictoriaLyrics(provider, lines, track);
     }
 }

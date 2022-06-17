@@ -10,13 +10,6 @@ public class Line : ILine
     public string Content { get; }
 }
 
-public class Title : Line
-{
-    public Title(string content) : base(content)
-    {
-    }
-}
-
 public class Header : Line
 {
     public Header(string content) : base(content)

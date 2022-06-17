@@ -5,6 +5,7 @@ using TobysBot.Configuration;
 using TobysBot.Events;
 using TobysBot.Music.Commands;
 using TobysBot.Music.Events;
+using TobysBot.Music.Lyrics;
 using TobysBot.Music.MemoryQueue;
 using TobysBot.Music.Search;
 using TobysBot.Voice.Events;
@@ -53,6 +54,9 @@ public static class TobysBotBuilderExtensions
                 services.AddTransient<ISearchResolver, YouTubeResolver>();
                 services.AddTransient<ISearchResolver, SpotifyResolver>();
                 services.AddTransient<ISearchResolver, VictoriaResolver>();
+
+                services.AddTransient<ILyricsService, LyricsService>();
+                services.AddTransient<ILyricsResolver, GeniusLyricsResolver>();
                 
                 services.AddTransient<YoutubeClient>();
                 

@@ -8,14 +8,14 @@ public class OvhLyricsResolver : ILyricsResolver
     
     public async Task<ILyricsResult> TryResolveAsync(ITrack track)
     {
-        var ly = await LyricsResolver.SearchOvhAsync(null, track.Title);
+        var ly = await LyricsResolver.SearchOvhAsync(track.Author, track.Title);
 
         if (string.IsNullOrWhiteSpace(ly))
         {
             return new LyricsResult();
         }
 
-        var lyrics = VictoriaLyrics.Parse(_provider, track.Title, ly);
+        var lyrics = VictoriaLyrics.Parse(_provider, track, ly);
 
         return new LyricsResult(lyrics);
     }
