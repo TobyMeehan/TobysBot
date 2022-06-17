@@ -1,7 +1,7 @@
 using Discord.Commands;
 using TobysBot.Commands.Response;
 
-namespace TobysBot.Commands.Modules;
+namespace TobysBot.Commands;
 
 public abstract class CommandModuleBase : ModuleBase<SocketGenericCommandContext>
 {
