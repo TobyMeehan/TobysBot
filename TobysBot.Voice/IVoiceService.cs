@@ -1,5 +1,4 @@
 using Discord;
-using TobysBot.Voice.Effects;
 using TobysBot.Voice.Status;
 
 namespace TobysBot.Voice;
@@ -28,7 +27,11 @@ public interface IVoiceService
     
     // Audio Effects
 
-    Task SetEffectAsync(IGuild guild, IEffect effect);
+    Task UpdateVolumeAsync(IGuild guild, ushort volume);
+    Task UpdateSpeedAsync(IGuild guild, double speed);
+    Task UpdatePitchAsync(IGuild guild, double pitch);
+    Task UpdateBassBoostAsync(IGuild guild, double amount);
+    Task UpdateRotationAsync(IGuild guild, double amount);
 
     IPlayerStatus Status(IGuild guild);
 }

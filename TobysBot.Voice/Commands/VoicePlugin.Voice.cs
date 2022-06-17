@@ -1,6 +1,7 @@
 using Discord;
 using Discord.Commands;
 using TobysBot.Commands;
+using TobysBot.Extensions;
 using TobysBot.Voice.Extensions;
 
 namespace TobysBot.Voice.Commands;
@@ -9,12 +10,14 @@ public partial class VoicePlugin
 {
     public class VoiceModule : VoiceCommandModuleBase
     {
+        private readonly IVoiceService _voiceService;
         private readonly EmbedService _embeds;
 
         private IEmote OkEmote => new Emoji("👌");
     
         public VoiceModule(IVoiceService voiceService, EmbedService embedService) : base(voiceService, embedService)
         {
+            _voiceService = voiceService;
             _embeds = embedService;
         }
     
@@ -35,6 +38,101 @@ public partial class VoicePlugin
         public async Task LeaveAsync()
         {
             await LeaveVoiceChannelAsync();
+
+            await Response.ReactAsync(OkEmote);
+        }
+
+        // effects
+
+        [Command("volume")]
+        [Summary("Sets the volume.")]
+        [CheckVoice(sameChannel: SameChannel.Required)]
+        public async Task VolumeAsync(
+            [Summary("New volume.")]
+            int volume)
+        {
+            if (volume is < 0 or > 200)
+            {
+                await Response.ReplyAsync("Volume must be between 0 - 200.");
+                return;
+            }
+
+            await _voiceService.UpdateVolumeAsync(Context.Guild, (ushort)volume);
+
+            await Response.ReactAsync(OkEmote);
+        }
+        
+        [Command("bass boost")]
+        [Summary("Applies a bass boost effect.")]
+        [CheckVoice(sameChannel: SameChannel.Required)]
+        public async Task BassBoostAsync(
+            [Summary("Amount of bass boost.")]
+            double amount)
+        {
+            if (amount is < 0 or > 100)
+            {
+                await Response.ReplyAsync(embed: _embeds.Builder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("Bass boost must be between 0 - 100.")
+                    .Build());
+            }
+
+            var multiplier = amount / 33;
+            
+            await _voiceService.UpdateBassBoostAsync(Context.Guild, multiplier);
+
+            await Response.ReactAsync(OkEmote);
+        }
+
+        [Command("speed")]
+        [Summary("Sets the playback speed.")]
+        [CheckVoice(sameChannel: SameChannel.Required)]
+        public async Task SpeedAsync(
+            [Summary("New speed multiplier.")] double speed)
+        {
+            if (speed <= 0)
+            {
+                await Response.ReplyAsync(embed: _embeds.Builder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("Speed must be greater than 0.")
+                    .Build());
+                
+                return;
+            }
+            
+            await _voiceService.UpdateSpeedAsync(Context.Guild, speed);
+
+            await Response.ReactAsync(OkEmote);
+        }
+
+        [Command("pitch")]
+        [Summary("Sets the pitch.")]
+        [CheckVoice(sameChannel: SameChannel.Required)]
+        public async Task PitchAsync(
+            [Summary("New pitch multiplier.")] double pitch)
+        {
+            if (pitch <= 0)
+            {
+                await Response.ReplyAsync(embed: _embeds.Builder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("Pitch must be greater than 0.")
+                    .Build());
+                
+                return;
+            }
+            
+            await _voiceService.UpdatePitchAsync(Context.Guild, pitch);
+
+            await Response.ReactAsync(OkEmote);
+        }
+
+        [Command("rotate")]
+        [Summary("Adds a rotation effect.")]
+        [CheckVoice(sameChannel: SameChannel.Required)]
+        public async Task RotateAsync(
+            [Summary("Rotation speed in Hz.")] double speed)
+        {
+            await _voiceService.UpdateRotationAsync(Context.Guild, speed);
 
             await Response.ReactAsync(OkEmote);
         }

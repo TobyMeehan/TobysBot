@@ -1,5 +1,4 @@
 using Discord;
-using TobysBot.Voice.Effects;
 using TobysBot.Voice.Extensions;
 using TobysBot.Voice.Status;
 using Victoria;
@@ -105,11 +104,60 @@ public class LavalinkVoiceService : IVoiceService
         await player.StopAsync();
     }
 
-    public async Task SetEffectAsync(IGuild guild, IEffect effect)
+    public async Task UpdateVolumeAsync(IGuild guild, ushort volume)
+    {
+        var player = ThrowIfNoPlayer(guild);
+        
+        await player.UpdateVolumeAsync(volume);
+    }
+
+    public async Task UpdateSpeedAsync(IGuild guild, double speed)
     {
         var player = ThrowIfNoPlayer(guild);
 
-        await player.EqualizerAsync(effect.ToLavalinkEqualizer());
+        await player.UpdateSpeedAsync(speed);
+    }
+
+    public async Task UpdatePitchAsync(IGuild guild, double pitch)
+    {
+        var player = ThrowIfNoPlayer(guild);
+
+        await player.UpdatePitchAsync(pitch);
+    }
+
+    public async Task UpdateBassBoostAsync(IGuild guild, double amount)
+    {
+        var player = ThrowIfNoPlayer(guild);
+
+        int i = 0;
+
+        var bands = new[]
+        {
+            0.2d,
+            0.15d,
+            0.1d,
+            0.05d,
+            0.0d,
+            -0.005d,
+            -0.01d,
+            -0.01d,
+            -0.01d,
+            -0.01d,
+            -0.01d,
+            -0.01d,
+            -0.01d,
+            -0.01d,
+            -0.01d
+        }.Select(x => new EqualizerBand(i++, x * amount)).ToArray();
+
+        await player.ApplyEqualizerAsync(bands);
+    }
+
+    public async Task UpdateRotationAsync(IGuild guild, double amount)
+    {
+        var player = ThrowIfNoPlayer(guild);
+
+        await player.AddFilterAsync(new RotationFilter { Hertz = amount });
     }
 
     public IPlayerStatus Status(IGuild guild)
