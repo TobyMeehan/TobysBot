@@ -49,6 +49,7 @@ public partial class VoicePlugin
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task VolumeAsync(
             [Summary("New volume.")]
+            [Choice("reset", Value = 100)]
             int volume)
         {
             if (volume is < 0 or > 200)
@@ -62,11 +63,12 @@ public partial class VoicePlugin
             await Response.ReactAsync(OkEmote);
         }
         
-        [Command("bass boost")]
+        [Command("bassboost")]
         [Summary("Applies a bass boost effect.")]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task BassBoostAsync(
             [Summary("Amount of bass boost.")]
+            [Choice("reset", Value = 0d)]
             double amount)
         {
             if (amount is < 0 or > 100)
@@ -88,7 +90,9 @@ public partial class VoicePlugin
         [Summary("Sets the playback speed.")]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task SpeedAsync(
-            [Summary("New speed multiplier.")] double speed)
+            [Summary("New speed multiplier.")] 
+            [Choice("reset", Value = 1d)]
+            double speed)
         {
             if (speed <= 0)
             {
@@ -109,7 +113,9 @@ public partial class VoicePlugin
         [Summary("Sets the pitch.")]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task PitchAsync(
-            [Summary("New pitch multiplier.")] double pitch)
+            [Summary("New pitch multiplier.")] 
+            [Choice("reset", Value = 1d)]
+            double pitch)
         {
             if (pitch <= 0)
             {
@@ -130,7 +136,9 @@ public partial class VoicePlugin
         [Summary("Adds a rotation effect.")]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task RotateAsync(
-            [Summary("Rotation speed in Hz.")] double speed)
+            [Summary("Rotation speed in Hz.")] 
+            [Choice("reset", Value = 0d)]
+            double speed)
         {
             await _voiceService.UpdateRotationAsync(Context.Guild, speed);
 

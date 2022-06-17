@@ -65,6 +65,28 @@ public static class SlashCommandBuilderExtensions
             .WithRequired(!parameter.IsOptional)
             .WithType(parameter.Type.ToSlashCommandType());
 
+        foreach (var choice in parameter.Attributes.OfType<ChoiceAttribute>())
+        {
+            switch (choice.Value)
+            {
+                case string s:
+                    optionBuilder.AddChoice(choice.Name, s);
+                    break;
+                case int i:
+                    optionBuilder.AddChoice(choice.Name, i);
+                    break;
+                case double d:
+                    optionBuilder.AddChoice(choice.Name, d);
+                    break;
+                case float f:
+                    optionBuilder.AddChoice(choice.Name, f);
+                    break;
+                case long l:
+                    optionBuilder.AddChoice(choice.Name, l);
+                    break;
+            }
+        }
+
         return builder.AddOption(optionBuilder);
     }
 
@@ -87,6 +109,28 @@ public static class SlashCommandBuilderExtensions
             .WithRequired(!parameter.IsOptional)
             .WithType(parameter.Type.ToSlashCommandType());
 
+        foreach (var choice in parameter.Attributes.OfType<ChoiceAttribute>())
+        {
+            switch (choice.Value)
+            {
+                case string s:
+                    optionBuilder.AddChoice(choice.Name, s);
+                    break;
+                case int i:
+                    optionBuilder.AddChoice(choice.Name, i);
+                    break;
+                case double d:
+                    optionBuilder.AddChoice(choice.Name, d);
+                    break;
+                case float f:
+                    optionBuilder.AddChoice(choice.Name, f);
+                    break;
+                case long l:
+                    optionBuilder.AddChoice(choice.Name, l);
+                    break;
+            }
+        }
+        
         return builder.AddOption(optionBuilder);
     }
 
@@ -176,19 +220,20 @@ public static class SlashCommandBuilderExtensions
         return collection;
     }
 
-    public static List<SlashCommandBuilder> AddSubCommandGroup(this List<SlashCommandBuilder> collection, IGrouping<string, IGrouping<string, CommandInfo>> command)
+    public static List<SlashCommandBuilder> AddSubCommandGroup(this List<SlashCommandBuilder> collection,
+        IGrouping<string, IGrouping<string, CommandInfo>> command)
     {
         var commandBuilder = new SlashCommandBuilder()
             .WithName(command.Key)
             .WithDescription("Foo");
-        
+
         foreach (var group in command)
         {
             var optionBuilder = new SlashCommandOptionBuilder()
                 .WithName(group.Key)
                 .WithDescription("Bar")
                 .WithType(ApplicationCommandOptionType.SubCommandGroup);
-            
+
             foreach (var subcommand in group)
             {
                 optionBuilder.AddOption(new SlashCommandOptionBuilder()
@@ -200,7 +245,7 @@ public static class SlashCommandBuilderExtensions
 
             commandBuilder.AddOption(optionBuilder);
         }
-        
+
         collection.Add(commandBuilder);
 
         return collection;
