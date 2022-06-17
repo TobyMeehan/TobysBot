@@ -185,11 +185,13 @@ public class MemoryMusicService : IMusicService
         }
     }
 
-    public async Task MoveAsync(IGuild guild, int track, int newPos)
+    public Task MoveAsync(IGuild guild, int track, int newPos)
     {
         ThrowIfNotConnected(guild);
 
         _queues[guild.Id].Move(track - 1, newPos - 1);
+        
+        return Task.CompletedTask;
     }
 
     public Task SetLoopAsync(IGuild guild, ILoopSetting setting)
