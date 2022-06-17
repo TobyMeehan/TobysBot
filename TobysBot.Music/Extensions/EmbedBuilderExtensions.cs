@@ -3,6 +3,7 @@ using Discord;
 using TobysBot.Commands;
 using TobysBot.Extensions;
 using TobysBot.Music.Configuration;
+using TobysBot.Music.Lyrics;
 using TobysBot.Music.Search.Result;
 using TobysBot.Voice.Status;
 
@@ -129,6 +130,37 @@ public static class EmbedBuilderExtensions
             .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.PositionOutOfRangeErrorDescription);
     }
 
+    public static EmbedBuilder WithLyricsInformation(this EmbedBuilder embed, ILyrics lyrics)
+    {
+        var sb = new StringBuilder();
+
+        foreach (var line in lyrics.Lines)
+        {
+            if (sb.Length is > 1900 and < 2000)
+            {
+                sb.AppendLine();
+                sb.AppendLine("...");
+                break;
+            }
+            
+            if (line is Header)
+            {
+                sb.AppendLine();
+                sb.AppendLine($"*{line.Content}*");
+                continue;
+            }
+
+            sb.AppendLine(line.Content);
+        }
+
+        return embed
+            .WithTitle(lyrics.Track.Title)
+            .WithUrl(lyrics.Track.Url)
+            .WithDescription(sb.ToString())
+            .WithFooter($"Lyrics provided by {lyrics.Provider.Name}")
+            .WithContext(EmbedContext.Information);
+    }
+    
     private static string GetProgressBar(TimeSpan position, TimeSpan duration)
     {
         var fraction = position.Ticks / (double)duration.Ticks;

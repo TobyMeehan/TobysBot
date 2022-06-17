@@ -2,7 +2,9 @@
 using Discord;
 using Discord.Commands;
 using TobysBot.Commands;
+using TobysBot.Extensions;
 using TobysBot.Music.Extensions;
+using TobysBot.Music.Lyrics;
 using TobysBot.Music.Search.Result;
 using TobysBot.Voice;
 using TobysBot.Voice.Commands;
@@ -17,6 +19,7 @@ public partial class MusicPlugin
         private readonly EmbedService _embeds;
         private readonly ISearchService _search;
         private readonly IMusicService _music;
+        private readonly ILyricsService _lyrics;
 
         private IEmote PauseEmote => new Emoji("⏸");
         private IEmote PlayEmote => new Emoji("▶");
@@ -31,12 +34,13 @@ public partial class MusicPlugin
         private IEmote RemoveEmote => new Emoji("⤴");
 
         public MusicModule(IVoiceService voiceService, EmbedService embeds, ISearchService search,
-            IMusicService music) :
+            IMusicService music, ILyricsService lyrics) :
             base(voiceService, embeds)
         {
             _embeds = embeds;
             _search = search;
             _music = music;
+            _lyrics = lyrics;
         }
 
         [Command("play", RunMode = RunMode.Async)]
@@ -555,6 +559,40 @@ public partial class MusicPlugin
             await Response.ReactAsync(RemoveEmote);
         }
 
+        [Command("lyrics")]
+        [Alias("ly")]
+        [Summary("Finds lyrics for the currently playing track.")]
+        [CheckVoice(sameChannel: SameChannel.Required)]
+        public async Task LyricsAsync()
+        {
+            var track = await _music.GetTrackAsync(Context.Guild);
+
+            if (track is null)
+            {
+                await Response.ReplyAsync(embed: _embeds.Builder()
+                    .WithNotPlayingError()
+                    .Build());
+                
+                return;
+            }
+
+            var result = await _lyrics.GetLyricsAsync(track);
+
+            if (!result.Success)
+            {
+                await Response.ReplyAsync(embed: _embeds.Builder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription($"No results for [{track.Title}]({track.Url})")
+                    .Build());
+                
+                return;
+            }
+
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithLyricsInformation(result.Lyrics)
+                .Build());
+        }
+        
         [Command("np")]
         [Summary("Shows the track currently playing.")]
         public async Task NowPlayingAsync()
