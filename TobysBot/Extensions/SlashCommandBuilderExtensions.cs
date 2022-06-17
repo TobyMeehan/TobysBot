@@ -115,9 +115,9 @@ public static class SlashCommandBuilderExtensions
     public static List<SlashCommandBuilder> AddModule(this List<SlashCommandBuilder> collection,
         ModuleInfo module)
     {
-        if (module.Attributes.OfType<PluginAttribute>().Any())
+        if (module.Attributes.OfType<PluginAttribute>().Any() && !module.IsSubmodule)
         {
-            collection.AddModules(module.Submodules);
+            return collection;
         }
 
         if (module.Group is null)

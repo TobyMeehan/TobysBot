@@ -13,16 +13,13 @@ public class CheckVoiceAttribute : CommandPreconditionAttribute
         
     }
 
-    public CheckVoiceAttribute(bool required = true, bool showError = true, bool sameChannel = false)
+    public CheckVoiceAttribute(bool showError = true, SameChannel sameChannel = SameChannel.NotRequired)
     {
-        Required = required;
         ShowError = showError;
         SameChannel = sameChannel;
     }
-
-    public bool Required { get; set; } = true;
     public bool ShowError { get; set; } = true;
-    public bool SameChannel { get; set; }
+    public SameChannel SameChannel { get; set; }
 
     public override Task<PreconditionResult> CheckPermissionsAsync(SocketGenericCommandContext context, CommandInfo command, IServiceProvider services)
     {
@@ -36,11 +33,16 @@ public class CheckVoiceAttribute : CommandPreconditionAttribute
         var currentVoiceChannel =
             voice.Status(context.Guild) is IConnectedStatus connected ? connected.VoiceChannel : null;
 
-        if (SameChannel && voiceState.VoiceChannel.Id != currentVoiceChannel?.Id)
+        var sameChannelCriteria = SameChannel switch
         {
-            return Task.FromResult(PreconditionResult.FromError("Please join the same voice channel."));
-        }
-        
-        return Task.FromResult(PreconditionResult.FromSuccess());
+            SameChannel.IfBotConnected when currentVoiceChannel is null => true,
+            SameChannel.Required or SameChannel.IfBotConnected when voiceState.VoiceChannel?.Id !=
+                                                                    currentVoiceChannel?.Id => false,
+            _ => true
+        };
+
+        return Task.FromResult(!sameChannelCriteria 
+            ? PreconditionResult.FromError("Please join the same voice channel.") 
+            : PreconditionResult.FromSuccess());
     }
 }

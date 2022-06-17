@@ -31,7 +31,7 @@ public partial class VoicePlugin
         [Command("leave", RunMode = RunMode.Async)]
         [Alias("disconnect", "fuckoff")]
         [Summary("Leaves the voice channel.")]
-        [CheckVoice(sameChannel: true)]
+        [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task LeaveAsync()
         {
             await LeaveVoiceChannelAsync();

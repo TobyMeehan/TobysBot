@@ -42,7 +42,7 @@ public partial class MusicPlugin
         [Command("play", RunMode = RunMode.Async)]
         [Alias("p")]
         [Summary("Loads query and adds it to the queue.")]
-        [CheckVoice(required: false, sameChannel: true)]
+        [CheckVoice(sameChannel: SameChannel.IfBotConnected)]
         public async Task PlayAsync(
             [Summary("Url or search for track to play.")] [Remainder]
             string query = null)
@@ -115,7 +115,7 @@ public partial class MusicPlugin
         [Command("unpause")]
         [Alias("resume")]
         [Summary("Resumes playback.")]
-        [CheckVoice(sameChannel: true)]
+        [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task ResumeAsync()
         {
             if (Status is not PlayingStatus)
@@ -142,7 +142,7 @@ public partial class MusicPlugin
 
         [Command("pause")]
         [Summary("Pauses playback.")]
-        [CheckVoice(sameChannel: true)]
+        [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task PauseAsync()
         {
             if (Status is not PlayingStatus)
@@ -170,7 +170,7 @@ public partial class MusicPlugin
 
         [Command("seek")]
         [Summary("Skips to the timestamp in the current track.")]
-        [CheckVoice(sameChannel: true)]
+        [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task SeekAsync(
             [Summary("Timestamp in the current track to skip to.")]
             string timestamp)
@@ -214,7 +214,7 @@ public partial class MusicPlugin
         [Command("fastforward")]
         [Alias("ff")]
         [Summary("Fast forwards the track by the specified amount.")]
-        [CheckVoice(sameChannel: true)]
+        [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task FastForwardAsync(
             [Summary("Number of seconds to fast forward by.")]
             int seconds = 10)
@@ -254,7 +254,7 @@ public partial class MusicPlugin
         [Command("rewind")]
         [Alias("rw")]
         [Summary("Rewinds the track by the specified amount.")]
-        [CheckVoice(sameChannel: true)]
+        [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task RewindAsync(
             [Summary("Number of seconds to rewind by.")]
             int seconds = 10)
@@ -293,7 +293,7 @@ public partial class MusicPlugin
 
         [Command("stop")]
         [Summary("Stops playback and returns to the start of the queue.")]
-        [CheckVoice(sameChannel: true)]
+        [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task StopAsync()
         {
             await _music.StopAsync(Context.Guild);
@@ -303,7 +303,7 @@ public partial class MusicPlugin
 
         [Command("skip")]
         [Summary("Skips to the next track.")]
-        [CheckVoice(sameChannel: true)]
+        [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task SkipAsync()
         {
             await _music.SkipAsync(Context.Guild);
@@ -314,7 +314,7 @@ public partial class MusicPlugin
         [Command("back")]
         [Alias("previous")]
         [Summary("Skips to the previous track.")]
-        [CheckVoice(sameChannel: true)]
+        [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task BackAsync()
         {
             var queue = await _music.GetQueueAsync(Context.Guild);
@@ -335,7 +335,7 @@ public partial class MusicPlugin
 
         [Command("jump")]
         [Summary("Jumps to the specified track.")]
-        [CheckVoice(sameChannel: true)]
+        [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task JumpAsync(
             [Summary("Position to jump to.")] int track)
         {
@@ -357,7 +357,7 @@ public partial class MusicPlugin
 
         [Command("clear")]
         [Summary("Clears the queue.")]
-        [CheckVoice(sameChannel: true)]
+        [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task ClearAsync()
         {
             await _music.ClearAsync(Context.Guild);
@@ -367,23 +367,23 @@ public partial class MusicPlugin
 
         [Command("loop track")]
         [Summary("Toggles looping the current track.")]
-        [CheckVoice(sameChannel: true)]
+        [CheckVoice(sameChannel: SameChannel.Required)]
         public Task LoopTrackAsync() => LoopAsync(new TrackLoopSetting());
 
         [Command("loop queue")]
         [Summary("Toggles looping the queue.")]
-        [CheckVoice(sameChannel: true)]
+        [CheckVoice(sameChannel: SameChannel.Required)]
         public Task LoopQueueAsync() => LoopAsync(new QueueLoopSetting());
 
         [Command("loop off")]
         [Summary("Disables looping.")]
-        [CheckVoice(sameChannel: true)]
+        [CheckVoice(sameChannel: SameChannel.Required)]
         public Task LoopOffAsync() => LoopAsync(new DisabledLoopSetting());
 
         [Command("loop toggle")]
         [Alias("loop")]
         [Summary("Toggles looping.")]
-        [CheckVoice(sameChannel: true)]
+        [CheckVoice(sameChannel: SameChannel.Required)]
         public Task LoopToggleAsync() => LoopAsync();
 
         private async Task LoopAsync(ILoopSetting setting = null)
@@ -431,7 +431,7 @@ public partial class MusicPlugin
 
         [Command("shuffle")]
         [Summary("Toggle shuffle mode.")]
-        [CheckVoice(sameChannel: true)]
+        [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task ShuffleAsync()
         {
             var queue = await _music.GetQueueAsync(Context.Guild);
@@ -446,7 +446,7 @@ public partial class MusicPlugin
         [Command("move")]
         [Alias("mv")]
         [Summary("Moves the specified track to the specified position.")]
-        [CheckVoice(sameChannel: true)]
+        [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task MoveAsync(
             [Summary("Position of track to move.")]
             int track,
@@ -490,7 +490,7 @@ public partial class MusicPlugin
         [Command("remove")]
         [Alias("rm")]
         [Summary("Removes the specified track from the queue.")]
-        [CheckVoice(sameChannel: true)]
+        [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task RemoveAsync(
             [Summary("Position of track to remove.")]
             int track)
@@ -523,7 +523,7 @@ public partial class MusicPlugin
         [Command("removerange")]
         [Alias("remove range", "rmrange", "rm range")]
         [Summary("Removes the specified range of tracks from the queue.")]
-        [CheckVoice(sameChannel: true)]
+        [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task RemoveRangeAsync(
             [Summary("Position of first track to remove.")]
             int start,
