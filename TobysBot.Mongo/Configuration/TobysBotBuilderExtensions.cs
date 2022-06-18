@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using TobysBot.Configuration;
@@ -32,6 +33,12 @@ public static class TobysBotBuilderExtensions
     
     private static TobysBotBuilder AddDatabase(TobysBotBuilder builder, MongoOptions options)
     {
+        BsonClassMap.RegisterClassMap<Entity>(cm =>
+        {
+            cm.AutoMap();
+            cm.MapIdProperty(x => x.Id).SetIgnoreIfNull(true).SetDefaultValue(new ObjectId());
+        });
+        
         return builder.AddDatabase<MongoDataAccess>(services =>
         {
             services.AddSingleton<IMongoService, MongoService>();

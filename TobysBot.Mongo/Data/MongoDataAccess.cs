@@ -17,7 +17,9 @@ public class MongoDataAccess : IDataAccess
     {
         var collection = _service.Connect<T>(collectionName);
 
-        await collection.InsertOneAsync(data);
+        var filter = Builders<T>.Filter.Eq(x => x.Id, data.Id);
+
+        await collection.ReplaceOneAsync(filter, data, new ReplaceOptions {IsUpsert = true});
 
         return data;
     }
@@ -58,17 +60,6 @@ public class MongoDataAccess : IDataAccess
         var result = await collection.FindAsync(x => x.Name == null);
 
         return result.FirstOrDefault();
-    }
-
-    public async Task<T> UpdateAsync<T>(string collectionName, T data) where T : IEntity
-    {
-        var collection = _service.Connect<T>(collectionName);
-
-        var filter = Builders<T>.Filter.Eq(x => x.Id, data.Id);
-
-        await collection.ReplaceOneAsync(filter, data, new ReplaceOptions {IsUpsert = false});
-
-        return data;
     }
 
     public async Task DeleteAsync<T>(string collectionName, T data) where T : IEntity

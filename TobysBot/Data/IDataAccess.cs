@@ -12,7 +12,5 @@ public interface IDataAccess
 
     Task<T> GetByNameAsync<T>(string collectionName, string name) where T : INamedEntity;
 
-    Task<T> UpdateAsync<T>(string collectionName, T data) where T : IEntity;
-
     Task DeleteAsync<T>(string collectionName, T data) where T : IEntity;
 }

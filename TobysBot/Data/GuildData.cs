@@ -2,31 +2,26 @@
 
 namespace TobysBot.Data;
 
-public class GuildData : IGuildData
+public class GuildData : Entity, IGuildData
 {
     public GuildData()
     {
         
     }
     
-    public GuildData(ulong discordId, string prefix, DateTime timeCreated)
+    public GuildData(ulong discordId, string prefix, DateTimeOffset timeCreated)
     {
-        Id = null;
         DiscordId = discordId;
         Prefix = prefix;
-        TimeCreated = timeCreated;
+        base.TimeCreated = timeCreated;
     }
 
     public GuildData(IGuild guild, string prefix)
     {
-        Id = null;
         DiscordId = guild.Id;
         Prefix = prefix;
-        TimeCreated = guild.CreatedAt;
+        base.TimeCreated = guild.CreatedAt;
     }
-
-    public string Id { get; }
-    public ulong DiscordId { get; }
-    public string Prefix { get; }
-    public DateTimeOffset TimeCreated { get; }
+    public ulong DiscordId { get; set; }
+    public string Prefix { get; set; }
 }
