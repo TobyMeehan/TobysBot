@@ -276,6 +276,16 @@ public partial class VoicePlugin
             
             await _voiceService.UpdateRotationAsync(Context.Guild, speed);
 
+            if (Random.Shared.Next(1, 1000) == 69)
+            {
+                await Response.ReplyAsync(embed: _embeds.Builder()
+                    .WithContext(EmbedContext.Action)
+                    .WithDescription("It's time for WangerNumb, let's rotate the track!")
+                    .Build());
+                
+                return;
+            }
+            
             await Response.ReactAsync(OkEmote);
         }
     }
