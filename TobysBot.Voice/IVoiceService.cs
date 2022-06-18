@@ -32,6 +32,7 @@ public interface IVoiceService
     Task UpdatePitchAsync(IGuild guild, double pitch);
     Task UpdateBassBoostAsync(IGuild guild, double amount);
     Task UpdateRotationAsync(IGuild guild, double amount);
+    Task ResetEffectsAsync(IGuild guild);
 
     IPlayerStatus Status(IGuild guild);
 }

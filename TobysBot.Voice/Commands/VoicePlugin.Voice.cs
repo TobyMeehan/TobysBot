@@ -288,5 +288,15 @@ public partial class VoicePlugin
             
             await Response.ReactAsync(OkEmote);
         }
+
+        [Command("reset effects")]
+        [Summary("Resets all audio effects.")]
+        [CheckVoice(sameChannel: SameChannel.Required)]
+        public async Task ResetEffectsAsync()
+        {
+            await _voiceService.ResetEffectsAsync(Context.Guild);
+
+            await Response.ReactAsync(OkEmote);
+        }
     }
 }

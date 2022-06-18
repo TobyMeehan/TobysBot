@@ -160,6 +160,13 @@ public class LavalinkVoiceService : IVoiceService
         await player.AddFilterAsync(new RotationFilter { Hertz = amount });
     }
 
+    public async Task ResetEffectsAsync(IGuild guild)
+    {
+        var player = ThrowIfNoPlayer(guild);
+
+        await player.ResetEffectsAsync();
+    }
+
     public IPlayerStatus Status(IGuild guild)
     {
         if (!_lavaNode.TryGetPlayer(guild, out var player))

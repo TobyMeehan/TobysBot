@@ -59,6 +59,13 @@ public class SoundPlayer : LavaPlayer
         }
     }
 
+    public async Task ResetEffectsAsync()
+    {
+        _filters.Clear();
+
+        await ApplyFilterAsync(new TimescaleFilter(), Volume);
+    }
+
     public async Task ApplyEqualizerAsync(EqualizerBand[] equalizer)
     {
         await ApplyFiltersAsync(_filters, Volume, equalizer);
