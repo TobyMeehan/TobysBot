@@ -31,7 +31,7 @@ jobs:
       uses: docker/build-push-action@v2.9.0
       with:
         context: .
-        file: ./TobysBot.Discord/Dockerfile
+        file: ./TobysBot.Web/Dockerfile
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
