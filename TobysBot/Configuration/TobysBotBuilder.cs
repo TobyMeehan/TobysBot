@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TobysBot.Commands;
 using TobysBot.Commands.Modules;
+using TobysBot.Data;
 using TobysBot.Events;
 
 namespace TobysBot.Configuration;
@@ -25,6 +26,8 @@ public class TobysBotBuilder
         services.AddSingleton<IEventService, EventService>();
 
         services.AddTransient<EmbedService>();
+
+        services.AddTransient<IBaseGuildDataService, ConfigurationGuildDataService>();
         
         services.SubscribeEvent<DiscordClientLogEventArgs, DiscordClientLogger>();
         

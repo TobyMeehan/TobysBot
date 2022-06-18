@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TobysBot.Configuration;
+using TobysBot.Data;
 using TobysBot.Events;
 using TobysBot.Extensions;
 
@@ -14,16 +15,18 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
     private readonly DiscordSocketClient _client;
     private readonly CommandService _commandService;
     private readonly EmbedService _embeds;
+    private readonly IBaseGuildDataService _guildData;
     private readonly IServiceProvider _services;
     private readonly TobysBotOptions _options;
     private readonly ILogger<CommandHandler> _logger;
 
-    public CommandHandler(DiscordSocketClient client, CommandService commandService, EmbedService embeds,
+    public CommandHandler(DiscordSocketClient client, CommandService commandService, EmbedService embeds, IBaseGuildDataService guildData,
         IServiceProvider services, IOptions<TobysBotOptions> options, ILogger<CommandHandler> logger)
     {
         _client = client;
         _commandService = commandService;
         _embeds = embeds;
+        _guildData = guildData;
         _services = services;
         _options = options.Value;
         _logger = logger;
@@ -38,7 +41,13 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
 
         var argPos = 0;
 
-        var prefix = _options.Prefix; // TODO: get prefix from db
+        var guild = message.Channel is IGuildChannel guildChannel
+            ? await _guildData.GetByDiscordIdAsync(guildChannel.GuildId)
+            : null;
+
+        var prefix = guild is null
+            ? _options.Prefix
+            : guild.Prefix;
 
         if (!(message.HasStringPrefix(prefix, ref argPos) ||
               message.HasMentionPrefix(_client.CurrentUser, ref argPos)) ||
