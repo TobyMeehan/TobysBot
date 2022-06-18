@@ -64,6 +64,9 @@ public class TobysBotBuilder
         Services.AddTransient<IDataAccess, TDataAccess>();
         
         Services.AddTransient<IBaseGuildDataService, BaseGuildDataService>();
+        Services.AddTransient<IPrefixDataService, PrefixDataService>();
+
+        Commands.AddGlobalModule<PrefixModule>();
 
         configureServices(Services);
 
