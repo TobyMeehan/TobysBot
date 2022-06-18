@@ -159,8 +159,7 @@ public partial class VoicePlugin
         [Summary("Sets the volume.")]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task VolumeAsync(
-            [Summary("New volume.")]
-            [Choice("reset", Value = 100)]
+            [Summary("New volume, default is 100.")]
             int volume)
         {
             if (volume is < 0 or > 200)
@@ -178,8 +177,7 @@ public partial class VoicePlugin
         [Summary("Applies a bass boost effect.")]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task BassBoostAsync(
-            [Summary("Amount of bass boost.")]
-            [Choice("reset", Value = 0d)]
+            [Summary("Amount of bass boost, default is 0.")]
             double amount)
         {
             if (amount is < 0 or > 100)
@@ -201,57 +199,102 @@ public partial class VoicePlugin
         [Summary("Sets the playback speed.")]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task SpeedAsync(
-            [Summary("New speed multiplier.")] 
-            [Choice("reset", Value = 1d)]
+            [Summary("New speed multiplier, default is 1.")]
             double speed)
         {
-            if (speed <= 0)
+            switch (speed)
             {
-                await Response.ReplyAsync(embed: _embeds.Builder()
-                    .WithContext(EmbedContext.Error)
-                    .WithDescription("Speed must be greater than 0.")
-                    .Build());
+                case <= 0:
+                    await Response.ReplyAsync(embed: _embeds.Builder()
+                        .WithContext(EmbedContext.Error)
+                        .WithDescription("Speed must be greater than 0.")
+                        .Build());
                 
-                return;
-            }
-            
-            await _voiceService.UpdateSpeedAsync(Context.Guild, speed);
+                    return;
+                case > 20:
+                    await Response.ReplyAsync(embed: _embeds.Builder()
+                        .WithContext(EmbedContext.Error)
+                        .WithDescription("That speed is too fast for me to handle! Twenty's plenty.")
+                        .Build());
+                
+                    return;
+                default:
+                    await _voiceService.UpdateSpeedAsync(Context.Guild, speed);
 
-            await Response.ReactAsync(OkEmote);
+                    await Response.ReactAsync(OkEmote);
+                    break;
+            }
         }
 
         [Command("pitch")]
         [Summary("Sets the pitch.")]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task PitchAsync(
-            [Summary("New pitch multiplier.")] 
-            [Choice("reset", Value = 1d)]
+            [Summary("New pitch multiplier, default is 1.")]
             double pitch)
         {
-            if (pitch <= 0)
+            switch (pitch)
             {
-                await Response.ReplyAsync(embed: _embeds.Builder()
-                    .WithContext(EmbedContext.Error)
-                    .WithDescription("Pitch must be greater than 0.")
-                    .Build());
+                case <= 0:
+                    await Response.ReplyAsync(embed: _embeds.Builder()
+                        .WithContext(EmbedContext.Error)
+                        .WithDescription("Pitch must be greater than 0.")
+                        .Build());
                 
-                return;
-            }
-            
-            await _voiceService.UpdatePitchAsync(Context.Guild, pitch);
+                    return;
+                case > 100:
+                    await Response.ReplyAsync(embed: _embeds.Builder()
+                        .WithContext(EmbedContext.Error)
+                        .WithDescription("That pitch is inaudible! Best keep it under 100.")
+                        .Build());
+                
+                    return;
+                default:
+                    await _voiceService.UpdatePitchAsync(Context.Guild, pitch);
 
-            await Response.ReactAsync(OkEmote);
+                    await Response.ReactAsync(OkEmote);
+                    break;
+            }
         }
 
         [Command("rotate")]
         [Summary("Adds a rotation effect.")]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task RotateAsync(
-            [Summary("Rotation speed in Hz.")] 
-            [Choice("reset", Value = 0d)]
+            [Summary("Rotation speed in Hz, default is 0.")]
             double speed)
         {
+            if (speed is < -60 or > 60)
+            {
+                await Response.ReplyAsync(embed: _embeds.Builder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("If this track rotates any faster it'll take off! Maximum is 60Hz.")
+                    .Build());
+                
+                return;
+            }
+            
             await _voiceService.UpdateRotationAsync(Context.Guild, speed);
+
+            if (Random.Shared.Next(1, 1000) == 69)
+            {
+                await Response.ReplyAsync(embed: _embeds.Builder()
+                    .WithContext(EmbedContext.Action)
+                    .WithDescription("It's time for WangerNumb, let's rotate the track!")
+                    .Build());
+                
+                return;
+            }
+            
+            await Response.ReactAsync(OkEmote);
+        }
+
+        [Command("reset effects")]
+        [Summary("Resets all audio effects.")]
+        [CheckVoice(sameChannel: SameChannel.Required)]
+        public async Task ResetEffectsAsync()
+        {
+            await _voiceService.ResetEffectsAsync(Context.Guild);
 
             await Response.ReactAsync(OkEmote);
         }
