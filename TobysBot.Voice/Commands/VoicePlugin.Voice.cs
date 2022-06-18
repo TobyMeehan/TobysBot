@@ -202,19 +202,28 @@ public partial class VoicePlugin
             [Summary("New speed multiplier, default is 1.")]
             double speed)
         {
-            if (speed <= 0)
+            switch (speed)
             {
-                await Response.ReplyAsync(embed: _embeds.Builder()
-                    .WithContext(EmbedContext.Error)
-                    .WithDescription("Speed must be greater than 0.")
-                    .Build());
+                case <= 0:
+                    await Response.ReplyAsync(embed: _embeds.Builder()
+                        .WithContext(EmbedContext.Error)
+                        .WithDescription("Speed must be greater than 0.")
+                        .Build());
                 
-                return;
-            }
-            
-            await _voiceService.UpdateSpeedAsync(Context.Guild, speed);
+                    return;
+                case > 20:
+                    await Response.ReplyAsync(embed: _embeds.Builder()
+                        .WithContext(EmbedContext.Error)
+                        .WithDescription("That speed is too fast for me to handle! Twenty's plenty.")
+                        .Build());
+                
+                    return;
+                default:
+                    await _voiceService.UpdateSpeedAsync(Context.Guild, speed);
 
-            await Response.ReactAsync(OkEmote);
+                    await Response.ReactAsync(OkEmote);
+                    break;
+            }
         }
 
         [Command("pitch")]
@@ -224,19 +233,28 @@ public partial class VoicePlugin
             [Summary("New pitch multiplier, default is 1.")]
             double pitch)
         {
-            if (pitch <= 0)
+            switch (pitch)
             {
-                await Response.ReplyAsync(embed: _embeds.Builder()
-                    .WithContext(EmbedContext.Error)
-                    .WithDescription("Pitch must be greater than 0.")
-                    .Build());
+                case <= 0:
+                    await Response.ReplyAsync(embed: _embeds.Builder()
+                        .WithContext(EmbedContext.Error)
+                        .WithDescription("Pitch must be greater than 0.")
+                        .Build());
                 
-                return;
-            }
-            
-            await _voiceService.UpdatePitchAsync(Context.Guild, pitch);
+                    return;
+                case > 100:
+                    await Response.ReplyAsync(embed: _embeds.Builder()
+                        .WithContext(EmbedContext.Error)
+                        .WithDescription("That pitch is inaudible! Best keep it under 100.")
+                        .Build());
+                
+                    return;
+                default:
+                    await _voiceService.UpdatePitchAsync(Context.Guild, pitch);
 
-            await Response.ReactAsync(OkEmote);
+                    await Response.ReactAsync(OkEmote);
+                    break;
+            }
         }
 
         [Command("rotate")]
@@ -246,6 +264,16 @@ public partial class VoicePlugin
             [Summary("Rotation speed in Hz, default is 0.")]
             double speed)
         {
+            if (speed is < -60 or > 60)
+            {
+                await Response.ReplyAsync(embed: _embeds.Builder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("If this track rotates any faster it'll take off! Maximum is 60Hz.")
+                    .Build());
+                
+                return;
+            }
+            
             await _voiceService.UpdateRotationAsync(Context.Guild, speed);
 
             await Response.ReactAsync(OkEmote);
