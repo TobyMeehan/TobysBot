@@ -2,6 +2,7 @@ using Discord;
 using Discord.Commands;
 using TobysBot.Commands;
 using TobysBot.Extensions;
+using TobysBot.Voice.Effects;
 using TobysBot.Voice.Extensions;
 using TobysBot.Voice.Status;
 
@@ -189,8 +190,8 @@ public partial class VoicePlugin
             }
 
             var multiplier = amount / 33;
-            
-            await _voiceService.UpdateBassBoostAsync(Context.Guild, multiplier);
+
+            await _voiceService.UpdateEqualizerAsync(Context.Guild, new BassBoostEqualizer(multiplier));
 
             await Response.ReactAsync(OkEmote);
         }
