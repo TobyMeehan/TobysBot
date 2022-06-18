@@ -35,7 +35,9 @@ public interface IVoiceService
     Task UpdateRotationAsync(IGuild guild, double hertz);
 
     Task UpdateEqualizerAsync(IGuild guild, IEqualizer equalizer);
-    Task UpdatePresetAsync(IGuild guild, IPreset preset);
+
+    Task<IPreset> GetActivePresetAsync(IGuild guild);
+    Task SetActivePresetAsync(IGuild guild, IPreset preset);
     Task RemoveActivePresetAsync(IGuild guild);
     
     Task ResetEffectsAsync(IGuild guild);

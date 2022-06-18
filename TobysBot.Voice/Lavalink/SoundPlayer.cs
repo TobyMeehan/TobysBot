@@ -52,7 +52,12 @@ public class SoundPlayer : LavaPlayer
         await ApplyFiltersAsync();
     }
 
-    public async Task ChangePresetAsync(IPreset preset)
+    public IPreset GetActivePreset()
+    {
+        return _activePreset;
+    }
+    
+    public async Task SetActivePresetAsync(IPreset preset)
     {
         _activePreset = preset;
 

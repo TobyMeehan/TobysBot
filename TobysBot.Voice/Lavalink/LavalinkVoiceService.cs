@@ -140,11 +140,18 @@ public class LavalinkVoiceService : IVoiceService
         await player.UpdateEqualizerAsync(equalizer);
     }
 
-    public async Task UpdatePresetAsync(IGuild guild, IPreset preset)
+    public Task<IPreset> GetActivePresetAsync(IGuild guild)
     {
         var player = ThrowIfNoPlayer(guild);
 
-        await player.ChangePresetAsync(preset);
+        return Task.FromResult(player.GetActivePreset());
+    }
+
+    public async Task SetActivePresetAsync(IGuild guild, IPreset preset)
+    {
+        var player = ThrowIfNoPlayer(guild);
+
+        await player.SetActivePresetAsync(preset);
     }
 
     public async Task RemoveActivePresetAsync(IGuild guild)

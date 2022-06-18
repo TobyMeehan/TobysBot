@@ -290,6 +290,44 @@ public partial class VoicePlugin
             await Response.ReactAsync(OkEmote);
         }
 
+        [Command("nightcore")]
+        [Summary("Toggles nightcore mode.")]
+        [CheckVoice(sameChannel: SameChannel.Required)]
+        public async Task NightcoreAsync()
+        {
+            var active = await _voiceService.GetActivePresetAsync(Context.Guild);
+
+            if (active is NightcorePreset)
+            {
+                await _voiceService.RemoveActivePresetAsync(Context.Guild);
+            }
+            else
+            {
+                await _voiceService.SetActivePresetAsync(Context.Guild, new NightcorePreset());
+            }
+
+            await Response.ReactAsync(OkEmote);
+        }
+
+        [Command("vaporwave")]
+        [Summary("Toggles vaporwave mode.")]
+        [CheckVoice(sameChannel: SameChannel.Required)]
+        public async Task VaporwaveAsync()
+        {
+            var active = await _voiceService.GetActivePresetAsync(Context.Guild);
+
+            if (active is VaporwavePreset)
+            {
+                await _voiceService.RemoveActivePresetAsync(Context.Guild);
+            }
+            else
+            {
+                await _voiceService.SetActivePresetAsync(Context.Guild, new VaporwavePreset());
+            }
+
+            await Response.ReactAsync(OkEmote);
+        }
+        
         [Command("reset effects")]
         [Summary("Resets all audio effects.")]
         [CheckVoice(sameChannel: SameChannel.Required)]
