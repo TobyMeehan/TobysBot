@@ -50,11 +50,22 @@ public class TobysBotBuilder
         Services.Configure<TobysBotOptions>(configuration);
     }
 
-    public TobysBotBuilder AddModule(Action<IServiceCollection> configureServices,
+    public TobysBotBuilder AddPlugin(Action<IServiceCollection> configureServices,
         Action<CommandCollection> configureCommands)
     {
         configureServices(Services);
         configureCommands(Commands);
+
+        return this;
+    }
+
+    public TobysBotBuilder AddDatabase<TDataAccess>(Action<IServiceCollection> configureServices) where TDataAccess : class, IDataAccess
+    {
+        Services.AddTransient<IDataAccess, TDataAccess>();
+        
+        Services.AddTransient<IBaseGuildDataService, BaseGuildDataService>();
+
+        configureServices(Services);
 
         return this;
     }

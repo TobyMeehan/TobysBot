@@ -27,6 +27,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\TobysBot.Misc\TobysBot.Misc.csproj" />
+      <ProjectReference Include="..\TobysBot.Mongo\TobysBot.Mongo.csproj" />
       <ProjectReference Include="..\TobysBot.Music\TobysBot.Music.csproj" />
       <ProjectReference Include="..\TobysBot.Voice\TobysBot.Voice.csproj" />
       <ProjectReference Include="..\TobysBot\TobysBot.csproj" />

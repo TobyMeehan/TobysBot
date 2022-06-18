@@ -1,6 +1,7 @@
 using TobysBot.Commands.Modules;
 using TobysBot.Configuration;
 using TobysBot.Misc.Configuration;
+using TobysBot.Mongo.Configuration;
 using TobysBot.Music.Configuration;
 using TobysBot.Voice.Configuration;
 
@@ -17,7 +18,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddTobysBot(builder.Configuration)
     .AddVoiceModule(builder.Configuration.GetSection("Voice"))
     .AddMusicModule(builder.Configuration.GetSection("Music"))
-    .AddMiscModule(builder.Configuration.GetSection("Star"));
+    .AddMiscModule(builder.Configuration.GetSection("Star"))
+    .AddMongoDatabase(builder.Configuration.GetSection("Mongo"));
 
 var app = builder.Build();
 

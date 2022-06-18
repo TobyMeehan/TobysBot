@@ -37,7 +37,7 @@ public static class TobysBotBuilderExtensions
     
     private static TobysBotBuilder AddModule(TobysBotBuilder builder, MusicOptions options)
     {
-        return builder.AddModule(
+        return builder.AddPlugin(
             services =>
             {
                 services.AddLavaNode(config =>

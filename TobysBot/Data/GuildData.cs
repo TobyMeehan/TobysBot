@@ -4,6 +4,11 @@ namespace TobysBot.Data;
 
 public class GuildData : IGuildData
 {
+    public GuildData()
+    {
+        
+    }
+    
     public GuildData(ulong discordId, string prefix, DateTime timeCreated)
     {
         Id = null;

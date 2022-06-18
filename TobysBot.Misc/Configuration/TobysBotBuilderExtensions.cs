@@ -28,7 +28,7 @@ public static class TobysBotBuilderExtensions
     
     private static TobysBotBuilder AddModule(TobysBotBuilder builder, StarOptions options)
     {
-        return builder.AddModule(
+        return builder.AddPlugin(
             services =>
             {
 

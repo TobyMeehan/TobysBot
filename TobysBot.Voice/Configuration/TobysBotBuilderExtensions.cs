@@ -33,7 +33,7 @@ public static class TobysBotBuilderExtensions
 
     private static TobysBotBuilder AddModule(TobysBotBuilder builder, VoiceOptions options)
     {
-        builder.AddModule(
+        builder.AddPlugin(
             services =>
             {
                 services.AddLavaNode<SoundPlayer>(config =>

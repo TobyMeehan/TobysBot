@@ -44,7 +44,9 @@ public class MongoDataAccess : IDataAccess
     {
         var collection = _service.Connect<T>(collectionName);
 
-        var result = await collection.FindAsync(x => x.DiscordId == id);
+        var filter = Builders<T>.Filter.Eq("DiscordId", id);
+
+        var result = await collection.FindAsync(filter);
 
         return result.FirstOrDefault();
     }
