@@ -18,7 +18,7 @@ public class MongoDataAccess : IDataAccess
         public const string UserId = "UserId";
         public const string ChannelId = "ChannelId";
     }
-    
+
     public MongoDataAccess(IMongoService service)
     {
         _service = service;
@@ -30,7 +30,69 @@ public class MongoDataAccess : IDataAccess
 
         var filter = Builders<T>.Filter.Eq(x => x.Id, data.Id);
 
-        await collection.ReplaceOneAsync(filter, data, new ReplaceOptions {IsUpsert = true});
+        await collection.ReplaceOneAsync(filter, data, new ReplaceOptions { IsUpsert = true });
+
+        return data;
+    }
+
+    public async Task<T> SaveByNameAsync<T>(string collectionName, T data) where T : INamedEntity
+    {
+        var collection = _service.Connect<T>(collectionName);
+
+        var filter = Builders<T>.Filter.Eq(Fields.Name, data.Name);
+
+        await collection.ReplaceOneAsync(filter, data, new ReplaceOptions { IsUpsert = true });
+
+        return data;
+    }
+
+    public async Task<T> SaveByUserAsync<T>(string collectionName, T data) where T : IUserRelation, INamedEntity
+    {
+        var collection = _service.Connect<T>(collectionName);
+
+        var filter = Builders<T>.Filter.Eq(Fields.UserId, data.UserId) &
+                     Builders<T>.Filter.Eq(Fields.Name, data.Name);
+
+        await collection.ReplaceOneAsync(filter, data, new ReplaceOptions { IsUpsert = true });
+
+        return data;
+    }
+
+    public async Task<T> SaveByGuildAsync<T>(string collectionName, T data) where T : IGuildRelation, INamedEntity
+    {
+        var collection = _service.Connect<T>(collectionName);
+
+        var filter = Builders<T>.Filter.Eq(Fields.GuildId, data.GuildId) &
+                     Builders<T>.Filter.Eq(Fields.Name, data.Name);
+
+        await collection.ReplaceOneAsync(filter, data, new ReplaceOptions { IsUpsert = true });
+
+        return data;
+    }
+
+    public async Task<T> SaveByGuildUserAsync<T>(string collectionName, T data)
+        where T : IGuildUserRelation, INamedEntity
+    {
+        var collection = _service.Connect<T>(collectionName);
+
+        var filter = Builders<T>.Filter.Eq(Fields.GuildId, data.GuildId) &
+                     Builders<T>.Filter.Eq(Fields.UserId, data.UserId) &
+                     Builders<T>.Filter.Eq(Fields.Name, data.Name);
+
+        await collection.ReplaceOneAsync(filter, data, new ReplaceOptions { IsUpsert = true });
+
+        return data;
+    }
+
+    public async Task<T> SaveByChannelAsync<T>(string collectionName, T data)
+        where T : IChannelRelation, INamedEntity
+    {
+        var collection = _service.Connect<T>(collectionName);
+
+        var filter = Builders<T>.Filter.Eq(Fields.ChannelId, data.ChannelId) &
+                     Builders<T>.Filter.Eq(Fields.Name, data.Name);
+
+        await collection.ReplaceOneAsync(filter, data, new ReplaceOptions { IsUpsert = true });
 
         return data;
     }
@@ -64,7 +126,8 @@ public class MongoDataAccess : IDataAccess
         return result.FirstOrDefault();
     }
 
-    public async Task<IReadOnlyCollection<T>> GetByNameAsync<T>(string collectionName, string name) where T : INamedEntity
+    public async Task<IReadOnlyCollection<T>> GetByNameAsync<T>(string collectionName, string name)
+        where T : INamedEntity
     {
         var collection = _service.Connect<T>(collectionName);
 
@@ -75,7 +138,8 @@ public class MongoDataAccess : IDataAccess
         return result.ToList();
     }
 
-    public async Task<IReadOnlyCollection<T>> GetByGuildAsync<T>(string collectionName, IGuild guild) where T : IGuildRelation
+    public async Task<IReadOnlyCollection<T>> GetByGuildAsync<T>(string collectionName, IGuild guild)
+        where T : IGuildRelation
     {
         var collection = _service.Connect<T>(collectionName);
 
@@ -85,12 +149,13 @@ public class MongoDataAccess : IDataAccess
 
         return result.ToList();
     }
-    
-    public async Task<IReadOnlyCollection<T>> GetByGuildAsync<T>(string collectionName, IGuild guild, string name) where T : IGuildRelation, INamedEntity
+
+    public async Task<IReadOnlyCollection<T>> GetByGuildAsync<T>(string collectionName, IGuild guild, string name)
+        where T : IGuildRelation, INamedEntity
     {
         var collection = _service.Connect<T>(collectionName);
 
-        var filter = Builders<T>.Filter.Eq(Fields.GuildId, guild.Id) & 
+        var filter = Builders<T>.Filter.Eq(Fields.GuildId, guild.Id) &
                      Builders<T>.Filter.Eq(Fields.Name, name);
 
         var result = await collection.FindAsync(filter);
@@ -98,7 +163,8 @@ public class MongoDataAccess : IDataAccess
         return result.ToList();
     }
 
-    public async Task<IReadOnlyCollection<T>> GetByUserAsync<T>(string collectionName, IUser user) where T : IUserRelation
+    public async Task<IReadOnlyCollection<T>> GetByUserAsync<T>(string collectionName, IUser user)
+        where T : IUserRelation
     {
         var collection = _service.Connect<T>(collectionName);
 
@@ -109,11 +175,12 @@ public class MongoDataAccess : IDataAccess
         return result.ToList();
     }
 
-    public async Task<IReadOnlyCollection<T>> GetByUserAsync<T>(string collectionName, IUser user, string name) where T : IUserRelation, INamedEntity
+    public async Task<IReadOnlyCollection<T>> GetByUserAsync<T>(string collectionName, IUser user, string name)
+        where T : IUserRelation, INamedEntity
     {
         var collection = _service.Connect<T>(collectionName);
 
-        var filter = Builders<T>.Filter.Eq(Fields.UserId, user.Id) & 
+        var filter = Builders<T>.Filter.Eq(Fields.UserId, user.Id) &
                      Builders<T>.Filter.Eq(Fields.Name, name);
 
         var result = await collection.FindAsync(filter);
@@ -121,7 +188,8 @@ public class MongoDataAccess : IDataAccess
         return result.ToList();
     }
 
-    public async Task<IReadOnlyCollection<T>> GetByGuildUserAsync<T>(string collectionName, IGuildUser guildUser) where T : IGuildUserRelation
+    public async Task<IReadOnlyCollection<T>> GetByGuildUserAsync<T>(string collectionName, IGuildUser guildUser)
+        where T : IGuildUserRelation
     {
         var collection = _service.Connect<T>(collectionName);
 
@@ -133,7 +201,8 @@ public class MongoDataAccess : IDataAccess
         return result.ToList();
     }
 
-    public async Task<IReadOnlyCollection<T>> GetByGuildUserAsync<T>(string collectionName, IGuildUser guildUser, string name) where T : IGuildUserRelation, INamedEntity
+    public async Task<IReadOnlyCollection<T>> GetByGuildUserAsync<T>(string collectionName, IGuildUser guildUser,
+        string name) where T : IGuildUserRelation, INamedEntity
     {
         var collection = _service.Connect<T>(collectionName);
 
@@ -146,7 +215,8 @@ public class MongoDataAccess : IDataAccess
         return result.ToList();
     }
 
-    public async Task<IReadOnlyCollection<T>> GetByChannelAsync<T>(string collectionName, IChannel channel) where T : IChannelRelation
+    public async Task<IReadOnlyCollection<T>> GetByChannelAsync<T>(string collectionName, IChannel channel)
+        where T : IChannelRelation
     {
         var collection = _service.Connect<T>(collectionName);
 
@@ -157,7 +227,8 @@ public class MongoDataAccess : IDataAccess
         return result.ToList();
     }
 
-    public async Task<IReadOnlyCollection<T>> GetByChannelAsync<T>(string collectionName, IChannel channel, string name) where T : IChannelRelation, INamedEntity
+    public async Task<IReadOnlyCollection<T>> GetByChannelAsync<T>(string collectionName, IChannel channel, string name)
+        where T : IChannelRelation, INamedEntity
     {
         var collection = _service.Connect<T>(collectionName);
 
@@ -196,7 +267,8 @@ public class MongoDataAccess : IDataAccess
         await collection.DeleteManyAsync(filter);
     }
 
-    public async Task DeleteAsync<T>(string collectionName, IGuild guild, string name) where T : IGuildRelation, INamedEntity
+    public async Task DeleteAsync<T>(string collectionName, IGuild guild, string name)
+        where T : IGuildRelation, INamedEntity
     {
         var collection = _service.Connect<T>(collectionName);
 
@@ -215,7 +287,8 @@ public class MongoDataAccess : IDataAccess
         await collection.DeleteManyAsync(filter);
     }
 
-    public async Task DeleteAsync<T>(string collectionName, IUser user, string name) where T : IUserRelation, INamedEntity
+    public async Task DeleteAsync<T>(string collectionName, IUser user, string name)
+        where T : IUserRelation, INamedEntity
     {
         var collection = _service.Connect<T>(collectionName);
 
@@ -235,7 +308,8 @@ public class MongoDataAccess : IDataAccess
         await collection.DeleteManyAsync(filter);
     }
 
-    public async Task DeleteAsync<T>(string collectionName, IGuildUser guildUser, string name) where T : IGuildUserRelation, INamedEntity
+    public async Task DeleteAsync<T>(string collectionName, IGuildUser guildUser, string name)
+        where T : IGuildUserRelation, INamedEntity
     {
         var collection = _service.Connect<T>(collectionName);
 
@@ -255,7 +329,8 @@ public class MongoDataAccess : IDataAccess
         await collection.DeleteManyAsync(filter);
     }
 
-    public async Task DeleteAsync<T>(string collectionName, IChannel channel, string name) where T : IChannelRelation, INamedEntity
+    public async Task DeleteAsync<T>(string collectionName, IChannel channel, string name)
+        where T : IChannelRelation, INamedEntity
     {
         var collection = _service.Connect<T>(collectionName);
 

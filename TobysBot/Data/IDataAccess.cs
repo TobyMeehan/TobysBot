@@ -5,6 +5,15 @@ namespace TobysBot.Data;
 public interface IDataAccess
 {
     Task<T> SaveAsync<T>(string collectionName, T data) where T : IEntity;
+    Task<T> SaveByNameAsync<T>(string collectionName, T data) where T : INamedEntity;
+    Task<T> SaveByUserAsync<T>(string collectionName, T data) where T : IUserRelation, INamedEntity;
+    Task<T> SaveByGuildAsync<T>(string collectionName, T data) where T : IGuildRelation, INamedEntity;
+
+    Task<T> SaveByGuildUserAsync<T>(string collectionName, T data)
+        where T : IGuildUserRelation, INamedEntity;
+
+    Task<T> SaveByChannelAsync<T>(string collectionName, T data)
+        where T : IChannelRelation, INamedEntity;
 
     Task<IReadOnlyCollection<T>> GetAsync<T>(string collectionName) where T : IEntity;
 
