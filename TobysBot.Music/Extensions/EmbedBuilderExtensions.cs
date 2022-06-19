@@ -3,6 +3,7 @@ using Discord;
 using TobysBot.Commands;
 using TobysBot.Extensions;
 using TobysBot.Music.Configuration;
+using TobysBot.Music.Data;
 using TobysBot.Music.Lyrics;
 using TobysBot.Music.Search.Result;
 using TobysBot.Voice.Status;
@@ -312,5 +313,22 @@ public static class EmbedBuilderExtensions
         return embed
             .WithContext(EmbedContext.Information)
             .WithDescription(sb.ToString());
+    }
+
+    public static EmbedBuilder WithSavedQueueListInformation(this EmbedBuilder embed, IUser user, IEnumerable<ISavedQueue> savedQueues)
+    {
+        foreach (var queue in savedQueues)
+        {
+            embed.AddField(field =>
+            {
+                field
+                    .WithName(queue.Name)
+                    .WithValue($"{queue.Tracks.Count()} tracks [Share](https://example.com)");
+            });
+        }
+        
+        return embed
+            .WithContext(EmbedContext.Information)
+            .WithAuthor($"Saved Queues for {user.Mention}");
     }
 }

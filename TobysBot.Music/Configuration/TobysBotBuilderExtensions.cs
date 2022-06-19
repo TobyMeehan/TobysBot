@@ -4,6 +4,7 @@ using SpotifyAPI.Web;
 using TobysBot.Configuration;
 using TobysBot.Events;
 using TobysBot.Music.Commands;
+using TobysBot.Music.Data;
 using TobysBot.Music.Events;
 using TobysBot.Music.Lyrics;
 using TobysBot.Music.MemoryQueue;
@@ -57,6 +58,8 @@ public static class TobysBotBuilderExtensions
 
                 services.AddTransient<ILyricsService, LyricsService>();
                 services.AddTransient<ILyricsResolver, GeniusLyricsResolver>();
+
+                services.AddTransient<ISavedQueueDataService, SavedQueueDataService>();
                 
                 services.AddTransient<YoutubeClient>();
                 
