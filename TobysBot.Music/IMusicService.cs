@@ -8,6 +8,7 @@ public interface IMusicService
     
     Task<ITrack> EnqueueAsync(IGuild guild, params ITrack[] tracks);
     Task<ITrack> EnqueueAsync(IGuild guild, IEnumerable<ITrack> t);
+    Task<ITrack> EnqueueAsync(IGuild guild, ISavedQueue savedQueue);
 
     Task PauseAsync(IGuild guild);
 

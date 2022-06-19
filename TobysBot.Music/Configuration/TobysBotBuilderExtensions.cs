@@ -54,6 +54,7 @@ public static class TobysBotBuilderExtensions
                 services.AddTransient<ISearchService, SearchService>();
                 services.AddTransient<ISearchResolver, YouTubeResolver>();
                 services.AddTransient<ISearchResolver, SpotifyResolver>();
+                services.AddTransient<ISearchResolver, SavedQueueResolver>();
                 services.AddTransient<ISearchResolver, VictoriaResolver>();
 
                 services.AddTransient<ILyricsService, LyricsService>();

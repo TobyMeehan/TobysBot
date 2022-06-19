@@ -30,7 +30,7 @@ public class TobysBotBuilder
 
         services.AddTransient<IBaseGuildDataService, ConfigurationGuildDataService>();
 
-        services.AddSingleton<IHostingService, DefaultHostingService>();
+        services.AddTransient<IHostingService, DefaultHostingService>();
         
         services.SubscribeEvent<DiscordClientLogEventArgs, DiscordClientLogger>();
         
@@ -85,7 +85,7 @@ public class TobysBotBuilder
 
     public TobysBotBuilder AddHostingService<T>() where T : class, IHostingService
     {
-        Services.AddSingleton<IHostingService, T>();
+        Services.AddTransient<IHostingService, T>();
 
         return this;
     }

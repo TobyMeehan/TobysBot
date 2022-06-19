@@ -113,6 +113,18 @@ public partial class MusicPlugin
                     });
 
                     break;
+                
+                case SavedQueueResult savedQueue:
+                    await _music.EnqueueAsync(Context.Guild, savedQueue.Queue);
+
+                    await response.ModifyResponseAsync(x =>
+                    {
+                        x.Embed = _embeds.Builder()
+                            .WithQueueSavedQueueAction(savedQueue.Queue)
+                            .Build();
+                    });
+                    
+                    break;
             }
         }
 

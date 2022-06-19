@@ -2,5 +2,6 @@
 
 public interface IHostingService
 {
-    string Hostname { get; }
+    Uri Uri { get; }
+    string ServerName => Uri.Authority;
 }

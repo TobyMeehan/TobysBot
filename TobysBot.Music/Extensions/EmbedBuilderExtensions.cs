@@ -33,6 +33,13 @@ public static class EmbedBuilderExtensions
             .WithDescription($"Queued {playlist.Tracks.Count()} tracks from [{playlist.Title}]({playlist.Url})");
     }
 
+    public static EmbedBuilder WithQueueSavedQueueAction(this EmbedBuilder embed, ISavedQueue savedQueue)
+    {
+        return embed
+            .WithContext(EmbedContext.Action)
+            .WithDescription($"Queued {savedQueue.Tracks.Count()} tracks from **{savedQueue.Name}**");
+    }
+
     public static EmbedBuilder WithLoopAction(this EmbedBuilder embed, ILoopSetting setting)
     {
         string description = setting switch
@@ -322,13 +329,13 @@ public static class EmbedBuilderExtensions
             embed.AddField(field =>
             {
                 field
-                    .WithName(queue.Name)
-                    .WithValue($"{queue.Tracks.Count()} tracks [Share](https://example.com)");
+                    .WithName($"{queue.Name}")
+                    .WithValue($"{queue.Tracks.Count()} tracks - total duration {queue.Tracks.Sum(x => x.Duration).ToTimeStamp()}");
             });
         }
         
         return embed
             .WithContext(EmbedContext.Information)
-            .WithAuthor($"Saved Queues for {user.Mention}");
+            .WithDescription($"**Saved Queues for {user.Mention}**");
     }
 }

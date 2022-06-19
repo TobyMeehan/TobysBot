@@ -4,22 +4,25 @@ using TobysBot.Commands;
 using TobysBot.Extensions;
 using TobysBot.Music.Data;
 using TobysBot.Music.Extensions;
+using TobysBot.Voice;
 using TobysBot.Voice.Commands;
 
 namespace TobysBot.Music.Commands;
 
 public partial class MusicPlugin
 {
-    public class SaveModule : CommandModuleBase
+    public class SaveModule : VoiceCommandModuleBase
     {
         private readonly ISavedQueueDataService _savedQueues;
         private readonly IMusicService _music;
+        private readonly ISearchService _search;
         private readonly EmbedService _embeds;
 
-        public SaveModule(ISavedQueueDataService savedQueues, IMusicService music, EmbedService embeds)
+        public SaveModule(ISavedQueueDataService savedQueues, IMusicService music, ISearchService search, IVoiceService voice, EmbedService embeds) : base(voice, embeds)
         {
             _savedQueues = savedQueues;
             _music = music;
+            _search = search;
             _embeds = embeds;
         }
         
@@ -91,8 +94,69 @@ public partial class MusicPlugin
 
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithContext(EmbedContext.Action)
-                .WithDescription($"**{savedQueue.Name}** ({savedQueue.Tracks.Count()} tracks) deleted.")
+                .WithDescription($"Saved queue **{savedQueue.Name}** ({savedQueue.Tracks.Count()} tracks) deleted.")
                 .Build());
+        }
+
+        [Command("saved queues share")]
+        [Summary("Gets a link that anyone can use to play your saved queue.")]
+        public async Task ShareSavedQueueAsync(
+            [Summary("Name of queue to share.")] string name)
+        {
+            var savedQueue = await _savedQueues.GetSavedQueueAsync(Context.User, name);
+
+            if (savedQueue is null)
+            {
+                await Response.ReplyAsync(embed: _embeds.Builder()
+                    .WithContext(EmbedContext.Error)
+                    .WithDescription("You have no saved queues with that name.")
+                    .Build());
+                
+                return;
+            }
+
+            var link = _savedQueues.GetShareUri(savedQueue);
+
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithContext(EmbedContext.Information)
+                .WithDescription(
+                    $"Use the link {link.AbsoluteUri} to play your saved queue **{savedQueue.Name}** anywhere.")
+                .Build());
+        }
+
+        [Command("saved queues load", RunMode = RunMode.Async)]
+        [Summary("Loads the specified saved queue.")]
+        [CheckVoice(sameChannel: SameChannel.IfBotConnected)]
+        public async Task LoadSavedQueueAsync(
+            [Summary("Name of queue to load.")] string name)
+        {
+            using var response = await Response.DeferAsync();
+            
+            var savedQueue = await _savedQueues.GetSavedQueueAsync(Context.User, name);
+            
+            if (savedQueue is null)
+            {
+                await response.ModifyResponseAsync(x =>
+                {
+                    x.Embed = _embeds.Builder()
+                        .WithContext(EmbedContext.Error)
+                        .WithDescription("You have no saved queues with that name.")
+                        .Build();
+                });
+                
+                return;
+            }
+
+            await JoinVoiceChannelAsync();
+
+            await _music.EnqueueAsync(Context.Guild, savedQueue);
+
+            await response.ModifyResponseAsync(x =>
+            {
+                x.Embed = _embeds.Builder()
+                    .WithQueueSavedQueueAction(savedQueue)
+                    .Build();
+            });
         }
     }
 }

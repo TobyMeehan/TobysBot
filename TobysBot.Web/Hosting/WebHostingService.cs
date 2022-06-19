@@ -10,8 +10,8 @@ public class WebHostingService : IHostingService
     {
         var address = server.Features.Get<IServerAddressesFeature>();
 
-        Hostname = address?.Addresses.FirstOrDefault() ?? "";
+        Uri = new Uri(address?.Addresses.FirstOrDefault() ?? "https://bot.tobymeehan.com");
     }
-    
-    public string Hostname { get; }
+
+    public Uri Uri { get; }
 }

@@ -55,6 +55,11 @@ public class MemoryMusicService : IMusicService
         return _queues[guild.Id].CurrentTrack.InnerTrack;
     }
 
+    public async Task<ITrack> EnqueueAsync(IGuild guild, ISavedQueue savedQueue)
+    {
+        return await EnqueueAsync(guild, savedQueue.Tracks);
+    }
+
     public async Task PauseAsync(IGuild guild)
     {
         ThrowIfNotConnected(guild);

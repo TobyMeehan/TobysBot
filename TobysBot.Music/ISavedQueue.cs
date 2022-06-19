@@ -3,9 +3,9 @@ using TobysBot.Data;
 
 namespace TobysBot.Music;
 
-public interface ISavedQueue
+public interface ISavedQueue : IEntity
 {
     string Name { get; }
     ulong UserId { get; }
-    IEnumerable<ISavedTrack> Tracks { get; }
+    IEnumerable<ITrack> Tracks { get; }
 }
