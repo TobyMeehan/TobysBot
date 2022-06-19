@@ -11,6 +11,7 @@ public class MongoDataAccess : IDataAccess
 
     private class Fields
     {
+        public const string Id = "Id";
         public const string Name = "Name";
         public const string DiscordId = "DiscordId";
         public const string GuildId = "GuildId";
@@ -172,6 +173,95 @@ public class MongoDataAccess : IDataAccess
     {
         var collection = _service.Connect<T>(collectionName);
 
-        await collection.DeleteOneAsync(x => x.Id == data.Id);
+        var filter = Builders<T>.Filter.Eq(Fields.Id, data.Id);
+
+        await collection.DeleteOneAsync(filter);
+    }
+
+    public async Task DeleteAsync<T>(string collectionName, string id) where T : IEntity
+    {
+        var collection = _service.Connect<T>(collectionName);
+
+        var filter = Builders<T>.Filter.Eq(Fields.Id, id);
+
+        await collection.DeleteOneAsync(filter);
+    }
+
+    public async Task DeleteAsync<T>(string collectionName, IGuild guild) where T : IGuildRelation
+    {
+        var collection = _service.Connect<T>(collectionName);
+
+        var filter = Builders<T>.Filter.Eq(Fields.GuildId, guild.Id);
+
+        await collection.DeleteManyAsync(filter);
+    }
+
+    public async Task DeleteAsync<T>(string collectionName, IGuild guild, string name) where T : IGuildRelation, INamedEntity
+    {
+        var collection = _service.Connect<T>(collectionName);
+
+        var filter = Builders<T>.Filter.Eq(Fields.GuildId, guild.Id) &
+                     Builders<T>.Filter.Eq(Fields.Name, name);
+
+        await collection.DeleteManyAsync(filter);
+    }
+
+    public async Task DeleteAsync<T>(string collectionName, IUser user) where T : IUserRelation
+    {
+        var collection = _service.Connect<T>(collectionName);
+
+        var filter = Builders<T>.Filter.Eq(Fields.UserId, user.Id);
+
+        await collection.DeleteManyAsync(filter);
+    }
+
+    public async Task DeleteAsync<T>(string collectionName, IUser user, string name) where T : IUserRelation, INamedEntity
+    {
+        var collection = _service.Connect<T>(collectionName);
+
+        var filter = Builders<T>.Filter.Eq(Fields.UserId, user.Id) &
+                     Builders<T>.Filter.Eq(Fields.Name, name);
+
+        await collection.DeleteManyAsync(filter);
+    }
+
+    public async Task DeleteAsync<T>(string collectionName, IGuildUser guildUser) where T : IGuildUserRelation
+    {
+        var collection = _service.Connect<T>(collectionName);
+
+        var filter = Builders<T>.Filter.Eq(Fields.GuildId, guildUser.GuildId) &
+                     Builders<T>.Filter.Eq(Fields.UserId, guildUser.Id);
+
+        await collection.DeleteManyAsync(filter);
+    }
+
+    public async Task DeleteAsync<T>(string collectionName, IGuildUser guildUser, string name) where T : IGuildUserRelation, INamedEntity
+    {
+        var collection = _service.Connect<T>(collectionName);
+
+        var filter = Builders<T>.Filter.Eq(Fields.GuildId, guildUser.GuildId) &
+                     Builders<T>.Filter.Eq(Fields.UserId, guildUser.Id) &
+                     Builders<T>.Filter.Eq(Fields.Name, name);
+
+        await collection.DeleteManyAsync(filter);
+    }
+
+    public async Task DeleteAsync<T>(string collectionName, IChannel channel) where T : IChannelRelation
+    {
+        var collection = _service.Connect<T>(collectionName);
+
+        var filter = Builders<T>.Filter.Eq(Fields.ChannelId, channel.Id);
+
+        await collection.DeleteManyAsync(filter);
+    }
+
+    public async Task DeleteAsync<T>(string collectionName, IChannel channel, string name) where T : IChannelRelation, INamedEntity
+    {
+        var collection = _service.Connect<T>(collectionName);
+
+        var filter = Builders<T>.Filter.Eq(Fields.ChannelId, channel.Id) &
+                     Builders<T>.Filter.Eq(Fields.Name, name);
+
+        await collection.DeleteManyAsync(filter);
     }
 }
