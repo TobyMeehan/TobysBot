@@ -6,6 +6,7 @@ using TobysBot.Commands;
 using TobysBot.Commands.Modules;
 using TobysBot.Data;
 using TobysBot.Events;
+using TobysBot.Hosting;
 
 namespace TobysBot.Configuration;
 
@@ -28,6 +29,8 @@ public class TobysBotBuilder
         services.AddTransient<EmbedService>();
 
         services.AddTransient<IBaseGuildDataService, ConfigurationGuildDataService>();
+
+        services.AddSingleton<IHostingService, DefaultHostingService>();
         
         services.SubscribeEvent<DiscordClientLogEventArgs, DiscordClientLogger>();
         
@@ -59,6 +62,13 @@ public class TobysBotBuilder
         return this;
     }
 
+    public TobysBotBuilder AddTypeReader<TType, TReader>() where TReader : TypeReader, new()
+    {
+        Commands.AddTypeReader<TType, TReader>();
+
+        return this;
+    }
+    
     public TobysBotBuilder AddDatabase<TDataAccess>(Action<IServiceCollection> configureServices) where TDataAccess : class, IDataAccess
     {
         Services.AddTransient<IDataAccess, TDataAccess>();
@@ -73,9 +83,9 @@ public class TobysBotBuilder
         return this;
     }
 
-    public TobysBotBuilder AddTypeReader<TType, TReader>() where TReader : TypeReader, new()
+    public TobysBotBuilder AddHostingService<T>() where T : class, IHostingService
     {
-        Commands.AddTypeReader<TType, TReader>();
+        Services.AddSingleton<IHostingService, T>();
 
         return this;
     }

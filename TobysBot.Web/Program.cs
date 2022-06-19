@@ -1,9 +1,9 @@
-using TobysBot.Commands.Modules;
 using TobysBot.Configuration;
 using TobysBot.Misc.Configuration;
 using TobysBot.Mongo.Configuration;
 using TobysBot.Music.Configuration;
 using TobysBot.Voice.Configuration;
+using TobysBot.Web.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +16,7 @@ builder.Configuration.AddJsonFile($"secrets.{builder.Environment.EnvironmentName
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddTobysBot(builder.Configuration)
+    .AddHostingService<WebHostingService>()
     .AddVoiceModule(builder.Configuration.GetSection("Voice"))
     .AddMusicModule(builder.Configuration.GetSection("Music"))
     .AddMiscModule(builder.Configuration.GetSection("Star"))
@@ -40,6 +41,5 @@ app.MapControllerRoute(
     pattern: "{controller}/{action=Index}/{id?}");
 
 app.MapFallbackToFile("index.html");
-;
 
 app.Run();
