@@ -1,7 +1,8 @@
 namespace TobysBot.Music;
 
-public interface IQueue
+public interface IQueue : IEnumerable<ITrack>
 {
+    IEnumerable<ITrack> Tracks { get; }
     IEnumerable<ITrack> Previous { get; }
     IEnumerable<ITrack> Next { get; }
     IActiveTrack CurrentTrack { get; }

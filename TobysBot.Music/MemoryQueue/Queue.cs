@@ -16,10 +16,13 @@ public class Queue : IQueue
 
         CurrentTrack = tracks.CurrentTrack;
 
+        Tracks = Previous.Append(CurrentTrack).Concat(Next);
+
         Loop = tracks.LoopEnabled;
         Shuffle = tracks.Shuffle;
     }
 
+    public IEnumerable<ITrack> Tracks { get; }
     public IEnumerable<ITrack> Previous { get; } = Enumerable.Empty<ITrack>();
     public IEnumerable<ITrack> Next { get; } = Enumerable.Empty<ITrack>();
     public IActiveTrack CurrentTrack { get; }
@@ -28,4 +31,14 @@ public class Queue : IQueue
 
     public int Length => Previous.Append(CurrentTrack).Concat(Next).Count();
     public bool Empty => Length < 1;
+    
+    public IEnumerator<ITrack> GetEnumerator()
+    {
+        return Tracks.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
 }
