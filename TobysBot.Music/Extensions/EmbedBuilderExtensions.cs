@@ -138,6 +138,13 @@ public static class EmbedBuilderExtensions
             .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.PositionOutOfRangeErrorDescription);
     }
 
+    public static EmbedBuilder WithSavedQueueNotFoundError(this EmbedBuilder embed)
+    {
+        return embed
+            .WithContext(EmbedContext.Error)
+            .WithDescription("You have no saved queues with that name.");
+    }
+
     public static EmbedBuilder WithLyricsInformation(this EmbedBuilder embed, ILyrics lyrics)
     {
         var sb = new StringBuilder();

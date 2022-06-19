@@ -108,8 +108,7 @@ public partial class MusicPlugin
             if (savedQueue is null)
             {
                 await Response.ReplyAsync(embed: _embeds.Builder()
-                    .WithContext(EmbedContext.Error)
-                    .WithDescription("You have no saved queues with that name.")
+                    .WithSavedQueueNotFoundError()
                     .Build());
                 
                 return;
@@ -139,8 +138,7 @@ public partial class MusicPlugin
                 await response.ModifyResponseAsync(x =>
                 {
                     x.Embed = _embeds.Builder()
-                        .WithContext(EmbedContext.Error)
-                        .WithDescription("You have no saved queues with that name.")
+                        .WithSavedQueueNotFoundError()
                         .Build();
                 });
                 
