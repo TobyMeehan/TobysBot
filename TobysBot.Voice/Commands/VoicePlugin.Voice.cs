@@ -188,7 +188,7 @@ public partial class VoicePlugin
             {
                 await Response.ReplyAsync(embed: _embeds.Builder()
                     .WithContext(EmbedContext.Error)
-                    .WithDescription("Bass boost must be between 0 - 100.")
+                    .WithDescription("Bass boost must be between 0 - 200.")
                     .Build());
             }
 
