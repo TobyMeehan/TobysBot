@@ -48,7 +48,7 @@ public class PrefixModule : CommandModuleBase
 
         await Response.ReplyAsync(embed: _embeds.Builder()
             .WithContext(EmbedContext.Action)
-            .WithDescription($"The server prefix is now {Format.Sanitize(prefix)}")
+            .WithDescription($"The server prefix is now **{Format.Sanitize(prefix)}**")
             .Build());
     }
 }
