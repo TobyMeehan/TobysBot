@@ -26,7 +26,7 @@ public partial class MusicPlugin
             _embeds = embeds;
         }
         
-        [Command("saved queues list")]
+        [Command("queues list")]
         [Summary("Lists all of your saved queues.")]
         public async Task ListSavedQueuesAsync()
         {
@@ -47,7 +47,7 @@ public partial class MusicPlugin
                 .Build());
         }
 
-        [Command("saved queues create")]
+        [Command("queues create")]
         [Summary("Saves the current queue under the specified name.")]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task CreateSavedQueueAsync(
@@ -73,7 +73,7 @@ public partial class MusicPlugin
                 .Build());
         }
 
-        [Command("saved queues delete")]
+        [Command("queues delete")]
         [Summary("Deletes the specified saved queue.")]
         public async Task DeleteSavedQueueAsync(
             [Summary("Name of queue to delete.")] string name)
@@ -98,7 +98,7 @@ public partial class MusicPlugin
                 .Build());
         }
 
-        [Command("saved queues share")]
+        [Command("queues share")]
         [Summary("Gets a link that anyone can use to play your saved queue.")]
         public async Task ShareSavedQueueAsync(
             [Summary("Name of queue to share.")] string name)
@@ -123,7 +123,7 @@ public partial class MusicPlugin
                 .Build());
         }
 
-        [Command("saved queues load", RunMode = RunMode.Async)]
+        [Command("queues load", RunMode = RunMode.Async)]
         [Summary("Loads the specified saved queue.")]
         [CheckVoice(sameChannel: SameChannel.IfBotConnected)]
         public async Task LoadSavedQueueAsync(
