@@ -2,6 +2,11 @@
 
 public class Band
 {
+    public Band()
+    {
+        
+    }
+    
     public Band(double gain)
     {
         Gain = gain;

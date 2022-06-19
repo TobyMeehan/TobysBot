@@ -6,5 +6,5 @@ public abstract class Entity : IEntity
         .Replace("/", "-")
         .Replace("+", "_")
         .Replace("=", "");
-    public virtual DateTimeOffset TimeCreated { get; set; }
+    public virtual DateTimeOffset TimeCreated { get; set; } = DateTimeOffset.UtcNow;
 }
