@@ -80,15 +80,23 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
     async Task IEventHandler<SlashCommandExecutedEventArgs>.HandleAsync(SlashCommandExecutedEventArgs args)
     {
         var commandName = args.Command.CommandName;
+        var options = args.Command.Data.Options;
 
         foreach (var group in args.Command.Data.Options.Where(x => x.Type is ApplicationCommandOptionType.SubCommandGroup))
         {
             commandName += $" {group.Name}";
+
+            foreach (var subcommand in group.Options.Where(x => x.Type is ApplicationCommandOptionType.SubCommand))
+            {
+                commandName += $" {subcommand.Name}";
+                options = subcommand.Options;
+            }
         }
 
         foreach (var subcommand in args.Command.Data.Options.Where(x => x.Type is ApplicationCommandOptionType.SubCommand))
         {
             commandName += $" {subcommand.Name}";
+            options = subcommand.Options;
         }
         
         var context = new SocketGenericCommandContext(_client, args.Command);
@@ -120,7 +128,7 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
         
         foreach (var parameter in parameters.Keys.ToList())
         {
-            var option = args.Command.Data.Options.FirstOrDefault(x => x.Name == parameter.Name);
+            var option = options.FirstOrDefault(x => x.Name == parameter.Name);
         
             if (option is null)
             {
