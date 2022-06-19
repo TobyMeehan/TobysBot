@@ -184,7 +184,7 @@ public partial class VoicePlugin
             [Summary("Amount of bass boost, default is 0.")]
             double amount)
         {
-            if (amount is < 0 or > 100)
+            if (amount is < 0 or > 200)
             {
                 await Response.ReplyAsync(embed: _embeds.Builder()
                     .WithContext(EmbedContext.Error)
@@ -192,7 +192,7 @@ public partial class VoicePlugin
                     .Build());
             }
 
-            var multiplier = amount / 33;
+            var multiplier = amount / 40;
 
             await _voiceService.UpdateEqualizerAsync(Context.Guild, new BassBoostEqualizer(multiplier));
 
