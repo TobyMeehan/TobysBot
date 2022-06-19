@@ -45,12 +45,11 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
             ? await _guildData.GetByDiscordIdAsync(guildChannel.GuildId)
             : null;
 
-        var prefix = guild is null
-            ? _options.Prefix
-            : guild.Prefix;
-
-        if (!(message.HasStringPrefix(prefix, ref argPos) ||
-              message.HasMentionPrefix(_client.CurrentUser, ref argPos)) ||
+        var hasGuildPrefix = guild is not null && message.HasStringPrefix(guild.Prefix, ref argPos);
+        var hasGlobalPrefix = message.HasStringPrefix(_options.Prefix, ref argPos);
+        var hasMentionPrefix = message.HasMentionPrefix(_client.CurrentUser, ref argPos);
+        
+        if (!(hasGuildPrefix || hasGlobalPrefix || hasMentionPrefix) ||
             message.Author.IsBot)
         {
             return;
