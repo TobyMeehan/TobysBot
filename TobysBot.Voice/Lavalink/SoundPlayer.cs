@@ -13,15 +13,14 @@ public class SoundPlayer : LavaPlayer
     public SoundPlayer(LavaSocket lavaSocket, IVoiceChannel voiceChannel, ITextChannel textChannel) : base(lavaSocket, voiceChannel, textChannel)
     {
         _playerPreset = new PlayerPreset();
-        _activePreset = _playerPreset;
     }
 
     private PlayerPreset _playerPreset;
-    private IPreset _activePreset;
+    private IPreset ActivePreset => _playerPreset;
 
     private async Task ApplyFiltersAsync()
     {
-        await ApplyFiltersAsync(_activePreset.GetLavaFilters(), Volume, _activePreset.GetLavaEqualizer());
+        await ApplyFiltersAsync(ActivePreset.GetLavaFilters(), Volume, ActivePreset.GetLavaEqualizer());
     }
 
     public async Task UpdateSpeedAsync(double speed)
@@ -54,27 +53,24 @@ public class SoundPlayer : LavaPlayer
 
     public IPreset GetActivePreset()
     {
-        return _activePreset;
+        return ActivePreset;
     }
     
     public async Task SetActivePresetAsync(IPreset preset)
     {
-        _activePreset = preset;
+        _playerPreset = new PlayerPreset(preset);
 
         await ApplyFiltersAsync();
     }
 
     public async Task RemoveActivePresetAsync()
     {
-        _activePreset = _playerPreset;
-
-        await ApplyFiltersAsync();
+        await ResetEffectsAsync();
     }
     
     public async Task ResetEffectsAsync()
     {
         _playerPreset = new PlayerPreset();
-        _activePreset = _playerPreset;
 
         await ApplyFiltersAsync();
     }
