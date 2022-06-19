@@ -3,6 +3,7 @@ using Discord;
 using TobysBot.Commands;
 using TobysBot.Extensions;
 using TobysBot.Music.Configuration;
+using TobysBot.Music.Data;
 using TobysBot.Music.Lyrics;
 using TobysBot.Music.Search.Result;
 using TobysBot.Voice.Status;
@@ -30,6 +31,13 @@ public static class EmbedBuilderExtensions
         return embed
             .WithContext(EmbedContext.Action)
             .WithDescription($"Queued {playlist.Tracks.Count()} tracks from [{playlist.Title}]({playlist.Url})");
+    }
+
+    public static EmbedBuilder WithQueueSavedQueueAction(this EmbedBuilder embed, ISavedQueue savedQueue)
+    {
+        return embed
+            .WithContext(EmbedContext.Action)
+            .WithDescription($"Queued {savedQueue.Tracks.Count()} tracks from **{savedQueue.Name}**");
     }
 
     public static EmbedBuilder WithLoopAction(this EmbedBuilder embed, ILoopSetting setting)
@@ -128,6 +136,13 @@ public static class EmbedBuilderExtensions
         return embed
             .WithContext(EmbedContext.Error)
             .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.PositionOutOfRangeErrorDescription);
+    }
+
+    public static EmbedBuilder WithSavedQueueNotFoundError(this EmbedBuilder embed)
+    {
+        return embed
+            .WithContext(EmbedContext.Error)
+            .WithDescription("You have no saved queues with that name.");
     }
 
     public static EmbedBuilder WithLyricsInformation(this EmbedBuilder embed, ILyrics lyrics)
@@ -312,5 +327,22 @@ public static class EmbedBuilderExtensions
         return embed
             .WithContext(EmbedContext.Information)
             .WithDescription(sb.ToString());
+    }
+
+    public static EmbedBuilder WithSavedQueueListInformation(this EmbedBuilder embed, IUser user, IEnumerable<ISavedQueue> savedQueues)
+    {
+        foreach (var queue in savedQueues)
+        {
+            embed.AddField(field =>
+            {
+                field
+                    .WithName($"{queue.Name}")
+                    .WithValue($"{queue.Tracks.Count()} tracks - total duration {queue.Tracks.Sum(x => x.Duration).ToTimeStamp()}");
+            });
+        }
+        
+        return embed
+            .WithContext(EmbedContext.Information)
+            .WithDescription($"**Saved Queues for {user.Mention}**");
     }
 }

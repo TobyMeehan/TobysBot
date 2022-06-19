@@ -2,6 +2,8 @@ using Discord;
 using Discord.Commands;
 using TobysBot.Commands;
 using TobysBot.Extensions;
+using TobysBot.Voice.Data;
+using TobysBot.Voice.Effects;
 using TobysBot.Voice.Extensions;
 using TobysBot.Voice.Status;
 
@@ -12,13 +14,15 @@ public partial class VoicePlugin
     public class VoiceModule : VoiceCommandModuleBase
     {
         private readonly IVoiceService _voiceService;
+        private readonly ISavedPresetDataService _savedPresets;
         private readonly EmbedService _embeds;
 
         private IEmote OkEmote => new Emoji("👌");
     
-        public VoiceModule(IVoiceService voiceService, EmbedService embedService) : base(voiceService, embedService)
+        public VoiceModule(IVoiceService voiceService, ISavedPresetDataService savedPresets, EmbedService embedService) : base(voiceService, embedService)
         {
             _voiceService = voiceService;
+            _savedPresets = savedPresets;
             _embeds = embedService;
         }
     
@@ -180,17 +184,17 @@ public partial class VoicePlugin
             [Summary("Amount of bass boost, default is 0.")]
             double amount)
         {
-            if (amount is < 0 or > 100)
+            if (amount is < 0 or > 200)
             {
                 await Response.ReplyAsync(embed: _embeds.Builder()
                     .WithContext(EmbedContext.Error)
-                    .WithDescription("Bass boost must be between 0 - 100.")
+                    .WithDescription("Bass boost must be between 0 - 200.")
                     .Build());
             }
 
-            var multiplier = amount / 33;
-            
-            await _voiceService.UpdateBassBoostAsync(Context.Guild, multiplier);
+            var multiplier = amount / 40;
+
+            await _voiceService.UpdateEqualizerAsync(Context.Guild, new BassBoostEqualizer(multiplier));
 
             await Response.ReactAsync(OkEmote);
         }
@@ -289,6 +293,132 @@ public partial class VoicePlugin
             await Response.ReactAsync(OkEmote);
         }
 
+        [Command("nightcore")]
+        [Summary("Toggles nightcore mode.")]
+        [CheckVoice(sameChannel: SameChannel.Required)]
+        public async Task NightcoreAsync()
+        {
+            var active = await _voiceService.GetActivePresetAsync(Context.Guild);
+
+            if (active is NightcorePreset)
+            {
+                await _voiceService.RemoveActivePresetAsync(Context.Guild);
+            }
+            else
+            {
+                await _voiceService.SetActivePresetAsync(Context.Guild, new NightcorePreset());
+            }
+
+            await Response.ReactAsync(OkEmote);
+        }
+
+        [Command("vaporwave")]
+        [Summary("Toggles vaporwave mode.")]
+        [CheckVoice(sameChannel: SameChannel.Required)]
+        public async Task VaporwaveAsync()
+        {
+            var active = await _voiceService.GetActivePresetAsync(Context.Guild);
+
+            if (active is VaporwavePreset)
+            {
+                await _voiceService.RemoveActivePresetAsync(Context.Guild);
+            }
+            else
+            {
+                await _voiceService.SetActivePresetAsync(Context.Guild, new VaporwavePreset());
+            }
+
+            await Response.ReactAsync(OkEmote);
+        }
+
+        [Command("effects list")]
+        [Summary("Lists all of your saved effect presets.")]
+        public async Task ListSavedEffectsAsync()
+        {
+            var presets = await _savedPresets.ListSavedPresetsAsync(Context.User);
+
+            if (!presets.Any())
+            {
+                await Response.ReplyAsync(embed: _embeds.Builder()
+                    .WithContext(EmbedContext.Information)
+                    .WithDescription("You do not have any saved effects. Use **/saved effects create** to create one.")
+                    .Build());
+                
+                return;
+            }
+
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithSavedEffectListInformation(Context.User, presets)
+                .Build());
+        }
+
+        [Command("effects create")]
+        [Summary("Saves the current range of effects under the specified name.")]
+        [CheckVoice(sameChannel: SameChannel.Required)]
+        public async Task CreateSavedEffectAsync(
+            [Summary("Name of effect preset.")] string name)
+        {
+            var active = await _voiceService.GetActivePresetAsync(Context.Guild);
+
+            await _savedPresets.CreateSavedPresetAsync(name, Context.User, active);
+
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithContext(EmbedContext.Action)
+                .WithDescription($"Current preset saved to **{Format.Sanitize(name)}**")
+                .Build());
+        }
+
+        [Command("effects delete")]
+        [Summary("Deletes the specified saved effect preset.")]
+        public async Task DeleteSavedEffectAsync(
+            [Summary("Name of effect preset to delete.")]
+            string name)
+        {
+            var savedPreset = await _savedPresets.GetSavedPresetAsync(Context.User, name);
+
+            if (savedPreset is null)
+            {
+                await Response.ReplyAsync(embed: _embeds.Builder()
+                    .WithSavedPresetNotFoundError()
+                    .Build());
+                
+                return;
+            }
+
+            await _savedPresets.DeleteSavedPresetAsync(Context.User, name);
+
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithContext(EmbedContext.Action)
+                .WithDescription($"Saved effect preset **{savedPreset.Name}** deleted.")
+                .Build());
+        }
+
+        [Command("effects load")]
+        [Summary("Loads the specified saved effect preset.")]
+        [CheckVoice(sameChannel: SameChannel.Required)]
+        public async Task LoadSavedEffectAsync(
+            [Summary("Name of effect preset to load.")]
+            string name)
+        {
+            var savedPreset = await _savedPresets.GetSavedPresetAsync(Context.User, name);
+
+            if (savedPreset is null)
+            {
+                await Response.ReplyAsync(embed: _embeds.Builder()
+                    .WithSavedPresetNotFoundError()
+                    .Build());
+                
+                return;
+            }
+
+            await _voiceService.SetActivePresetAsync(Context.Guild, savedPreset);
+
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithContext(EmbedContext.Action)
+                .WithDescription($"Loaded saved effect preset **{savedPreset.Name}**")
+                .Build());
+        }
+        
         [Command("reset effects")]
         [Summary("Resets all audio effects.")]
         [CheckVoice(sameChannel: SameChannel.Required)]

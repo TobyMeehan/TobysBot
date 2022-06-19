@@ -4,7 +4,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TobysBot.Commands;
 using TobysBot.Commands.Modules;
+using TobysBot.Data;
 using TobysBot.Events;
+using TobysBot.Hosting;
 
 namespace TobysBot.Configuration;
 
@@ -25,6 +27,10 @@ public class TobysBotBuilder
         services.AddSingleton<IEventService, EventService>();
 
         services.AddTransient<EmbedService>();
+
+        services.AddTransient<IBaseGuildDataService, ConfigurationGuildDataService>();
+
+        services.AddTransient<IHostingService, DefaultHostingService>();
         
         services.SubscribeEvent<DiscordClientLogEventArgs, DiscordClientLogger>();
         
@@ -47,7 +53,7 @@ public class TobysBotBuilder
         Services.Configure<TobysBotOptions>(configuration);
     }
 
-    public TobysBotBuilder AddModule(Action<IServiceCollection> configureServices,
+    public TobysBotBuilder AddPlugin(Action<IServiceCollection> configureServices,
         Action<CommandCollection> configureCommands)
     {
         configureServices(Services);
@@ -59,6 +65,27 @@ public class TobysBotBuilder
     public TobysBotBuilder AddTypeReader<TType, TReader>() where TReader : TypeReader, new()
     {
         Commands.AddTypeReader<TType, TReader>();
+
+        return this;
+    }
+    
+    public TobysBotBuilder AddDatabase<TDataAccess>(Action<IServiceCollection> configureServices) where TDataAccess : class, IDataAccess
+    {
+        Services.AddTransient<IDataAccess, TDataAccess>();
+        
+        Services.AddTransient<IBaseGuildDataService, BaseGuildDataService>();
+        Services.AddTransient<IPrefixDataService, PrefixDataService>();
+
+        Commands.AddGlobalModule<PrefixModule>();
+
+        configureServices(Services);
+
+        return this;
+    }
+
+    public TobysBotBuilder AddHostingService<T>() where T : class, IHostingService
+    {
+        Services.AddTransient<IHostingService, T>();
 
         return this;
     }

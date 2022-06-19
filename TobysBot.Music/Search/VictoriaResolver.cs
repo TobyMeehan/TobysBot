@@ -22,16 +22,16 @@ public class VictoriaResolver : ISearchResolver
     {
         var result = await _lavaNode.SearchAsync(SearchType.Direct, uri.AbsoluteUri);
 
-        var track = result.Tracks.First();
+        var track = result.Tracks.FirstOrDefault();
 
         return result.Status switch
         {
-            SearchStatus.TrackLoaded => new TrackResult(
+            SearchStatus.TrackLoaded when track is not null => new TrackResult(
                 new Track(track.Title, track.Author, track.Url, track.Url, track.Duration)),
-            SearchStatus.PlaylistLoaded => new PlaylistResult(
+            SearchStatus.PlaylistLoaded when result.Tracks.Any() => new PlaylistResult(
                 new Playlist(result.Tracks.Select(x => new Track(x.Title, x.Author, x.Url, x.Duration)), result.Playlist.Name, uri.AbsoluteUri, result.Playlist.SelectedTrack)),
             SearchStatus.NoMatches => new NotFoundSearchResult(),
-            _ => new LoadFailedSearchResult()
+            _ => new LoadFailedSearchResult("No audio found at that url.")
         };
     }
 

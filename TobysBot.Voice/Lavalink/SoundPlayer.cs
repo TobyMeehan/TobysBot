@@ -1,4 +1,6 @@
 using Discord;
+using TobysBot.Voice.Effects;
+using TobysBot.Voice.Extensions;
 using TobysBot.Voice.Status;
 using Victoria;
 using Victoria.Enums;
@@ -10,67 +12,77 @@ public class SoundPlayer : LavaPlayer
 {
     public SoundPlayer(LavaSocket lavaSocket, IVoiceChannel voiceChannel, ITextChannel textChannel) : base(lavaSocket, voiceChannel, textChannel)
     {
+        _playerPreset = new PlayerPreset();
+        _activePreset = _playerPreset;
+
     }
 
-    private List<IFilter> _filters = new() { new TimescaleFilter {Speed = 1, Pitch = 1, Rate = 1} };
+    private PlayerPreset _playerPreset;
+    private IPreset _activePreset;
+
+    private async Task ApplyFiltersAsync()
+    {
+        await ApplyFiltersAsync(_activePreset.GetLavaFilters(), Volume, _activePreset.GetLavaEqualizer());
+    }
 
     public async Task UpdateSpeedAsync(double speed)
     {
-        var activeFilter = _filters.OfType<TimescaleFilter>().FirstOrDefault();
+        _playerPreset.Speed = speed;
+        _activePreset = _playerPreset;
 
-        _filters.Remove(activeFilter);
-        
-        _filters.Add(new TimescaleFilter{Speed = speed, Pitch = activeFilter.Pitch, Rate = activeFilter.Rate});
-
-        await ApplyFiltersAsync(_filters, Volume, Equalizer.ToArray());
+        await ApplyFiltersAsync();
     }
 
     public async Task UpdatePitchAsync(double pitch)
     {
-        var activeFilter = _filters.OfType<TimescaleFilter>().FirstOrDefault();
+        _playerPreset.Pitch = pitch;
+        _activePreset = _playerPreset;
 
-        _filters.Remove(activeFilter);
-        
-        _filters.Add(new TimescaleFilter{Pitch = pitch, Speed = activeFilter.Speed, Rate = activeFilter.Rate});
-
-        await ApplyFiltersAsync(_filters, Volume, Equalizer.ToArray());
+        await ApplyFiltersAsync();
     }
 
-    public async Task AddFilterAsync<TFilter>(TFilter filter) where TFilter : IFilter
+    public async Task UpdateRotationAsync(double rotation)
     {
-        var activeFilter = _filters.OfType<TFilter>().FirstOrDefault();
+        _playerPreset.Rotation = rotation;
+        _activePreset = _playerPreset;
 
-        _filters.Remove(activeFilter);
-        
-        _filters.Add(filter);
-
-        await ApplyFiltersAsync(_filters, Volume, Equalizer.ToArray());
+        await ApplyFiltersAsync();
     }
 
-    public async Task RemoveFilterAsync<TFilter>() where TFilter : IFilter
+    public async Task UpdateEqualizerAsync(IEqualizer equalizer)
     {
-        var filter = _filters.OfType<TFilter>().FirstOrDefault();
+        _playerPreset.Equalizer = new PlayerEqualizer(equalizer);
+        _activePreset = _playerPreset;
 
-        if (filter is not null)
-        {
-            _filters.Remove(filter);
-
-            await ApplyFiltersAsync(_filters, Volume, Equalizer.ToArray());
-        }
+        await ApplyFiltersAsync();
     }
 
-    public async Task ResetEffectsAsync()
+    public IPreset GetActivePreset()
     {
-        _filters.Clear();
-
-        await ApplyFilterAsync(new TimescaleFilter(), Volume);
-    }
-
-    public async Task ApplyEqualizerAsync(EqualizerBand[] equalizer)
-    {
-        await ApplyFiltersAsync(_filters, Volume, equalizer);
+        return _activePreset;
     }
     
+    public async Task SetActivePresetAsync(IPreset preset)
+    {
+        _playerPreset = new PlayerPreset(preset);
+        _activePreset = preset;
+
+        await ApplyFiltersAsync();
+    }
+
+    public async Task RemoveActivePresetAsync()
+    {
+        await ResetEffectsAsync();
+    }
+    
+    public async Task ResetEffectsAsync()
+    {
+        _playerPreset = new PlayerPreset();
+        _activePreset = _playerPreset;
+
+        await ApplyFiltersAsync();
+    }
+
     public ISound Sound => new LavaSound(Track);
 
     public IPlayerStatus Status

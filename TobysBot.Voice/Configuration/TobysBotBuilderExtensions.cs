@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TobysBot.Configuration;
 using TobysBot.Events;
 using TobysBot.Voice.Commands;
+using TobysBot.Voice.Data;
 using TobysBot.Voice.Events;
 using TobysBot.Voice.Lavalink;
 using Victoria;
@@ -33,7 +34,7 @@ public static class TobysBotBuilderExtensions
 
     private static TobysBotBuilder AddModule(TobysBotBuilder builder, VoiceOptions options)
     {
-        builder.AddModule(
+        builder.AddPlugin(
             services =>
             {
                 services.AddLavaNode<SoundPlayer>(config =>
@@ -48,6 +49,8 @@ public static class TobysBotBuilderExtensions
                 });
 
                 services.AddTransient<IVoiceService, LavalinkVoiceService>();
+
+                services.AddTransient<ISavedPresetDataService, SavedPresetDataService>();
 
                 services.AddHostedService<LavalinkHostedService>();
                 

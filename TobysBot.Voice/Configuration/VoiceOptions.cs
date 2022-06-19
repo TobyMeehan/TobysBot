@@ -4,6 +4,7 @@ public class VoiceOptions
 {
     public LavalinkOptions Lavalink { get; set; }
     public VoiceEmbedOptions Embeds { get; set; }
+    public VoiceDataOptions Data { get; set; }
 }
 
 public class LavalinkOptions
@@ -23,4 +24,9 @@ public class VoiceEmbedOptions
     public string JoinSameVoiceErrorDescription { get; set; }
     public string JoinVoiceAction { get; set; }
     public string LeaveVoiceAction { get; set; }
+}
+
+public class VoiceDataOptions
+{
+    public string SavedPresetCollection { get; set; }
 }

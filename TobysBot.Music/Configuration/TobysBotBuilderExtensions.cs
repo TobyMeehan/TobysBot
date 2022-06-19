@@ -4,6 +4,7 @@ using SpotifyAPI.Web;
 using TobysBot.Configuration;
 using TobysBot.Events;
 using TobysBot.Music.Commands;
+using TobysBot.Music.Data;
 using TobysBot.Music.Events;
 using TobysBot.Music.Lyrics;
 using TobysBot.Music.MemoryQueue;
@@ -37,7 +38,7 @@ public static class TobysBotBuilderExtensions
     
     private static TobysBotBuilder AddModule(TobysBotBuilder builder, MusicOptions options)
     {
-        return builder.AddModule(
+        return builder.AddPlugin(
             services =>
             {
                 services.AddLavaNode(config =>
@@ -53,10 +54,13 @@ public static class TobysBotBuilderExtensions
                 services.AddTransient<ISearchService, SearchService>();
                 services.AddTransient<ISearchResolver, YouTubeResolver>();
                 services.AddTransient<ISearchResolver, SpotifyResolver>();
+                services.AddTransient<ISearchResolver, SavedQueueResolver>();
                 services.AddTransient<ISearchResolver, VictoriaResolver>();
 
                 services.AddTransient<ILyricsService, LyricsService>();
                 services.AddTransient<ILyricsResolver, GeniusLyricsResolver>();
+
+                services.AddTransient<ISavedQueueDataService, SavedQueueDataService>();
                 
                 services.AddTransient<YoutubeClient>();
                 

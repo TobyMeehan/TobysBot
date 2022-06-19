@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TobysBot.Configuration;
+using TobysBot.Data;
 using TobysBot.Events;
 using TobysBot.Extensions;
 
@@ -14,16 +15,18 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
     private readonly DiscordSocketClient _client;
     private readonly CommandService _commandService;
     private readonly EmbedService _embeds;
+    private readonly IBaseGuildDataService _guildData;
     private readonly IServiceProvider _services;
     private readonly TobysBotOptions _options;
     private readonly ILogger<CommandHandler> _logger;
 
-    public CommandHandler(DiscordSocketClient client, CommandService commandService, EmbedService embeds,
+    public CommandHandler(DiscordSocketClient client, CommandService commandService, EmbedService embeds, IBaseGuildDataService guildData,
         IServiceProvider services, IOptions<TobysBotOptions> options, ILogger<CommandHandler> logger)
     {
         _client = client;
         _commandService = commandService;
         _embeds = embeds;
+        _guildData = guildData;
         _services = services;
         _options = options.Value;
         _logger = logger;
@@ -38,10 +41,15 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
 
         var argPos = 0;
 
-        var prefix = _options.Prefix; // TODO: get prefix from db
+        var guild = message.Channel is IGuildChannel guildChannel
+            ? await _guildData.GetByDiscordIdAsync(guildChannel.GuildId)
+            : null;
 
-        if (!(message.HasStringPrefix(prefix, ref argPos) ||
-              message.HasMentionPrefix(_client.CurrentUser, ref argPos)) ||
+        var hasGuildPrefix = guild is not null && message.HasStringPrefix(guild.Prefix, ref argPos);
+        var hasGlobalPrefix = message.HasStringPrefix(_options.Prefix, ref argPos);
+        var hasMentionPrefix = message.HasMentionPrefix(_client.CurrentUser, ref argPos);
+        
+        if (!(hasGuildPrefix || hasGlobalPrefix || hasMentionPrefix) ||
             message.Author.IsBot)
         {
             return;
@@ -71,15 +79,23 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
     async Task IEventHandler<SlashCommandExecutedEventArgs>.HandleAsync(SlashCommandExecutedEventArgs args)
     {
         var commandName = args.Command.CommandName;
+        var options = args.Command.Data.Options;
 
         foreach (var group in args.Command.Data.Options.Where(x => x.Type is ApplicationCommandOptionType.SubCommandGroup))
         {
             commandName += $" {group.Name}";
+
+            foreach (var subcommand in group.Options.Where(x => x.Type is ApplicationCommandOptionType.SubCommand))
+            {
+                commandName += $" {subcommand.Name}";
+                options = subcommand.Options;
+            }
         }
 
         foreach (var subcommand in args.Command.Data.Options.Where(x => x.Type is ApplicationCommandOptionType.SubCommand))
         {
             commandName += $" {subcommand.Name}";
+            options = subcommand.Options;
         }
         
         var context = new SocketGenericCommandContext(_client, args.Command);
@@ -111,7 +127,7 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
         
         foreach (var parameter in parameters.Keys.ToList())
         {
-            var option = args.Command.Data.Options.FirstOrDefault(x => x.Name == parameter.Name);
+            var option = options.FirstOrDefault(x => x.Name == parameter.Name);
         
             if (option is null)
             {
