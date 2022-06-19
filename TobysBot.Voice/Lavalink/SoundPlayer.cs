@@ -13,19 +13,22 @@ public class SoundPlayer : LavaPlayer
     public SoundPlayer(LavaSocket lavaSocket, IVoiceChannel voiceChannel, ITextChannel textChannel) : base(lavaSocket, voiceChannel, textChannel)
     {
         _playerPreset = new PlayerPreset();
+        _activePreset = _playerPreset;
+
     }
 
     private PlayerPreset _playerPreset;
-    private IPreset ActivePreset => _playerPreset;
+    private IPreset _activePreset;
 
     private async Task ApplyFiltersAsync()
     {
-        await ApplyFiltersAsync(ActivePreset.GetLavaFilters(), Volume, ActivePreset.GetLavaEqualizer());
+        await ApplyFiltersAsync(_activePreset.GetLavaFilters(), Volume, _activePreset.GetLavaEqualizer());
     }
 
     public async Task UpdateSpeedAsync(double speed)
     {
         _playerPreset.Speed = speed;
+        _activePreset = _playerPreset;
 
         await ApplyFiltersAsync();
     }
@@ -33,6 +36,7 @@ public class SoundPlayer : LavaPlayer
     public async Task UpdatePitchAsync(double pitch)
     {
         _playerPreset.Pitch = pitch;
+        _activePreset = _playerPreset;
 
         await ApplyFiltersAsync();
     }
@@ -40,6 +44,7 @@ public class SoundPlayer : LavaPlayer
     public async Task UpdateRotationAsync(double rotation)
     {
         _playerPreset.Rotation = rotation;
+        _activePreset = _playerPreset;
 
         await ApplyFiltersAsync();
     }
@@ -47,18 +52,20 @@ public class SoundPlayer : LavaPlayer
     public async Task UpdateEqualizerAsync(IEqualizer equalizer)
     {
         _playerPreset.Equalizer = new PlayerEqualizer(equalizer);
+        _activePreset = _playerPreset;
 
         await ApplyFiltersAsync();
     }
 
     public IPreset GetActivePreset()
     {
-        return ActivePreset;
+        return _activePreset;
     }
     
     public async Task SetActivePresetAsync(IPreset preset)
     {
         _playerPreset = new PlayerPreset(preset);
+        _activePreset = preset;
 
         await ApplyFiltersAsync();
     }
@@ -71,6 +78,7 @@ public class SoundPlayer : LavaPlayer
     public async Task ResetEffectsAsync()
     {
         _playerPreset = new PlayerPreset();
+        _activePreset = _playerPreset;
 
         await ApplyFiltersAsync();
     }
