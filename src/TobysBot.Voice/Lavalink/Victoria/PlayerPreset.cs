@@ -1,6 +1,6 @@
 ﻿using TobysBot.Voice.Effects;
 
-namespace TobysBot.Voice.Lavalink;
+namespace TobysBot.Voice.Lavalink.Victoria;
 
 public class PlayerPreset : IPreset
 {

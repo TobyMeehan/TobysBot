@@ -1,24 +1,43 @@
-using Discord;
+﻿using Discord;
 using TobysBot.Voice.Effects;
 using TobysBot.Voice.Extensions;
 using TobysBot.Voice.Status;
 using Victoria;
 using Victoria.Enums;
-using Victoria.Filters;
 
-namespace TobysBot.Voice.Lavalink;
+namespace TobysBot.Voice.Lavalink.Victoria;
 
-public class SoundPlayer : LavaPlayer
+public class XLavaPlayer : LavaPlayer
 {
-    public SoundPlayer(LavaSocket lavaSocket, IVoiceChannel voiceChannel, ITextChannel textChannel) : base(lavaSocket, voiceChannel, textChannel)
+    public XLavaPlayer(LavaSocket lavaSocket, IVoiceChannel voiceChannel, ITextChannel textChannel) : base(lavaSocket, voiceChannel, textChannel)
     {
         _playerPreset = new PlayerPreset();
         _activePreset = _playerPreset;
-
     }
-
+    
     private PlayerPreset _playerPreset;
     private IPreset _activePreset;
+    
+    public ISound Sound => new LavaSound(Track);
+    public IPlayerStatus Status
+    {
+        get
+        {
+            if (!IsConnected)
+            {
+                return new NotConnectedStatus();
+            }
+            
+            return PlayerState switch
+            {
+                PlayerState.Playing or PlayerState.Paused => new PlayingStatus(VoiceChannel, TextChannel,
+                    Sound, Track.Position, PlayerState is PlayerState.Paused),
+                _ => new NotPlayingStatus(VoiceChannel, TextChannel)
+            };
+        }
+    }
+
+    public IPreset ActivePreset => _activePreset;
 
     private async Task ApplyFiltersAsync()
     {
@@ -56,11 +75,6 @@ public class SoundPlayer : LavaPlayer
 
         await ApplyFiltersAsync();
     }
-
-    public IPreset GetActivePreset()
-    {
-        return _activePreset;
-    }
     
     public async Task SetActivePresetAsync(IPreset preset)
     {
@@ -81,25 +95,5 @@ public class SoundPlayer : LavaPlayer
         _activePreset = _playerPreset;
 
         await ApplyFiltersAsync();
-    }
-
-    public ISound Sound => new LavaSound(Track);
-
-    public IPlayerStatus Status
-    {
-        get
-        {
-            if (!IsConnected)
-            {
-                return new NotConnectedStatus();
-            }
-            
-            return PlayerState switch
-            {
-                PlayerState.Playing or PlayerState.Paused => new PlayingStatus(VoiceChannel, TextChannel,
-                    Sound, Track.Position, PlayerState is PlayerState.Paused),
-                _ => new NotPlayingStatus(VoiceChannel, TextChannel)
-            };
-        }
     }
 }

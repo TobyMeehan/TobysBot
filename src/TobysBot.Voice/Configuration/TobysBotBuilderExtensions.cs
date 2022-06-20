@@ -7,6 +7,7 @@ using TobysBot.Voice.Commands;
 using TobysBot.Voice.Data;
 using TobysBot.Voice.Events;
 using TobysBot.Voice.Lavalink;
+using TobysBot.Voice.Lavalink.Victoria;
 using Victoria;
 
 namespace TobysBot.Voice.Configuration;
@@ -37,7 +38,7 @@ public static class TobysBotBuilderExtensions
         builder.AddPlugin(
             services =>
             {
-                services.AddLavaNode<SoundPlayer>(config =>
+                services.AddLavaNode<XLavaPlayer>(config =>
                 {
                     config.Hostname = options.Lavalink.Hostname;
                     config.Authorization = options.Lavalink.Authorization;
@@ -47,6 +48,8 @@ public static class TobysBotBuilderExtensions
                     config.SelfDeaf = options.Lavalink.SelfDeaf;
                     config.LogSeverity = LogSeverity.Debug;
                 });
+
+                services.AddSingleton<ILavalinkNode, VictoriaLavalinkNode>();
 
                 services.AddTransient<IVoiceService, LavalinkVoiceService>();
 

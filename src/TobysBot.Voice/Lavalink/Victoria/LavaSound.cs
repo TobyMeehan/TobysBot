@@ -1,6 +1,6 @@
 using Victoria;
 
-namespace TobysBot.Voice.Lavalink;
+namespace TobysBot.Voice.Lavalink.Victoria;
 
 public class LavaSound : ISound
 {

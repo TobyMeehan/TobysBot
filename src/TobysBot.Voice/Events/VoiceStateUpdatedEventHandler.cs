@@ -1,8 +1,6 @@
 ﻿using Discord.WebSocket;
 using TobysBot.Events;
 using TobysBot.Voice.Lavalink;
-using TobysBot.Voice.Status;
-using Victoria;
 
 namespace TobysBot.Voice.Events;
 
@@ -10,10 +8,10 @@ public class VoiceStateUpdatedEventHandler : IEventHandler<VoiceStateUpdatedEven
 {
     private readonly DiscordSocketClient _client;
     private readonly IVoiceService _voice;
-    private readonly LavaNode<SoundPlayer> _lavaNode;
+    private readonly ILavalinkNode _lavaNode;
     private readonly IEventService _events;
 
-    public VoiceStateUpdatedEventHandler(DiscordSocketClient client, IVoiceService voice, LavaNode<SoundPlayer> lavaNode, IEventService events)
+    public VoiceStateUpdatedEventHandler(DiscordSocketClient client, IVoiceService voice, ILavalinkNode lavaNode, IEventService events)
     {
         _client = client;
         _voice = voice;

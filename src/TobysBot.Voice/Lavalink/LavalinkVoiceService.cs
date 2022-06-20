@@ -10,16 +10,16 @@ namespace TobysBot.Voice.Lavalink;
 
 public class LavalinkVoiceService : IVoiceService
 {
-    private readonly LavaNode<SoundPlayer> _lavaNode;
+    private readonly ILavalinkNode _lavaNode;
 
-    public LavalinkVoiceService(LavaNode<SoundPlayer> lavaNode)
+    public LavalinkVoiceService(ILavalinkNode lavaNode)
     {
         _lavaNode = lavaNode;
     }
     
     // Voice channel
 
-    private SoundPlayer ThrowIfNoPlayer(IGuild guild)
+    private ILavalinkPlayer ThrowIfNoPlayer(IGuild guild)
     {
         if (!_lavaNode.TryGetPlayer(guild, out var player))
         {
@@ -59,7 +59,7 @@ public class LavalinkVoiceService : IVoiceService
     {
         ThrowIfNoPlayer(textChannel.Guild);
 
-        await _lavaNode.MoveChannelAsync(textChannel);
+        await _lavaNode.RebindChannelAsync(textChannel);
     }
 
     // Player
@@ -68,13 +68,7 @@ public class LavalinkVoiceService : IVoiceService
     {
         var player = ThrowIfNoPlayer(guild);
 
-        var track = await _lavaNode.LoadSoundAsync(sound);
-
-        await player.PlayAsync(x =>
-        {
-            x.Track = track;
-            x.StartTime = startTime;
-        });
+        await player.PlayAsync(sound, startTime);
     }
 
     public async Task PauseAsync(IGuild guild)
@@ -144,7 +138,7 @@ public class LavalinkVoiceService : IVoiceService
     {
         var player = ThrowIfNoPlayer(guild);
 
-        return Task.FromResult(player.GetActivePreset());
+        return Task.FromResult(player.ActivePreset);
     }
 
     public async Task SetActivePresetAsync(IGuild guild, IPreset preset)

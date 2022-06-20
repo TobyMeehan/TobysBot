@@ -8,10 +8,10 @@ namespace TobysBot.Voice.Lavalink;
 
 public class LavalinkHostedService : IHostedService, IEventHandler<DiscordClientReadyEventArgs>
 {
-    private readonly LavaNode<SoundPlayer> _lavaNode;
+    private readonly ILavalinkNode _lavaNode;
     private readonly IEventService _events;
 
-    public LavalinkHostedService(LavaNode<SoundPlayer> lavaNode, IEventService events)
+    public LavalinkHostedService(ILavalinkNode lavaNode, IEventService events)
     {
         _lavaNode = lavaNode;
         _events = events;
@@ -31,69 +31,7 @@ public class LavalinkHostedService : IHostedService, IEventHandler<DiscordClient
     
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        SubscribeEvents();
-        
         return Task.CompletedTask;;
-    }
-
-    public void SubscribeEvents()
-    {
-        _lavaNode.OnLog += (message) => _events.InvokeAsync(new LavalinkLogEventArgs(message));
-        _lavaNode.OnTrackEnded += OnTrackEnded;
-        _lavaNode.OnTrackException += OnTrackException;
-        _lavaNode.OnTrackStarted += OnTrackStarted;
-        _lavaNode.OnTrackStuck += OnTrackStuck;
-        _lavaNode.OnPlayerUpdated += OnPlayerUpdated;
-    }
-
-    private Task OnPlayerUpdated(PlayerUpdateEventArgs arg)
-    {
-        if (arg.Player is not SoundPlayer player)
-        {
-            return Task.CompletedTask;;
-        }
-
-        return _events.InvokeAsync(new PlayerUpdatedEventArgs(player.Status, arg.Position, player.VoiceChannel?.Guild));
-    }
-
-    private Task OnTrackStuck(TrackStuckEventArgs arg)
-    {
-        if (arg.Player is not SoundPlayer player)
-        {
-            return Task.CompletedTask;
-        }
-
-        return _events.InvokeAsync(new SoundStuckEventArgs(player.Sound, player.Status, arg.Threshold));
-    }
-
-    private Task OnTrackStarted(TrackStartEventArgs arg)
-    {
-        if (arg.Player is not SoundPlayer player)
-        {
-            return Task.CompletedTask;
-        }
-
-        return _events.InvokeAsync(new SoundStartedEventArgs(player.Sound, player.Status, player.TextChannel, player.VoiceChannel.Guild));
-    }
-
-    private Task OnTrackException(TrackExceptionEventArgs arg)
-    {
-        if (arg.Player is not SoundPlayer player)
-        {
-            return Task.CompletedTask;
-        }
-
-        return _events.InvokeAsync(new SoundExceptionEventArgs(player.Status, arg.Exception.Message, player.VoiceChannel.Guild));
-    }
-
-    private Task OnTrackEnded(TrackEndedEventArgs arg)
-    {
-        if (arg.Player is not SoundPlayer player)
-        {
-            return Task.CompletedTask;
-        }
-
-        return _events.InvokeAsync(new SoundEndedEventArgs(player.VoiceChannel.Guild, new LavaSound(arg.Track), player.Status, (SoundEndedReason)(byte) arg.Reason));
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
