@@ -9,9 +9,16 @@ export class Layout extends Component {
     return (
       <div>
         <NavMenu />
-        <Container>
+
+        <main role="main" className="pb-3 text-light">
           {this.props.children}
-        </Container>
+        </main>
+
+        <footer className='footer text-muted bg-dark'>
+          <Container>
+            &copy; {new Date().getFullYear()} - Toby Meehan
+          </Container>
+        </footer>
       </div>
     );
   }
