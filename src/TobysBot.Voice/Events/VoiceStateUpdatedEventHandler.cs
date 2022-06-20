@@ -28,7 +28,9 @@ public class VoiceStateUpdatedEventHandler : IEventHandler<VoiceStateUpdatedEven
         
         if (args is { OriginVoiceState.VoiceChannel: { } channel, CurrentVoiceState.VoiceChannel: null })
         {
-            if (!_lavaNode.TryGetPlayer(channel.Guild, out var player))
+            var player = _lavaNode.GetPlayer(channel.Guild);
+            
+            if (player is null)
             {
                 return;
             }

@@ -15,14 +15,13 @@ public interface ILavalinkNode
     /// </summary>
     /// <returns></returns>
     Task DisconnectAsync();
-    
+
     /// <summary>
-    /// Gets a player if one exists for the specified guild.
+    /// Gets the player for the specified guild.
     /// </summary>
     /// <param name="guild"></param>
-    /// <param name="player"></param>
     /// <returns></returns>
-    bool TryGetPlayer(IGuild guild, out ILavalinkPlayer player);
+    ILavalinkPlayer GetPlayer(IGuild guild);
 
     /// <summary>
     /// Joins the specified voice channel, and binds the text channel if specified.

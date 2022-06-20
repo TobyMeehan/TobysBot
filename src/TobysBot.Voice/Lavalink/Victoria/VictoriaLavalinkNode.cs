@@ -34,6 +34,16 @@ public class VictoriaLavalinkNode : ILavalinkNode
         await _node.DisconnectAsync();
     }
 
+    public ILavalinkPlayer GetPlayer(IGuild guild)
+    {
+        if (_node.TryGetPlayer(guild, out var lavaPlayer))
+        {
+            return new VictoriaLavalinkPlayer(lavaPlayer, _node);
+        }
+
+        return null;
+    }
+
     public bool TryGetPlayer(IGuild guild, out ILavalinkPlayer player)
     {
         if (_node.TryGetPlayer(guild, out var lavaPlayer))

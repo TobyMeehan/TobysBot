@@ -21,7 +21,9 @@ public class LavalinkVoiceService : IVoiceService
 
     private ILavalinkPlayer ThrowIfNoPlayer(IGuild guild)
     {
-        if (!_lavaNode.TryGetPlayer(guild, out var player))
+        var player = _lavaNode.GetPlayer(guild);
+        
+        if (player is null)
         {
             throw new Exception("No player is connected to the guild.");
         }
@@ -31,7 +33,9 @@ public class LavalinkVoiceService : IVoiceService
     
     public async Task JoinAsync(IVoiceChannel channel, ITextChannel textChannel = null)
     {
-        if (!_lavaNode.TryGetPlayer(channel.Guild, out var player) || !player.IsConnected)
+        var player = _lavaNode.GetPlayer(channel.Guild);
+        
+        if (player is null or {IsConnected: false})
         {
             await _lavaNode.JoinAsync(channel, textChannel);
             return;
@@ -47,7 +51,9 @@ public class LavalinkVoiceService : IVoiceService
 
     public async Task LeaveAsync(IGuild guild)
     {
-        if (!_lavaNode.TryGetPlayer(guild, out var player))
+        var player = _lavaNode.GetPlayer(guild);
+        
+        if (player is null)
         {
             return;
         }
@@ -164,7 +170,9 @@ public class LavalinkVoiceService : IVoiceService
 
     public IPlayerStatus Status(IGuild guild)
     {
-        if (!_lavaNode.TryGetPlayer(guild, out var player))
+        var player = _lavaNode.GetPlayer(guild);
+
+        if (player is null)
         {
             return new NotConnectedStatus();
         }
