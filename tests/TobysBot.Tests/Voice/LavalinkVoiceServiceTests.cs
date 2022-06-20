@@ -138,4 +138,39 @@ public class LavalinkVoiceServiceTests
         // Assert
         _nodeMock.Verify(x => x.MoveChannelAsync(voiceChannel), Times.Once);
     }
+
+    [Fact]
+    public async Task LeaveAsync_ShouldDoNothing_WhenNoPlayer()
+    {
+        // Arrange
+        _nodeMock.Setup(x => x.GetPlayer(It.IsAny<IGuild>()))
+            .Returns(() => null);
+
+        var guild = _guildMock.Object;
+        
+        // Act
+        await _sut.LeaveAsync(guild);
+
+        // Assert
+        _nodeMock.Verify(x => x.LeaveAsync(It.IsAny<IVoiceChannel>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task LeaveAsync_ShouldLeaveVoiceChannel_WhenGuildHasPlayer()
+    {
+        // Arrange
+        _playerMock.SetupGet(x => x.VoiceChannel)
+            .Returns(_playerVoiceChannelMock.Object);
+
+        _nodeMock.Setup(x => x.GetPlayer(It.IsAny<IGuild>()))
+            .Returns(_playerMock.Object);
+
+        var guild = _guildMock.Object;
+        
+        // Act
+        await _sut.LeaveAsync(guild);
+        
+        // Assert
+        _nodeMock.Verify(x => x.LeaveAsync(_playerVoiceChannelMock.Object), Times.Once);
+    }
 }
