@@ -4,7 +4,8 @@ public class PluginBuilder : IPlugin
 {
     IReadOnlyCollection<IModule> IPlugin.Modules => Modules;
     public List<ModuleBuilder> Modules { get; } = new();
-    public IReadOnlyCollection<ICommand> Commands => Modules.SelectMany(x => x.Commands.Values).ToList();
+    IReadOnlyCollection<ICommand> IPlugin.Commands => Commands;
+    public List<CommandBuilder> Commands => Modules.SelectMany(x => x.Commands.Values).ToList();
 
     public PluginBuilder WithId(string id)
     {
