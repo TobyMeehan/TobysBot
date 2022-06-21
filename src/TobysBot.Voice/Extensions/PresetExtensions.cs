@@ -16,7 +16,7 @@ public static class PresetExtensions
 
     public static EqualizerBand[] GetLavaEqualizer(this IPreset preset)
     {
-        var i = 0;
+        int i = 0;
 
         return preset.Equalizer.Select(x => new EqualizerBand(i++, x.Gain)).ToArray();
     }

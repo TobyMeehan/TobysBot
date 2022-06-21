@@ -7,7 +7,7 @@ public static class CommandInfoExtensions
 {
     public static string SubCommandGroup(this CommandInfo command)
     {
-        var segments = command.Aliases[0].Split(" ");
+        string[] segments = command.Aliases[0].Split(" ");
 
         return segments.Length switch
         {
@@ -18,7 +18,7 @@ public static class CommandInfoExtensions
 
     public static string SubCommandParent(this CommandInfo command)
     {
-        var segments = command.Aliases[0].Split(" ");
+        string[] segments = command.Aliases[0].Split(" ");
 
         return segments.Length switch
         {

@@ -7,14 +7,12 @@ namespace TobysBot.Voice.Events;
 public class VoiceStateUpdatedEventHandler : IEventHandler<VoiceStateUpdatedEventArgs>
 {
     private readonly DiscordSocketClient _client;
-    private readonly IVoiceService _voice;
     private readonly ILavalinkNode _lavaNode;
     private readonly IEventService _events;
 
-    public VoiceStateUpdatedEventHandler(DiscordSocketClient client, IVoiceService voice, ILavalinkNode lavaNode, IEventService events)
+    public VoiceStateUpdatedEventHandler(DiscordSocketClient client, ILavalinkNode lavaNode, IEventService events)
     {
         _client = client;
-        _voice = voice;
         _lavaNode = lavaNode;
         _events = events;
     }

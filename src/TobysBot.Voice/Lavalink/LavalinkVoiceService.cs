@@ -1,10 +1,6 @@
 using Discord;
 using TobysBot.Voice.Effects;
-using TobysBot.Voice.Extensions;
 using TobysBot.Voice.Status;
-using Victoria;
-using Victoria.Enums;
-using Victoria.Filters;
 
 namespace TobysBot.Voice.Lavalink;
 
@@ -172,11 +168,6 @@ public class LavalinkVoiceService : IVoiceService
     {
         var player = _lavaNode.GetPlayer(guild);
 
-        if (player is null)
-        {
-            return new NotConnectedStatus();
-        }
-
-        return player.Status;
+        return player is null ? new NotConnectedStatus() : player.Status;
     }
 }

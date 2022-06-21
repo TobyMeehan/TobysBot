@@ -21,21 +21,20 @@ public partial class MusicPlugin
         private readonly IMusicService _music;
         private readonly ILyricsService _lyrics;
 
-        private IEmote PauseEmote => new Emoji("⏸");
-        private IEmote PlayEmote => new Emoji("▶");
-        private IEmote StopEmote => new Emoji("⏹");
-        private IEmote ClearEmote => new Emoji("⏏");
-        private IEmote FastForwardEmote => new Emoji("⏩");
-        private IEmote RewindEmote => new Emoji("⏪");
-        private IEmote ShuffleEmote => new Emoji("🔀");
-        private IEmote SkipEmote => new Emoji("⏭");
-        private IEmote BackEmote => new Emoji("⏮");
-        private IEmote MoveEmote => new Emoji("↔");
-        private IEmote RemoveEmote => new Emoji("⤴");
+        private static IEmote PauseEmote => new Emoji("⏸");
+        private static IEmote PlayEmote => new Emoji("▶");
+        private static IEmote StopEmote => new Emoji("⏹");
+        private static IEmote ClearEmote => new Emoji("⏏");
+        private static IEmote FastForwardEmote => new Emoji("⏩");
+        private static IEmote RewindEmote => new Emoji("⏪");
+        private static IEmote SkipEmote => new Emoji("⏭");
+        private static IEmote BackEmote => new Emoji("⏮");
+        private static IEmote MoveEmote => new Emoji("↔");
+        private static IEmote RemoveEmote => new Emoji("⤴");
 
         public MusicModule(IVoiceService voiceService, EmbedService embeds, ISearchService search,
             IMusicService music, ILyricsService lyrics) :
-            base(voiceService, embeds)
+            base(voiceService)
         {
             _embeds = embeds;
             _search = search;

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-
-namespace TobysBot.Voice.Effects;
+﻿namespace TobysBot.Voice.Effects;
 
 public class Equalizer : BaseEqualizer
 {

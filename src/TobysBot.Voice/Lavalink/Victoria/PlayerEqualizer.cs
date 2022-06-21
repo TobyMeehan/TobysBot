@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using TobysBot.Voice.Effects;
 
-namespace TobysBot.Voice.Lavalink;
+namespace TobysBot.Voice.Lavalink.Victoria;
 
 public class PlayerEqualizer : IEqualizer
 {
@@ -15,7 +15,7 @@ public class PlayerEqualizer : IEqualizer
         _bands = equalizer.ToList();
     }
     
-    private List<Band> _bands = new();
+    private readonly List<Band> _bands = new();
 
     public Band this[int band]
     {

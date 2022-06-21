@@ -4,7 +4,7 @@ namespace TobysBot.Music.MemoryQueue;
 
 public class TrackCollection : IEnumerable<ITrack>
 {
-    private List<ITrack> _tracks = new();
+    private readonly List<ITrack> _tracks = new();
 
     private int _currentIndex;
     private TimeSpan _currentPosition = TimeSpan.Zero;
@@ -26,16 +26,11 @@ public class TrackCollection : IEnumerable<ITrack>
             return ActiveTrackStatus.Stopped;
         }
 
-        if (_paused)
-        {
-            return ActiveTrackStatus.Paused;
-        }
-
-        return ActiveTrackStatus.Playing;
+        return _paused ? ActiveTrackStatus.Paused : ActiveTrackStatus.Playing;
     }
     
     public ILoopSetting LoopEnabled { get; set; } = new DisabledLoopSetting();
-    public bool Shuffle { get; set; } = false;
+    public bool Shuffle { get; set; }
 
     public void Update(TimeSpan position, bool isPaused)
     {
@@ -68,7 +63,7 @@ public class TrackCollection : IEnumerable<ITrack>
 
         if (Shuffle)
         {
-            var nextIndex = _rng.Next(_currentIndex, _tracks.Count);
+            int nextIndex = _rng.Next(_currentIndex, _tracks.Count);
             var nextTrack = _tracks[nextIndex];
             
             _tracks.RemoveAt(nextIndex);
@@ -109,7 +104,7 @@ public class TrackCollection : IEnumerable<ITrack>
 
     public bool Remove(int index)
     {
-        var removed = index == _currentIndex;
+        bool removed = index == _currentIndex;
         
         if (index < _currentIndex)
         {
@@ -123,14 +118,14 @@ public class TrackCollection : IEnumerable<ITrack>
 
     public bool RemoveRange(int startIndex, int endIndex)
     {
-        var removed = startIndex <= _currentIndex && _currentIndex <= endIndex;
+        bool removed = startIndex <= _currentIndex && _currentIndex <= endIndex;
 
         if (startIndex < _currentIndex && endIndex >= _currentIndex)
         {
             _currentIndex = startIndex;
         }
 
-        var count = endIndex - startIndex + 1;
+        int count = endIndex - startIndex + 1;
 
         if (startIndex < _currentIndex && endIndex <= _currentIndex)
         {

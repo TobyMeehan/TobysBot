@@ -3,10 +3,8 @@ using Discord;
 using TobysBot.Commands;
 using TobysBot.Extensions;
 using TobysBot.Music.Configuration;
-using TobysBot.Music.Data;
 using TobysBot.Music.Lyrics;
 using TobysBot.Music.Search.Result;
-using TobysBot.Voice.Status;
 
 namespace TobysBot.Music.Extensions;
 
@@ -178,13 +176,13 @@ public static class EmbedBuilderExtensions
     
     private static string GetProgressBar(TimeSpan position, TimeSpan duration)
     {
-        var fraction = position.Ticks / (double)duration.Ticks;
+        double fraction = position.Ticks / (double)duration.Ticks;
         fraction *= 100d;
 
-        var percent = (int)fraction;
+        int percent = (int)fraction;
         percent /= 4;
 
-        var progress = new string('▬', 25);
+        string progress = new('▬', 25);
 
         return progress.Remove(percent, 1).Insert(percent, "⬤");
     }
@@ -239,7 +237,7 @@ public static class EmbedBuilderExtensions
         var next = new Queue<ITrack>(queue.Next);
         var current = queue.CurrentTrack;
 
-        var currentPosition = previous.Count;
+        int currentPosition = previous.Count;
 
         var sb = new StringBuilder();
 
@@ -271,7 +269,7 @@ public static class EmbedBuilderExtensions
             sb.AppendLine();
         }
 
-        var i = 0;
+        int i = 0;
 
         while (sb.Length < 1900 && (previous.Any() || next.Any()))
         {

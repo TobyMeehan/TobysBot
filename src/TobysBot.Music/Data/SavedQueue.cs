@@ -24,7 +24,6 @@ public class SavedQueue : Entity, ISavedQueue, IUserRelation, INamedEntity
     public List<SavedTrack> Tracks { get; set; }
     
     // -- --
-    
 
     IEnumerable<ITrack> ISavedQueue.Tracks => Tracks;
     

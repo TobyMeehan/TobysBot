@@ -21,7 +21,7 @@ public class CheckVoiceAttribute : CommandPreconditionAttribute
     public bool ShowError { get; set; } = true;
     public SameChannel SameChannel { get; set; }
 
-    public override Task<PreconditionResult> CheckPermissionsAsync(SocketGenericCommandContext context, CommandInfo command, IServiceProvider services)
+    protected override Task<PreconditionResult> CheckPermissionsAsync(SocketGenericCommandContext context, CommandInfo command, IServiceProvider services)
     {
         var voice = services.GetRequiredService<IVoiceService>();
 
@@ -33,7 +33,7 @@ public class CheckVoiceAttribute : CommandPreconditionAttribute
         var currentVoiceChannel =
             voice.Status(context.Guild) is IConnectedStatus connected ? connected.VoiceChannel : null;
 
-        var sameChannelCriteria = SameChannel switch
+        bool sameChannelCriteria = SameChannel switch
         {
             SameChannel.IfBotConnected when currentVoiceChannel is null => true,
             SameChannel.Required or SameChannel.IfBotConnected when voiceState.VoiceChannel?.Id !=

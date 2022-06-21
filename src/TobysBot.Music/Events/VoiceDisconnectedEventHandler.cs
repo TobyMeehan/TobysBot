@@ -1,6 +1,5 @@
 ﻿using TobysBot.Events;
 using TobysBot.Music.MemoryQueue;
-using TobysBot.Voice;
 using TobysBot.Voice.Events;
 
 namespace TobysBot.Music.Events;

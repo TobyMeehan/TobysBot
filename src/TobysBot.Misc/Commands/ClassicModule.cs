@@ -2,9 +2,7 @@
 using Discord.Commands;
 using Microsoft.Extensions.Options;
 using TobysBot.Commands;
-using TobysBot.Commands.Modules;
 using TobysBot.Commands.Response;
-using TobysBot.Extensions;
 using TobysBot.Misc.Configuration;
 using TobysBot.Misc.Extensions;
 
@@ -14,15 +12,15 @@ public class ClassicModule : CommandModuleBase
 {
     private readonly StarOptions _options;
 
-    private IEmote OkEmote => new Emoji("👌");
+    private static IEmote OkEmote => new Emoji("👌");
     
     public ClassicModule(IOptions<StarOptions> options)
     {
         _options = options.Value;
     }
     
-    private string Star(IMentionable mention) => Star($"{mention.Mention} is");
-    private string Star(string pronoun) => $"{pronoun.Trim()} a star. S T A R  S T A R";
+    private static string Star(IMentionable mention) => Star($"{mention.Mention} is");
+    private static string Star(string pronoun) => $"{pronoun.Trim()} a star. S T A R  S T A R";
 
     [Command("pop")]
     [Summary("Calls the user a pop pop head.")]
@@ -69,7 +67,7 @@ public class ClassicModule : CommandModuleBase
         
         if (user is null)
         {
-            var star = _options.StarNames.SelectRandom();
+            string star = _options.StarNames.SelectRandom();
 
             await Context.Channel.SendMessageAsync(Star($"{star} is"));
             

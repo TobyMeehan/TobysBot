@@ -33,10 +33,10 @@ public class TobysBotHostedService : IHostedService
     {
         _client.Ready += ClientReadyAsync;
         _client.Ready += () => _events.InvokeAsync(new DiscordClientReadyEventArgs());
-        _client.Log += (message) => _events.InvokeAsync(new DiscordClientLogEventArgs(message));
+        _client.Log += message => _events.InvokeAsync(new DiscordClientLogEventArgs(message));
 
-        _client.MessageReceived += (message) => _events.InvokeAsync(new MessageReceivedEventArgs(message));
-        _client.SlashCommandExecuted += (command) => _events.InvokeAsync(new SlashCommandExecutedEventArgs(command));
+        _client.MessageReceived += message => _events.InvokeAsync(new MessageReceivedEventArgs(message));
+        _client.SlashCommandExecuted += command => _events.InvokeAsync(new SlashCommandExecutedEventArgs(command));
 
         _client.UserVoiceStateUpdated += (user, oldVoiceState, newVoiceState) =>
             _events.InvokeAsync(new VoiceStateUpdatedEventArgs(user, oldVoiceState, newVoiceState));

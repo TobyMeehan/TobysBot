@@ -18,12 +18,7 @@ public class PrefixDataService : IPrefixDataService
     {
         var guild = await _data.GetAsync<GuildData>(_options.Data.GuildCollection, guildId);
 
-        if (guild is null)
-        {
-            return _options.Prefix;
-        }
-
-        return guild.Prefix;
+        return guild is null ? _options.Prefix : guild.Prefix;
     }
 
     public async Task SetPrefixAsync(ulong guildId, string prefix)

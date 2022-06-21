@@ -2,7 +2,6 @@
 using TobysBot.Events;
 using TobysBot.Music.Extensions;
 using TobysBot.Voice.Events;
-using TobysBot.Voice.Status;
 
 namespace TobysBot.Music.Events;
 

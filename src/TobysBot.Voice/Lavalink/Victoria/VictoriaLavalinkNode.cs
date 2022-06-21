@@ -15,8 +15,8 @@ public class VictoriaLavalinkNode : ILavalinkNode
     {
         _node = node;
         _events = events;
-        
-        _node.OnLog += (message) => _events.InvokeAsync(new LavalinkLogEventArgs(message));
+
+        _node.OnLog += message => _events.InvokeAsync(new LavalinkLogEventArgs(message));
         _node.OnTrackEnded += OnTrackEnded;
         _node.OnTrackException += OnTrackException;
         _node.OnTrackStarted += OnTrackStarted;
@@ -36,30 +36,13 @@ public class VictoriaLavalinkNode : ILavalinkNode
 
     public ILavalinkPlayer GetPlayer(IGuild guild)
     {
-        if (_node.TryGetPlayer(guild, out var lavaPlayer))
-        {
-            return new VictoriaLavalinkPlayer(lavaPlayer, _node);
-        }
-
-        return null;
-    }
-
-    public bool TryGetPlayer(IGuild guild, out ILavalinkPlayer player)
-    {
-        if (_node.TryGetPlayer(guild, out var lavaPlayer))
-        {
-            player = new VictoriaLavalinkPlayer(lavaPlayer, _node);
-            return true;
-        }
-
-        player = null;
-        return false;
+        return _node.TryGetPlayer(guild, out var lavaPlayer) ? new VictoriaLavalinkPlayer(lavaPlayer, _node) : null;
     }
 
     public async Task<ILavalinkPlayer> JoinAsync(IVoiceChannel voiceChannel, ITextChannel textChannel = null)
     {
         var lavaPlayer = await _node.JoinAsync(voiceChannel, textChannel);
-        
+
         return new VictoriaLavalinkPlayer(lavaPlayer, _node);
     }
 
@@ -77,12 +60,13 @@ public class VictoriaLavalinkNode : ILavalinkNode
     {
         await _node.MoveChannelAsync(channel);
     }
-    
+
     private Task OnPlayerUpdated(PlayerUpdateEventArgs arg)
     {
         if (arg.Player is not XLavaPlayer player)
         {
-            return Task.CompletedTask;;
+            return Task.CompletedTask;
+            ;
         }
 
         return _events.InvokeAsync(new PlayerUpdatedEventArgs(player.Status, arg.Position, player.VoiceChannel?.Guild));
@@ -105,17 +89,16 @@ public class VictoriaLavalinkNode : ILavalinkNode
             return Task.CompletedTask;
         }
 
-        return _events.InvokeAsync(new SoundStartedEventArgs(player.Sound, player.Status, player.TextChannel, player.VoiceChannel.Guild));
+        return _events.InvokeAsync(new SoundStartedEventArgs(player.Sound, player.Status, player.TextChannel,
+            player.VoiceChannel.Guild));
     }
 
     private Task OnTrackException(TrackExceptionEventArgs arg)
     {
-        if (arg.Player is not XLavaPlayer player)
-        {
-            return Task.CompletedTask;
-        }
-
-        return _events.InvokeAsync(new SoundExceptionEventArgs(player.Status, arg.Exception.Message, player.VoiceChannel.Guild));
+        return arg.Player is XLavaPlayer player
+            ? _events.InvokeAsync(new SoundExceptionEventArgs(player.Status, arg.Exception.Message,
+                player.VoiceChannel.Guild))
+            : Task.CompletedTask;
     }
 
     private Task OnTrackEnded(TrackEndedEventArgs arg)
@@ -125,6 +108,7 @@ public class VictoriaLavalinkNode : ILavalinkNode
             return Task.CompletedTask;
         }
 
-        return _events.InvokeAsync(new SoundEndedEventArgs(player.VoiceChannel.Guild, new LavaSound(arg.Track), player.Status, (SoundEndedReason)(byte) arg.Reason));
+        return _events.InvokeAsync(new SoundEndedEventArgs(player.VoiceChannel.Guild, new LavaSound(arg.Track),
+            player.Status, (SoundEndedReason)(byte)arg.Reason));
     }
 }

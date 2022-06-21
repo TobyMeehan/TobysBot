@@ -1,9 +1,6 @@
-using System.Collections.Concurrent;
 using Discord;
-using TobysBot.Events;
 using TobysBot.Music.Extensions;
 using TobysBot.Voice;
-using TobysBot.Voice.Events;
 using TobysBot.Voice.Status;
 
 namespace TobysBot.Music.MemoryQueue;
@@ -42,7 +39,7 @@ public class MemoryMusicService : IMusicService
 
         var tracks = t.ToList();
 
-        var isStopped = status is not PlayingStatus;
+        bool isStopped = status is not PlayingStatus;
         
         if (isStopped)
         {

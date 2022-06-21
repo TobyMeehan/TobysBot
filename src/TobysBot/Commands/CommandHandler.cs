@@ -39,15 +39,15 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
             return;
         }
 
-        var argPos = 0;
+        int argPos = 0;
 
         var guild = message.Channel is IGuildChannel guildChannel
             ? await _guildData.GetByDiscordIdAsync(guildChannel.GuildId)
             : null;
 
-        var hasGuildPrefix = guild is not null && message.HasStringPrefix(guild.Prefix, ref argPos);
-        var hasGlobalPrefix = message.HasStringPrefix(_options.Prefix, ref argPos);
-        var hasMentionPrefix = message.HasMentionPrefix(_client.CurrentUser, ref argPos);
+        bool hasGuildPrefix = guild is not null && message.HasStringPrefix(guild.Prefix, ref argPos);
+        bool hasGlobalPrefix = message.HasStringPrefix(_options.Prefix, ref argPos);
+        bool hasMentionPrefix = message.HasMentionPrefix(_client.CurrentUser, ref argPos);
         
         if (!(hasGuildPrefix || hasGlobalPrefix || hasMentionPrefix) ||
             message.Author.IsBot)
@@ -78,7 +78,7 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
 
     async Task IEventHandler<SlashCommandExecutedEventArgs>.HandleAsync(SlashCommandExecutedEventArgs args)
     {
-        var commandName = args.Command.CommandName;
+        string commandName = args.Command.CommandName;
         var options = args.Command.Data.Options;
 
         foreach (var group in args.Command.Data.Options.Where(x => x.Type is ApplicationCommandOptionType.SubCommandGroup))
@@ -134,7 +134,7 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
                 continue;
             }
         
-            var value = option.Value;
+            object value = option.Value;
         
             if (value is long and <= int.MaxValue && parameter.Type == typeof(int))
             {

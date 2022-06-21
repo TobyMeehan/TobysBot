@@ -7,7 +7,7 @@ namespace TobysBot.Misc.Commands;
 
 public class MiscModule : CommandModuleBase
 {
-    private IEmote OkEmote => new Emoji("👌");
+    private static IEmote OkEmote => new Emoji("👌");
 
     [Command("say")]
     [Summary("Says a message.")]
@@ -15,7 +15,7 @@ public class MiscModule : CommandModuleBase
         [Summary("Message to say.")]
         [Remainder] string message)
     {
-        await Response.ReactAsync(OkEmote, Visibility.Public);
+        await Response.ReactAsync(OkEmote);
 
         await Context.Channel.SendMessageAsync(message);
     }
@@ -51,14 +51,14 @@ public class MiscModule : CommandModuleBase
             return;
         }
 
-        var (max, min) = (Math.Max(first, second), Math.Min(first, second));
+        (long max, long min) = (Math.Max(first, second), Math.Min(first, second));
 
         if (max is long.MaxValue)
         {
             max -= 1;
         }
 
-        var result = Random.Shared.NextInt64(min, max + 1);
+        long result = Random.Shared.NextInt64(min, max + 1);
 
         await Response.ReplyAsync(result.ToString());
     }

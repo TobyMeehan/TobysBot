@@ -8,14 +8,14 @@ public class GeniusLyricsResolver : ILyricsResolver
     
     public async Task<ILyricsResult> TryResolveAsync(ITrack track)
     {
-        var ly = await LyricsResolver.SearchGeniusAsync(track.Author, track.Title);
+        string lyricsString = await LyricsResolver.SearchGeniusAsync(track.Author, track.Title);
 
-        if (string.IsNullOrWhiteSpace(ly))
+        if (string.IsNullOrWhiteSpace(lyricsString))
         {
             return new LyricsResult();
         }
 
-        var lyrics = VictoriaLyrics.Parse(_provider, track, ly);
+        var lyrics = VictoriaLyrics.Parse(_provider, track, lyricsString);
 
         return new LyricsResult(lyrics);
     }

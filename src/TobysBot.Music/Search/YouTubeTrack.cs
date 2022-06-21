@@ -9,7 +9,7 @@ public class YouTubeTrack : ITrack
         Author = video.Author.ChannelTitle;
         Title = video.Title;
         Url = AudioUrl = video.Url;
-        Duration = video.Duration ?? throw new ArgumentNullException(nameof(video.Duration));
+        Duration = video.Duration ?? throw new ArgumentNullException(nameof(video), "Video's duration was null.");
     }
     
     public string Title { get; }

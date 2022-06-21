@@ -6,7 +6,7 @@ public static class EnumerableExtensions
     {
         var list = collection.ToList();
         
-        var index = Random.Shared.Next(0, list.Count);
+        int index = Random.Shared.Next(0, list.Count);
 
         return list[index];
     }

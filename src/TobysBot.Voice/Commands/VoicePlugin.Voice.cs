@@ -17,9 +17,9 @@ public partial class VoicePlugin
         private readonly ISavedPresetDataService _savedPresets;
         private readonly EmbedService _embeds;
 
-        private IEmote OkEmote => new Emoji("👌");
+        private static IEmote OkEmote => new Emoji("👌");
     
-        public VoiceModule(IVoiceService voiceService, ISavedPresetDataService savedPresets, EmbedService embedService) : base(voiceService, embedService)
+        public VoiceModule(IVoiceService voiceService, ISavedPresetDataService savedPresets, EmbedService embedService) : base(voiceService)
         {
             _voiceService = voiceService;
             _savedPresets = savedPresets;
@@ -53,12 +53,13 @@ public partial class VoicePlugin
         public async Task RebindAsync(
             [Summary("Channel to rebind to.")]
             ITextChannel channel = null, 
+            [Name("channelName")]
             [Summary("Name of channel to rebind to.")]
-            string channelname = null)
+            string channelName = null)
         {
-            if (channelname is not null)
+            if (channelName is not null)
             {
-                await Rebind(channelname);
+                await Rebind(channelName);
                 return;
             }
 
@@ -192,7 +193,7 @@ public partial class VoicePlugin
                     .Build());
             }
 
-            var multiplier = amount / 40;
+            double multiplier = amount / 40;
 
             await _voiceService.UpdateEqualizerAsync(Context.Guild, new BassBoostEqualizer(multiplier));
 

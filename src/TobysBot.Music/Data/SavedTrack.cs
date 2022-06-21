@@ -1,6 +1,4 @@
-﻿using TobysBot.Data;
-
-namespace TobysBot.Music.Data;
+﻿namespace TobysBot.Music.Data;
 
 public class SavedTrack : ITrack
 {

@@ -6,13 +6,11 @@ namespace TobysBot.Commands.Response;
 public class SocketDeferredTextCommandResponse : SocketTextCommandResponse
 {
     private readonly SocketUserMessage _command;
-    private readonly bool _ephemeral;
     private readonly IDisposable _typing;
 
     public SocketDeferredTextCommandResponse(SocketUserMessage command, bool ephemeral, IDisposable typing) : base(command, null)
     {
         _command = command;
-        _ephemeral = ephemeral;
         _typing = typing;
     }
 

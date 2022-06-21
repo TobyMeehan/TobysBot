@@ -15,14 +15,12 @@ public partial class MusicPlugin
     {
         private readonly ISavedQueueDataService _savedQueues;
         private readonly IMusicService _music;
-        private readonly ISearchService _search;
         private readonly EmbedService _embeds;
 
-        public SaveModule(ISavedQueueDataService savedQueues, IMusicService music, ISearchService search, IVoiceService voice, EmbedService embeds) : base(voice, embeds)
+        public SaveModule(ISavedQueueDataService savedQueues, IMusicService music, IVoiceService voice, EmbedService embeds) : base(voice)
         {
             _savedQueues = savedQueues;
             _music = music;
-            _search = search;
             _embeds = embeds;
         }
         

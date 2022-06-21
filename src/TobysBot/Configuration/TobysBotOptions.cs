@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Options;
-
 namespace TobysBot.Configuration;
 
 public class TobysBotOptions

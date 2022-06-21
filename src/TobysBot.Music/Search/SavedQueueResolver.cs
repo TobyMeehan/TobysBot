@@ -1,6 +1,5 @@
 ﻿using TobysBot.Hosting;
 using TobysBot.Music.Data;
-using TobysBot.Music.Extensions;
 using TobysBot.Music.Search.Result;
 
 namespace TobysBot.Music.Search;
@@ -25,7 +24,7 @@ public class SavedQueueResolver : ISearchResolver
 
     public async Task<ISearchResult> ResolveAsync(Uri uri)
     {
-        var id = _data.ParseShareUri(uri);
+        string id = _data.ParseShareUri(uri);
         var savedQueue = await _data.GetSavedQueueAsync(id);
 
         if (savedQueue is null)

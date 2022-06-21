@@ -20,7 +20,7 @@ public class PlayerPreset : IPreset
     public PlayerEqualizer Equalizer { get; set; } = new();
     public double Speed { get; set; } = 1;
     public double Pitch { get; set; } = 1;
-    public double Rotation { get; set; } = 0;
+    public double Rotation { get; set; }
 
     IEqualizer IPreset.Equalizer => Equalizer;
 }

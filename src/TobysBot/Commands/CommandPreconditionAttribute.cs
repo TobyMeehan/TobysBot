@@ -14,6 +14,6 @@ public abstract class CommandPreconditionAttribute : PreconditionAttribute
         return await CheckPermissionsAsync(commandContext, command, services);
     }
 
-    public abstract Task<PreconditionResult> CheckPermissionsAsync(SocketGenericCommandContext context,
+    protected abstract Task<PreconditionResult> CheckPermissionsAsync(SocketGenericCommandContext context,
         CommandInfo command, IServiceProvider services);
 }

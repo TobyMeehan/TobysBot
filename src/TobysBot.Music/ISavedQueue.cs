@@ -1,5 +1,4 @@
-﻿using Discord;
-using TobysBot.Data;
+﻿using TobysBot.Data;
 
 namespace TobysBot.Music;
 

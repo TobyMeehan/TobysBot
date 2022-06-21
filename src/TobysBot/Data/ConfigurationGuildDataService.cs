@@ -1,6 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using Discord;
-using Discord.WebSocket;
+﻿using Discord.WebSocket;
 using Microsoft.Extensions.Options;
 using TobysBot.Configuration;
 
@@ -21,11 +19,7 @@ public class ConfigurationGuildDataService : IBaseGuildDataService
     {
         var guild = _client.Guilds.FirstOrDefault(x => x.Id == id);
 
-        if (guild is null)
-        {
-            return null;
-        }
-
-        return Task.FromResult<IGuildData>(new GuildData(guild, _options.Prefix));
+        return Task.FromResult<IGuildData>(
+            guild is null ? null : new GuildData(guild, _options.Prefix));
     }
 }

@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using TobysBot.Configuration;
 using TobysBot.Data;
 using TobysBot.Mongo.Client;

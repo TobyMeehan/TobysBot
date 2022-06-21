@@ -1,17 +1,13 @@
 using System.Reflection;
-using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
-using Microsoft.Extensions.DependencyInjection;
-using TobysBot.Extensions;
 
 namespace TobysBot.Commands;
 
 public class CommandCollection
 {
-    private List<Type> _modules = new();
-    private List<Assembly> _assemblies = new();
-    private List<(Type Type, TypeReader TypeReader)> _typeReaders = new();
+    private readonly List<Type> _modules = new();
+    private readonly List<Assembly> _assemblies = new();
+    private readonly List<(Type Type, TypeReader TypeReader)> _typeReaders = new();
     
     public void AddPlugin<T>() where T : PluginBase
     {

@@ -3,7 +3,6 @@ using TobysBot.Voice.Effects;
 using TobysBot.Voice.Extensions;
 using TobysBot.Voice.Status;
 using Victoria;
-using Victoria.Enums;
 
 namespace TobysBot.Voice.Lavalink.Victoria;
 

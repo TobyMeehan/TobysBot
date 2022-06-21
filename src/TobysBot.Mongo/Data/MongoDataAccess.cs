@@ -9,7 +9,7 @@ public class MongoDataAccess : IDataAccess
 {
     private readonly IMongoService _service;
 
-    private class Fields
+    private static class Fields
     {
         public const string Id = "Id";
         public const string Name = "Name";

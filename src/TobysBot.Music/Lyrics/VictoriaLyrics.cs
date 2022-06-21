@@ -2,7 +2,7 @@
 
 public struct VictoriaLyrics : ILyrics
 {
-    public VictoriaLyrics(IProvider provider, IEnumerable<ILine> lines, ITrack track)
+    private VictoriaLyrics(IProvider provider, IEnumerable<ILine> lines, ITrack track)
     {
         Provider = provider;
         Lines = lines;
@@ -17,7 +17,7 @@ public struct VictoriaLyrics : ILyrics
     {
         var lines = new List<ILine>();
 
-        foreach (var line in lyrics.Split(Environment.NewLine))
+        foreach (string line in lyrics.Split(Environment.NewLine))
         {
             if (line.Contains('['))
             {

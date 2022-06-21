@@ -2,5 +2,5 @@
 
 public class DefaultHostingService : IHostingService
 {
-    public Uri Uri => new Uri("https://bot.tobymeehan.com");
+    public Uri Uri => new("https://bot.tobymeehan.com");
 }

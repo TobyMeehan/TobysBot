@@ -25,6 +25,7 @@ public static class LoggerExtensions
                 logger.LogTrace("{Source}: {Message}", message.Source, message.Message);
                 break;
             case LogSeverity.Debug:
+            default:
                 logger.LogDebug("{Source}: {Message}", message.Source, message.Message);
                 break;
         }

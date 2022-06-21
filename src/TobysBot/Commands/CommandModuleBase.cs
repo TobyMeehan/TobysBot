@@ -5,5 +5,5 @@ namespace TobysBot.Commands;
 
 public abstract class CommandModuleBase : ModuleBase<SocketGenericCommandContext>
 {
-    public ISocketResponseService Response => Context.Response;
+    protected ISocketResponseService Response => Context.Response;
 }
