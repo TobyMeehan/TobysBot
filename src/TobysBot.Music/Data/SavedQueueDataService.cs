@@ -16,33 +16,59 @@ public class SavedQueueDataService : ISavedQueueDataService
     {
         _data = data;
         _server = server;
-        _options = options.Value.Data;
+
+        _options = options.Value.Data ?? throw new NullReferenceException("No music data options specified.");
     }
 
     public async Task<IReadOnlyCollection<ISavedQueue>> ListSavedQueuesAsync(IUser user)
     {
+        if (_options.SavedQueueCollection is null)
+        {
+            throw new NullReferenceException("Saved queue collection name not specified.");
+        }
+        
         return await _data.GetByUserAsync<SavedQueue>(_options.SavedQueueCollection, user);
     }
 
     public async Task<ISavedQueue> GetSavedQueueAsync(string id)
     {
+        if (_options.SavedQueueCollection is null)
+        {
+            throw new NullReferenceException("Saved queue collection name not specified.");
+        }
+        
         return await _data.GetAsync<SavedQueue>(_options.SavedQueueCollection, id);
     }
 
-    public async Task<ISavedQueue> GetSavedQueueAsync(IUser user, string name)
+    public async Task<ISavedQueue?> GetSavedQueueAsync(IUser user, string name)
     {
-        var result = await _data.GetByUserAsync<SavedQueue>(_options.SavedQueueCollection, user, name);
+        if (_options.SavedQueueCollection is null)
+        {
+            throw new NullReferenceException("Saved queue collection name not specified.");
+        }
+        
+        IReadOnlyCollection<SavedQueue?> result = await _data.GetByUserAsync<SavedQueue>(_options.SavedQueueCollection, user, name);
 
         return result.FirstOrDefault();
     }
 
     public async Task CreateSavedQueueAsync(string name, IUser user, IQueue queue)
     {
+        if (_options.SavedQueueCollection is null)
+        {
+            throw new NullReferenceException("Saved queue collection name not specified.");
+        }
+        
         await _data.SaveByUserAsync(_options.SavedQueueCollection, new SavedQueue(name, user, queue));
     }
 
     public async Task DeleteSavedQueueAsync(IUser user, string name)
     {
+        if (_options.SavedQueueCollection is null)
+        {
+            throw new NullReferenceException("Saved queue collection name not specified.");
+        }
+        
         await _data.DeleteAsync<SavedQueue>(_options.SavedQueueCollection, user, name);
     }
 

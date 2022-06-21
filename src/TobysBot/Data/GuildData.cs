@@ -23,5 +23,5 @@ public class GuildData : Entity, IGuildData
         base.TimeCreated = guild.CreatedAt;
     }
     public ulong DiscordId { get; set; }
-    public string Prefix { get; set; }
+    public string Prefix { get; set; } = null!;
 }

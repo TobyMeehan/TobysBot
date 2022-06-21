@@ -49,13 +49,14 @@ public partial class VoicePlugin
 
         [Command("rebind")]
         [Summary("Rebinds track notifications to the specified text channel.")]
+        [RequireContext(ContextType.Guild)]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task RebindAsync(
             [Summary("Channel to rebind to.")]
-            ITextChannel channel = null, 
+            ITextChannel? channel = null, 
             [Name("channelName")]
             [Summary("Name of channel to rebind to.")]
-            string channelName = null)
+            string? channelName = null)
         {
             if (channelName is not null)
             {
@@ -102,7 +103,7 @@ public partial class VoicePlugin
 
         private async Task Rebind(string channelName)
         {
-            var channel = Context.Guild.TextChannels.FirstOrDefault(x => x.Name == channelName);
+            var channel = Context.Guild!.TextChannels.FirstOrDefault(x => x.Name == channelName);
 
             if (channel is null)
             {
@@ -162,6 +163,7 @@ public partial class VoicePlugin
 
         [Command("volume")]
         [Summary("Sets the volume.")]
+        [RequireContext(ContextType.Guild)]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task VolumeAsync(
             [Summary("New volume, default is 100.")]
@@ -173,13 +175,14 @@ public partial class VoicePlugin
                 return;
             }
 
-            await _voiceService.UpdateVolumeAsync(Context.Guild, (ushort)volume);
+            await _voiceService.UpdateVolumeAsync(Context.Guild!, (ushort)volume);
 
             await Response.ReactAsync(OkEmote);
         }
         
         [Command("bassboost")]
         [Summary("Applies a bass boost effect.")]
+        [RequireContext(ContextType.Guild)]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task BassBoostAsync(
             [Summary("Amount of bass boost, default is 0.")]
@@ -195,13 +198,14 @@ public partial class VoicePlugin
 
             double multiplier = amount / 40;
 
-            await _voiceService.UpdateEqualizerAsync(Context.Guild, new BassBoostEqualizer(multiplier));
+            await _voiceService.UpdateEqualizerAsync(Context.Guild!, new BassBoostEqualizer(multiplier));
 
             await Response.ReactAsync(OkEmote);
         }
 
         [Command("speed")]
         [Summary("Sets the playback speed.")]
+        [RequireContext(ContextType.Guild)]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task SpeedAsync(
             [Summary("New speed multiplier, default is 1.")]
@@ -224,7 +228,7 @@ public partial class VoicePlugin
                 
                     return;
                 default:
-                    await _voiceService.UpdateSpeedAsync(Context.Guild, speed);
+                    await _voiceService.UpdateSpeedAsync(Context.Guild!, speed);
 
                     await Response.ReactAsync(OkEmote);
                     break;
@@ -233,6 +237,7 @@ public partial class VoicePlugin
 
         [Command("pitch")]
         [Summary("Sets the pitch.")]
+        [RequireContext(ContextType.Guild)]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task PitchAsync(
             [Summary("New pitch multiplier, default is 1.")]
@@ -255,7 +260,7 @@ public partial class VoicePlugin
                 
                     return;
                 default:
-                    await _voiceService.UpdatePitchAsync(Context.Guild, pitch);
+                    await _voiceService.UpdatePitchAsync(Context.Guild!, pitch);
 
                     await Response.ReactAsync(OkEmote);
                     break;
@@ -264,6 +269,7 @@ public partial class VoicePlugin
 
         [Command("rotate")]
         [Summary("Adds a rotation effect.")]
+        [RequireContext(ContextType.Guild)]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task RotateAsync(
             [Summary("Rotation speed in Hz, default is 0.")]
@@ -279,7 +285,7 @@ public partial class VoicePlugin
                 return;
             }
             
-            await _voiceService.UpdateRotationAsync(Context.Guild, speed);
+            await _voiceService.UpdateRotationAsync(Context.Guild!, speed);
 
             if (Random.Shared.Next(1, 1000) == 69)
             {
@@ -296,18 +302,19 @@ public partial class VoicePlugin
 
         [Command("nightcore")]
         [Summary("Toggles nightcore mode.")]
+        [RequireContext(ContextType.Guild)]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task NightcoreAsync()
         {
-            var active = await _voiceService.GetActivePresetAsync(Context.Guild);
+            var active = await _voiceService.GetActivePresetAsync(Context.Guild!);
 
             if (active is NightcorePreset)
             {
-                await _voiceService.RemoveActivePresetAsync(Context.Guild);
+                await _voiceService.RemoveActivePresetAsync(Context.Guild!);
             }
             else
             {
-                await _voiceService.SetActivePresetAsync(Context.Guild, new NightcorePreset());
+                await _voiceService.SetActivePresetAsync(Context.Guild!, new NightcorePreset());
             }
 
             await Response.ReactAsync(OkEmote);
@@ -315,18 +322,19 @@ public partial class VoicePlugin
 
         [Command("vaporwave")]
         [Summary("Toggles vaporwave mode.")]
+        [RequireContext(ContextType.Guild)]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task VaporwaveAsync()
         {
-            var active = await _voiceService.GetActivePresetAsync(Context.Guild);
+            var active = await _voiceService.GetActivePresetAsync(Context.Guild!);
 
             if (active is VaporwavePreset)
             {
-                await _voiceService.RemoveActivePresetAsync(Context.Guild);
+                await _voiceService.RemoveActivePresetAsync(Context.Guild!);
             }
             else
             {
-                await _voiceService.SetActivePresetAsync(Context.Guild, new VaporwavePreset());
+                await _voiceService.SetActivePresetAsync(Context.Guild!, new VaporwavePreset());
             }
 
             await Response.ReactAsync(OkEmote);
@@ -355,11 +363,12 @@ public partial class VoicePlugin
 
         [Command("effects create")]
         [Summary("Saves the current range of effects under the specified name.")]
+        [RequireContext(ContextType.Guild)]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task CreateSavedEffectAsync(
             [Summary("Name of effect preset.")] string name)
         {
-            var active = await _voiceService.GetActivePresetAsync(Context.Guild);
+            var active = await _voiceService.GetActivePresetAsync(Context.Guild!);
 
             await _savedPresets.CreateSavedPresetAsync(name, Context.User, active);
 
@@ -396,6 +405,7 @@ public partial class VoicePlugin
 
         [Command("effects load")]
         [Summary("Loads the specified saved effect preset.")]
+        [RequireContext(ContextType.Guild)]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task LoadSavedEffectAsync(
             [Summary("Name of effect preset to load.")]
@@ -412,7 +422,7 @@ public partial class VoicePlugin
                 return;
             }
 
-            await _voiceService.SetActivePresetAsync(Context.Guild, savedPreset);
+            await _voiceService.SetActivePresetAsync(Context.Guild!, savedPreset);
 
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithContext(EmbedContext.Action)
@@ -422,10 +432,11 @@ public partial class VoicePlugin
         
         [Command("reset effects")]
         [Summary("Resets all audio effects.")]
+        [RequireContext(ContextType.Guild)]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task ResetEffectsAsync()
         {
-            await _voiceService.ResetEffectsAsync(Context.Guild);
+            await _voiceService.ResetEffectsAsync(Context.Guild!);
 
             await Response.ReactAsync(OkEmote);
         }

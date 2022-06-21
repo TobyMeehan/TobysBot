@@ -40,8 +40,8 @@ public class TobysBotHostedService : IHostedService
 
         _client.UserVoiceStateUpdated += (user, oldVoiceState, newVoiceState) =>
             _events.InvokeAsync(new VoiceStateUpdatedEventArgs(user, oldVoiceState, newVoiceState));
-
-        await _client.LoginAsync(TokenType.Bot, _options.Authorization.Token);
+        
+        await _client.LoginAsync(TokenType.Bot, _options.Authorization?.Token);
         await _client.StartAsync();
     }
 

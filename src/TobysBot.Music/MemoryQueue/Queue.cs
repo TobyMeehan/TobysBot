@@ -40,7 +40,7 @@ public class Queue : IQueue
     }
     public IEnumerable<ITrack> Previous { get; } = Enumerable.Empty<ITrack>();
     public IEnumerable<ITrack> Next { get; } = Enumerable.Empty<ITrack>();
-    public IActiveTrack CurrentTrack { get; }
+    public IActiveTrack? CurrentTrack { get; }
     public ILoopSetting Loop { get; } = new DisabledLoopSetting();
     public bool Shuffle { get; }
 

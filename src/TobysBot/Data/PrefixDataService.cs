@@ -16,6 +16,11 @@ public class PrefixDataService : IPrefixDataService
     
     public async Task<string> GetPrefixAsync(ulong guildId)
     {
+        if (_options.Data?.GuildCollection is null)
+        {
+            throw new NullReferenceException("Guild collection name not specified.");
+        }
+        
         var guild = await _data.GetAsync<GuildData>(_options.Data.GuildCollection, guildId);
 
         return guild is null ? _options.Prefix : guild.Prefix;
@@ -23,6 +28,11 @@ public class PrefixDataService : IPrefixDataService
 
     public async Task SetPrefixAsync(ulong guildId, string prefix)
     {
+        if (_options.Data?.GuildCollection is null)
+        {
+            throw new NullReferenceException("Guild collection name not specified.");
+        }
+        
         var guild = await _data.GetAsync<GuildData>(_options.Data.GuildCollection, guildId);
 
         guild ??= new GuildData(guildId, prefix, DateTimeOffset.UtcNow);

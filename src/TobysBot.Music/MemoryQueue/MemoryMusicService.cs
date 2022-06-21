@@ -46,10 +46,16 @@ public class MemoryMusicService : IMusicService
             await _voice.PlayAsync(guild, tracks.First().ToSound(), TimeSpan.Zero);
         }
 
-        _queues.GetOrAdd(guild.Id)
-            .AddRange(tracks, advanceToTracks: isStopped);
+        var queue = _queues.GetOrAdd(guild.Id);
+        
+        queue.AddRange(tracks, advanceToTracks: isStopped);
 
-        return _queues[guild.Id].CurrentTrack.InnerTrack;
+        if (queue.CurrentTrack is null)
+        {
+            throw new NullReferenceException("Current track is null.");
+        }
+        
+        return queue.CurrentTrack.InnerTrack;
     }
 
     public async Task<ITrack> EnqueueAsync(IGuild guild, ISavedQueue savedQueue)
@@ -94,7 +100,7 @@ public class MemoryMusicService : IMusicService
         await _voice.SeekAsync(guild, timeSpan);
     }
 
-    public async Task<ITrack> SkipAsync(IGuild guild)
+    public async Task<ITrack?> SkipAsync(IGuild guild)
     {
         ThrowIfNotConnected(guild);
         
@@ -173,7 +179,7 @@ public class MemoryMusicService : IMusicService
 
         if (_queues[guild.Id].Remove(track - 1))
         {
-            await _voice.PlayAsync(guild, _queues[guild.Id].CurrentTrack.ToSound(), TimeSpan.Zero);
+            await _voice.PlayAsync(guild, _queues[guild.Id].CurrentTrack?.ToSound(), TimeSpan.Zero);
         }
     }
 
@@ -183,7 +189,7 @@ public class MemoryMusicService : IMusicService
 
         if (_queues[guild.Id].RemoveRange(startTrack - 1, endTrack - 1))
         {
-            await _voice.PlayAsync(guild, _queues[guild.Id].CurrentTrack.ToSound(), TimeSpan.Zero);
+            await _voice.PlayAsync(guild, _queues[guild.Id].CurrentTrack?.ToSound(), TimeSpan.Zero);
         }
     }
 

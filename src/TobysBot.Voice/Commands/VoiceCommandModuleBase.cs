@@ -14,7 +14,7 @@ public abstract class VoiceCommandModuleBase : CommandModuleBase
         _voiceService = voiceService;
     }
 
-    protected IPlayerStatus Status => _voiceService.Status(Context.Guild);
+    protected IPlayerStatus Status => Context.Guild is not null ? _voiceService.Status(Context.Guild) : throw new NullReferenceException("Guild context is null.");
 
     protected async Task JoinVoiceChannelAsync()
     {
@@ -28,6 +28,11 @@ public abstract class VoiceCommandModuleBase : CommandModuleBase
 
     protected async Task LeaveVoiceChannelAsync()
     {
+        if (Context.Guild is null)
+        {
+            throw new NullReferenceException("Guild context is null.");
+        }
+        
         await _voiceService.LeaveAsync(Context.Guild);
     }
 }

@@ -14,9 +14,9 @@ public class TrackCollection : IEnumerable<ITrack>
 
     public IEnumerable<ITrack> Previous => _tracks.Take(_currentIndex);
     public IEnumerable<ITrack> Next => _tracks.Skip(_currentIndex + 1);
-
-    public IActiveTrack CurrentTrack => _currentIndex < _tracks.Count
-        ? new ActiveTrack(_tracks.ElementAtOrDefault(_currentIndex), _currentPosition, CurrentStatus())
+    
+    public IActiveTrack? CurrentTrack => _currentIndex < _tracks.Count
+        ? new ActiveTrack(_tracks[_currentIndex], _currentPosition, CurrentStatus())
         : null;
 
     private ActiveTrackStatus CurrentStatus()
@@ -39,7 +39,7 @@ public class TrackCollection : IEnumerable<ITrack>
         _stopped = false;
     }
 
-    public ITrack Advance(bool forceSkip)
+    public ITrack? Advance(bool forceSkip)
     {
         if (!forceSkip && LoopEnabled is TrackLoopSetting)
         {
@@ -73,14 +73,14 @@ public class TrackCollection : IEnumerable<ITrack>
         return CurrentTrack;
     }
 
-    public ITrack Back()
+    public ITrack? Back()
     {
         _currentIndex--;
 
         return CurrentTrack;
     }
     
-    public ITrack Jump(int index)
+    public ITrack? Jump(int index)
     {
         if (index < 0 && index >= _tracks.Count)
         {

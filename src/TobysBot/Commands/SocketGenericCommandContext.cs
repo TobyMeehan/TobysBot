@@ -32,14 +32,14 @@ public class SocketGenericCommandContext : ICommandContext
     public ISocketResponseService Response { get; }
     
     public DiscordSocketClient Client { get; }
-    public SocketGuild Guild { get; }
+    public SocketGuild? Guild { get; }
     public ISocketMessageChannel Channel { get; }
     public SocketUser User { get; }
 
     IDiscordClient ICommandContext.Client => Client;
-    IGuild ICommandContext.Guild => Guild;
+    IGuild? ICommandContext.Guild => Guild;
     IMessageChannel ICommandContext.Channel => Channel;
     IUser ICommandContext.User => User;
     
-    public IUserMessage Message { get; }
+    public IUserMessage? Message { get; }
 }

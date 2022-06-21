@@ -45,7 +45,12 @@ public class SpotifyResolver : ISearchResolver
 
         foreach (var item in playlist.Tracks.Items.Where(item => item.Track.Type is not ItemType.Episode))
         {
-            var track = await LoadSpotifyTrackAsync((item.Track as FullTrack)?.Id);
+            if (item.Track is not FullTrack fullTrack)
+            {
+                continue;
+            }
+            
+            var track = await LoadSpotifyTrackAsync(fullTrack.Id);
 
             if (track is TrackResult spotifyTrack)
             {

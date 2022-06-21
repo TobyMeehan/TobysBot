@@ -12,19 +12,19 @@ public class SocketSlashCommandResponse : ISocketResponse
         _command = command;
     }
 
-    public async Task ModifyResponseAsync(Action<MessageProperties> func, RequestOptions options = null)
+    public async Task ModifyResponseAsync(Action<MessageProperties> func, RequestOptions? options = null)
     {
         await _command.ModifyOriginalResponseAsync(func, options);
     }
 
-    public async Task FollowupResponseAsync(string text = null, bool isTTS = false, Visibility visibility = Visibility.Public, Embed embed = null,
-        AllowedMentions allowedMentions = null, RequestOptions options = null, MessageComponent components = null,
-        ISticker[] stickers = null, Embed[] embeds = null)
+    public async Task FollowupResponseAsync(string? text = null, bool isTTS = false, Visibility visibility = Visibility.Public, Embed? embed = null,
+        AllowedMentions? allowedMentions = null, RequestOptions? options = null, MessageComponent? components = null,
+        ISticker[]? stickers = null, Embed[]? embeds = null)
     {
         await _command.FollowupAsync(text, embeds, isTTS, visibility is not Visibility.Public, allowedMentions, components, embed, options);
     }
 
-    public async Task ReactAsync(IEmote emote, RequestOptions options = null)
+    public async Task ReactAsync(IEmote emote, RequestOptions? options = null)
     {
         await _command.ModifyOriginalResponseAsync(x =>
         {

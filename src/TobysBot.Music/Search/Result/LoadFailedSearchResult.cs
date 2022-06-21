@@ -20,5 +20,5 @@ public class LoadFailedSearchResult : ISearchResult
     
     public string Reason { get; }
 
-    public Exception Exception { get; }
+    public Exception? Exception { get; }
 }

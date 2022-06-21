@@ -63,7 +63,7 @@ public static class EmbedBuilderExtensions
     {
         return embed
             .WithContext(EmbedContext.Error)
-            .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.NotFoundErrorDescription);
+            .WithDescription("No results for that query.");
     }
 
     public static EmbedBuilder WithLoadFailedError(this EmbedBuilder embed, LoadFailedSearchResult result)
@@ -77,63 +77,63 @@ public static class EmbedBuilderExtensions
     {
         return embed
             .WithContext(EmbedContext.Error)
-            .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.NotPlayingErrorDescription);
+            .WithDescription("I'm not playing anything.");
     }
 
     public static EmbedBuilder WithAlreadyPlayingError(this EmbedBuilder embed)
     {
         return embed
             .WithContext(EmbedContext.Error)
-            .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.AlreadyPlayingErrorDescription);
+            .WithDescription("The track is already playing!");
     }
 
     public static EmbedBuilder WithAlreadyPausedError(this EmbedBuilder embed)
     {
         return embed
             .WithContext(EmbedContext.Error)
-            .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.AlreadyPausedErrorDescription);
+            .WithDescription("The track is already paused!");
     }
 
     public static EmbedBuilder WithCannotParseTimestampError(this EmbedBuilder embed)
     {
         return embed
             .WithContext(EmbedContext.Error)
-            .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.CannotParseTimestampErrorDescription);
+            .WithDescription("Could not parse that timestamp.");
     }
 
     public static EmbedBuilder WithTimestampTooLongError(this EmbedBuilder embed)
     {
         return embed
             .WithContext(EmbedContext.Error)
-            .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.TimestampTooLongErrorDescription);
+            .WithDescription("The track is not that long.");
     }
 
     public static EmbedBuilder WithFastForwardTooFarError(this EmbedBuilder embed)
     {
         return embed
             .WithContext(EmbedContext.Error)
-            .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.FastForwardTooFarErrorDescription);
+            .WithDescription("Can't fast forward beyond the track!");
     }
 
     public static EmbedBuilder WithRewindTooFarError(this EmbedBuilder embed)
     {
         return embed
             .WithContext(EmbedContext.Error)
-            .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.RewindTooFarErrorDescription);
+            .WithDescription("Can't rewind to before the track!");
     }
 
     public static EmbedBuilder WithNoPreviousTrackError(this EmbedBuilder embed)
     {
         return embed
             .WithContext(EmbedContext.Error)
-            .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.NoPreviousTrackErrorDescription);
+            .WithDescription("No previous track to jump to.");
     }
 
     public static EmbedBuilder WithPositionOutOfRangeError(this EmbedBuilder embed)
     {
         return embed
             .WithContext(EmbedContext.Error)
-            .WithDescription(x => x.Service.Options<MusicOptions>().Embeds.PositionOutOfRangeErrorDescription);
+            .WithDescription("No track at that position.");
     }
 
     public static EmbedBuilder WithSavedQueueNotFoundError(this EmbedBuilder embed)
@@ -189,7 +189,10 @@ public static class EmbedBuilderExtensions
     
     public static EmbedBuilder WithTrackStatusInformation(this EmbedBuilder embed, IQueue queue)
     {
-        var track = queue.CurrentTrack;
+        if (queue.CurrentTrack is not { } track)
+        {
+            throw new NullReferenceException("Current track is null.");
+        }
 
         var sb = new StringBuilder();
 
@@ -250,7 +253,7 @@ public static class EmbedBuilderExtensions
             sb.Append($"**{currentPosition + 1}. ");
             sb.Append('(');
 
-            switch (queue.CurrentTrack.Status)
+            switch (current.Status)
             {
                 case ActiveTrackStatus.Paused:
                     sb.Append('⏸');

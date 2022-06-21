@@ -2,5 +2,5 @@
 
 public interface IBaseGuildDataService
 {
-    Task<IGuildData> GetByDiscordIdAsync(ulong id);
+    Task<IGuildData?> GetByDiscordIdAsync(ulong id);
 }

@@ -12,9 +12,9 @@ public class SocketTextCommandResponseService : ISocketResponseService
         _message = message;
     }
     
-    public async Task<ISocketResponse> ReplyAsync(string text = null, bool isTTS = false, Visibility visibility = Visibility.Public, Embed embed = null,
-        AllowedMentions allowedMentions = null, RequestOptions options = null, MessageComponent components = null,
-        ISticker[] stickers = null, Embed[] embeds = null)
+    public async Task<ISocketResponse> ReplyAsync(string? text = null, bool isTTS = false, Visibility visibility = Visibility.Public, Embed? embed = null,
+        AllowedMentions? allowedMentions = null, RequestOptions? options = null, MessageComponent? components = null,
+        ISticker[]? stickers = null, Embed[]? embeds = null)
     {
         var response = visibility switch
         {
@@ -28,12 +28,12 @@ public class SocketTextCommandResponseService : ISocketResponseService
         return new SocketTextCommandResponse(_message, response);
     }
 
-    public Task<ISocketResponse> DeferAsync(bool ephemeral = false, RequestOptions options = null)
+    public Task<ISocketResponse> DeferAsync(bool ephemeral = false, RequestOptions? options = null)
     {
         return Task.FromResult<ISocketResponse>(new SocketDeferredTextCommandResponse(_message, ephemeral, _message.Channel.EnterTypingState(options)));
     }
 
-    public async Task ReactAsync(IEmote emote, Visibility visibility = Visibility.Public, RequestOptions options = null)
+    public async Task ReactAsync(IEmote emote, Visibility visibility = Visibility.Public, RequestOptions? options = null)
     {
         if (visibility is Visibility.Public or Visibility.Ephemeral)
         {

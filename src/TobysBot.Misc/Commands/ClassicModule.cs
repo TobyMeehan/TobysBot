@@ -26,7 +26,7 @@ public class ClassicModule : CommandModuleBase
     [Summary("Calls the user a pop pop head.")]
     public async Task PopAsync(
         [Summary("User to call a pop pop head.")]
-        IUser user = null)
+        IUser? user = null)
     {
         if (user is null || user.Id == Context.User.Id)
         {
@@ -61,7 +61,7 @@ public class ClassicModule : CommandModuleBase
     [Summary("Declares the user an S T A R")]
     public async Task StarAsync(
         [Summary("Star to declare.")] 
-        IUser user = null)
+        IUser? user = null)
     {
         await Response.ReactAsync(OkEmote, Visibility.Ephemeral);
         
@@ -98,11 +98,11 @@ public class ClassicModule : CommandModuleBase
     [Summary("Summons the user to your activity.")]
     public async Task SummonAsync(
         [Summary("User to summon.")]
-        IUser user = null, 
+        IUser? user = null, 
         [Summary("Role to summon.")]
-        IRole role = null)
+        IRole? role = null)
     {
-        IMentionable mention = role;
+        IMentionable? mention = role;
         user ??= Context.Client.CurrentUser;
         mention ??= user;
 
@@ -129,7 +129,7 @@ public class ClassicModule : CommandModuleBase
 
             await ReplyAsync($"{mention.Mention}, {Context.User.Mention} wants you to join the in {activity.Name}");
         }
-        else if (Context.User is IVoiceState voiceState && voiceState.VoiceChannel?.GuildId == Context.Guild.Id)
+        else if (Context.Guild is not null && Context.User is IVoiceState voiceState && voiceState.VoiceChannel?.GuildId == Context.Guild.Id)
         {
             if (voiceState.IsStreaming)
             {

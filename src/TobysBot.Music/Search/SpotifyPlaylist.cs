@@ -15,7 +15,7 @@ public class SpotifyPlaylist : IPlaylist
     {
         Tracks = tracks;
         Url = $"https://open.spotify.com/playlist/{playlist.Id}";
-        Title = playlist.Name;
+        Title = playlist.Name ?? "Spotify Playlist";
     }
     
     public string Title { get; }

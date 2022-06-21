@@ -14,7 +14,7 @@ public class SocketDeferredTextCommandResponse : SocketTextCommandResponse
         _typing = typing;
     }
 
-    public override async Task ModifyResponseAsync(Action<MessageProperties> func, RequestOptions options = null)
+    public override async Task ModifyResponseAsync(Action<MessageProperties> func, RequestOptions? options = null)
     {
         var message = new MessageProperties();
         func(message);
@@ -30,7 +30,7 @@ public class SocketDeferredTextCommandResponse : SocketTextCommandResponse
         _typing.Dispose();
     }
 
-    public override Task ReactAsync(IEmote emote, RequestOptions options = null)
+    public override Task ReactAsync(IEmote emote, RequestOptions? options = null)
     {
         _typing.Dispose();
 

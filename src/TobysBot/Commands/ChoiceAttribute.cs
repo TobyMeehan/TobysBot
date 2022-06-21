@@ -4,7 +4,7 @@
 public class ChoiceAttribute : Attribute
 {
     public string Name { get; }
-    public object Value { get; }
+    public object? Value { get; }
 
     public ChoiceAttribute(string name)
     {

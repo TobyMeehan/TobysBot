@@ -1,7 +1,11 @@
-﻿namespace TobysBot.Music.Lyrics;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TobysBot.Music.Lyrics;
 
 public interface ILyricsResult
 {
+    [MemberNotNullWhen(true, nameof(Lyrics))]
     bool Success { get; }
-    ILyrics Lyrics { get; }
+    
+    ILyrics? Lyrics { get; }
 }

@@ -20,6 +20,11 @@ public class TrackNotificationEventHandler : IEventHandler<SoundStartedEventArgs
     {
         var track = await _music.GetTrackAsync(args.Guild);
 
+        if (track is null)
+        {
+            return;
+        }
+
         await args.TextChannel.SendMessageAsync(embed: _embeds.Builder()
             .WithPlayTrackAction(track)
             .Build());

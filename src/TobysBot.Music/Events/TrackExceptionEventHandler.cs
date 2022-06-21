@@ -25,6 +25,11 @@ public class TrackExceptionEventHandler : IEventHandler<SoundExceptionEventArgs>
     {
         var track = await _music.GetTrackAsync(args.Guild);
 
+        if (track is null)
+        {
+            return;
+        }
+        
         if (track.Position == TimeSpan.Zero)
         {
             if (args.Status is IConnectedStatus status)

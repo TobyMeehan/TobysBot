@@ -41,34 +41,50 @@ public static class TobysBotBuilderExtensions
         return builder.AddPlugin(
             services =>
             {
-                services.AddLavaNode(config =>
+                if (options.Search is not null)
                 {
-                    config.Hostname = options.Search.Hostname;
-                    config.Authorization = options.Search.Authorization;
-                    config.Port = options.Search.Port;
-                });
+                    services.AddLavaNode(config =>
+                    {
+                        config.Hostname = options.Search.Hostname;
+                        config.Authorization = options.Search.Authorization;
+                        config.Port = options.Search.Port;
+                    });
+                    
+                    services.AddTransient<ISearchResolver, VictoriaResolver>();
+                }
 
                 services.AddTransient<IMusicService, MemoryMusicService>();
                 services.AddSingleton<IMemoryQueueService, MemoryQueueService>();
                 
                 services.AddTransient<ISearchService, SearchService>();
                 services.AddTransient<ISearchResolver, YouTubeResolver>();
-                services.AddTransient<ISearchResolver, SpotifyResolver>();
                 services.AddTransient<ISearchResolver, SavedQueueResolver>();
-                services.AddTransient<ISearchResolver, VictoriaResolver>();
-
+                
                 services.AddTransient<ILyricsService, LyricsService>();
                 services.AddTransient<ILyricsResolver, GeniusLyricsResolver>();
 
                 services.AddTransient<ISavedQueueDataService, SavedQueueDataService>();
                 
                 services.AddTransient<YoutubeClient>();
-                
-                services.AddSingleton(SpotifyClientConfig
-                    .CreateDefault()
-                    .WithAuthenticator(new ClientCredentialsAuthenticator(options.Spotify.ClientId,
-                        options.Spotify.ClientSecret)));
-                services.AddTransient<ISpotifyClient, SpotifyClient>();
+
+                if (options.Spotify is not null)
+                {
+                    switch (options.Spotify)
+                    {
+                        case {ClientId: null}:
+                            throw new NullReferenceException("Spotify client ID not specified.");
+                        case {ClientSecret: null}:
+                            throw new NullReferenceException("Spotify client secret not specified.");
+                    }
+                    
+                    services.AddSingleton(SpotifyClientConfig
+                        .CreateDefault()
+                        .WithAuthenticator(new ClientCredentialsAuthenticator(options.Spotify.ClientId,
+                            options.Spotify.ClientSecret)));
+                    services.AddTransient<ISpotifyClient, SpotifyClient>();
+                    
+                    services.AddTransient<ISearchResolver, SpotifyResolver>();
+                }
                 
                 services.SubscribeEvent<PlayerUpdatedEventArgs, TrackProgressEventHandler>();
                 services.SubscribeEvent<SoundEndedEventArgs, AutoplayEventHandler>();

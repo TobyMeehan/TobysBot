@@ -27,7 +27,7 @@ public class LavalinkVoiceService : IVoiceService
         return player;
     }
     
-    public async Task JoinAsync(IVoiceChannel channel, ITextChannel textChannel = null)
+    public async Task JoinAsync(IVoiceChannel channel, ITextChannel? textChannel = null)
     {
         var player = _lavaNode.GetPlayer(channel.Guild);
         

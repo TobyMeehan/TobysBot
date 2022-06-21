@@ -18,10 +18,16 @@ public class PrefixModule : CommandModuleBase
     
     [Command("prefix")]
     [Summary("Sets the prefix for this server.")]
+    [RequireContext(ContextType.Guild, ErrorMessage = "Custom prefixes can only be set in guilds.")]
     public async Task PrefixAsync(
         [Summary("New server prefix.")]
-        [Remainder] string prefix = null)
+        [Remainder] string? prefix = null)
     {
+        if (Context.Guild is null)
+        {
+            throw new NullReferenceException("Guild context was null.");
+        }
+        
         if (prefix is null)
         {
             prefix = await _prefixData.GetPrefixAsync(Context.Guild.Id);

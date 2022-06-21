@@ -20,7 +20,7 @@ public class SavedPreset : Entity, ISavedPreset
         Equalizer = preset.Equalizer.ToList();
     }
     
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     public ulong UserId { get; set; }
     public double Speed { get; set; }
     public double Pitch { get; set; }

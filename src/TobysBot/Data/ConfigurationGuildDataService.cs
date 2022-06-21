@@ -15,11 +15,11 @@ public class ConfigurationGuildDataService : IBaseGuildDataService
         _options = options.Value;
     }
     
-    public Task<IGuildData> GetByDiscordIdAsync(ulong id)
+    public Task<IGuildData?> GetByDiscordIdAsync(ulong id)
     {
         var guild = _client.Guilds.FirstOrDefault(x => x.Id == id);
 
-        return Task.FromResult<IGuildData>(
+        return Task.FromResult<IGuildData?>(
             guild is null ? null : new GuildData(guild, _options.Prefix));
     }
 }

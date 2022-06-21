@@ -63,7 +63,7 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
                                "in guild {GuildId} ({GuildName}) \n" +
                                "in channel {ChannelId} ({ChannelName}) \n" +
                                "by user {UserId} ({Username})",
-            context.Guild.Id, context.Guild.Name, context.Channel.Id, context.Channel.Name, context.User.Id, context.User.Username);
+            context.Guild?.Id, context.Guild?.Name, context.Channel.Id, context.Channel.Name, context.User.Id, context.User.Username);
         
         if (!result.IsSuccess)
         {
@@ -150,7 +150,7 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
                                "in guild {GuildId} ({GuildName}) \n" +
                                "in channel {ChannelId} ({ChannelName}) \n" +
                                "by user {UserId} ({Username})",
-            command.Name, context.Guild.Id, context.Guild.Name, context.Channel.Id, context.Channel.Name, context.User.Id, context.User.Username);
+            command.Name, context.Guild?.Id, context.Guild?.Name, context.Channel.Id, context.Channel.Name, context.User.Id, context.User.Username);
         
         if (!result.IsSuccess)
         {

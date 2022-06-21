@@ -19,10 +19,10 @@ public class SavedQueue : Entity, ISavedQueue, IUserRelation, INamedEntity
 
     // -- Data to write --
     
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     public ulong UserId { get; set; }
-    public List<SavedTrack> Tracks { get; set; }
-    
+    public List<SavedTrack> Tracks { get; set; } = new();
+
     // -- --
 
     IEnumerable<ITrack> ISavedQueue.Tracks => Tracks;

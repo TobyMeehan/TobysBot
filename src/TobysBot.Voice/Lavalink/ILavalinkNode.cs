@@ -21,7 +21,7 @@ public interface ILavalinkNode
     /// </summary>
     /// <param name="guild"></param>
     /// <returns></returns>
-    ILavalinkPlayer GetPlayer(IGuild guild);
+    ILavalinkPlayer? GetPlayer(IGuild guild);
 
     /// <summary>
     /// Joins the specified voice channel, and binds the text channel if specified.
@@ -29,7 +29,7 @@ public interface ILavalinkNode
     /// <param name="voiceChannel"></param>
     /// <param name="textChannel"></param>
     /// <returns></returns>
-    Task<ILavalinkPlayer> JoinAsync(IVoiceChannel voiceChannel, ITextChannel textChannel = null);
+    Task<ILavalinkPlayer> JoinAsync(IVoiceChannel voiceChannel, ITextChannel? textChannel = null);
 
     /// <summary>
     /// Leaves the specified voice channel if connected.

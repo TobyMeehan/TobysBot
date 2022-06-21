@@ -47,11 +47,12 @@ public partial class MusicPlugin
 
         [Command("queues create")]
         [Summary("Saves the current queue under the specified name.")]
+        [RequireContext(ContextType.Guild, ErrorMessage = "You must be in a guild to save a queue.")]
         [CheckVoice(sameChannel: SameChannel.Required)]
         public async Task CreateSavedQueueAsync(
             [Summary("Name of saved queue.")] string name)
         {
-            var queue = await _music.GetQueueAsync(Context.Guild);
+            var queue = await _music.GetQueueAsync(Context.Guild!);
 
             if (queue.Empty)
             {
@@ -123,6 +124,7 @@ public partial class MusicPlugin
 
         [Command("queues load", RunMode = RunMode.Async)]
         [Summary("Loads the specified saved queue.")]
+        [RequireContext(ContextType.Guild, ErrorMessage = "You must be in a guild to load a saved queue.")]
         [CheckVoice(sameChannel: SameChannel.IfBotConnected)]
         public async Task LoadSavedQueueAsync(
             [Summary("Name of queue to load.")] string name)
@@ -145,7 +147,7 @@ public partial class MusicPlugin
 
             await JoinVoiceChannelAsync();
 
-            await _music.EnqueueAsync(Context.Guild, savedQueue);
+            await _music.EnqueueAsync(Context.Guild!, savedQueue);
 
             await response.ModifyResponseAsync(x =>
             {

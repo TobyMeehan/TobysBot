@@ -25,11 +25,16 @@ public class CheckVoiceAttribute : CommandPreconditionAttribute
     {
         var voice = services.GetRequiredService<IVoiceService>();
 
+        if (context.Guild is null)
+        {
+            return Task.FromResult(PreconditionResult.FromError("This command must be used in a guild."));
+        }
+        
         if (!context.User.IsInVoiceChannel(out var voiceState))
         {
             return Task.FromResult(PreconditionResult.FromError("Please join a voice channel."));
         }
-        
+
         var currentVoiceChannel =
             voice.Status(context.Guild) is IConnectedStatus connected ? connected.VoiceChannel : null;
 

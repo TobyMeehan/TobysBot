@@ -1,10 +1,11 @@
-﻿using Discord;
+﻿using System.Diagnostics.CodeAnalysis;
+using Discord;
 
 namespace TobysBot.Voice.Extensions;
 
 public static class UserExtensions
 {
-    public static bool IsInVoiceChannel(this IUser user, out IVoiceState voiceState)
+    public static bool IsInVoiceChannel(this IUser user, [NotNullWhen(true)] out IVoiceState? voiceState)
     {
         voiceState = user as IVoiceState;
 

@@ -18,10 +18,10 @@ public class SavedTrack : ITrack
     
     // -- Data to write
     
-    public string Title { get; set; }
-    public string Author { get; set; }
-    public string Url { get; set; }
-    public string AudioUrl { get; set; }
+    public string Title { get; set; } = null!;
+    public string Author { get; set; } = null!;
+    public string Url { get; set; } = null!;
+    public string AudioUrl { get; set; } = null!;
     public TimeSpan Duration { get; set; }
     
     // -- --

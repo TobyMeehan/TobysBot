@@ -22,12 +22,14 @@ public static class EmbedBuilderExtensions
             throw new Exception("Invalid builder type.");
         }
 
+        var defaultColor = Color.LightGrey;
+        
         var color = new Color(context switch
         {
-            EmbedContext.Action => embed.Service.EmbedOptions.Colors.Action,
-            EmbedContext.Information => embed.Service.EmbedOptions.Colors.Information,
-            EmbedContext.Error => embed.Service.EmbedOptions.Colors.Error,
-            _ => Color.LightGrey
+            EmbedContext.Action => embed.Service.EmbedOptions?.Colors?.Action ?? defaultColor,
+            EmbedContext.Information => embed.Service.EmbedOptions?.Colors?.Information ?? defaultColor,
+            EmbedContext.Error => embed.Service.EmbedOptions?.Colors?.Error ?? defaultColor,
+            _ => defaultColor
         });
 
         return embed.WithColor(color);

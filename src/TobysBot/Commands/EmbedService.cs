@@ -10,7 +10,7 @@ public class EmbedService
     private readonly IServiceProvider _services;
     private readonly TobysBotOptions _options;
 
-    public TobysBotEmbedOptions EmbedOptions => _options.Embeds;
+    public TobysBotEmbedOptions? EmbedOptions => _options.Embeds;
     
     public EmbedService(IOptions<TobysBotOptions> options, IServiceProvider services)
     {

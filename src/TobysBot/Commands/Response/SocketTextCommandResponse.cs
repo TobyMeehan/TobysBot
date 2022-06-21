@@ -6,15 +6,15 @@ namespace TobysBot.Commands.Response;
 public class SocketTextCommandResponse : ISocketResponse
 {
     private readonly SocketUserMessage _command;
-    private readonly IUserMessage _response;
+    private readonly IUserMessage? _response;
 
-    public SocketTextCommandResponse(SocketUserMessage command, IUserMessage response)
+    public SocketTextCommandResponse(SocketUserMessage command, IUserMessage? response)
     {
         _command = command;
         _response = response;
     }
     
-    public virtual async Task ModifyResponseAsync(Action<MessageProperties> func, RequestOptions options = null)
+    public virtual async Task ModifyResponseAsync(Action<MessageProperties> func, RequestOptions? options = null)
     {
         if (_response is null)
         {
@@ -24,9 +24,9 @@ public class SocketTextCommandResponse : ISocketResponse
         await _response.ModifyAsync(func, options);
     }
 
-    public async Task FollowupResponseAsync(string text = null, bool isTTS = false, Visibility visibility = Visibility.Public, Embed embed = null,
-        AllowedMentions allowedMentions = null, RequestOptions options = null, MessageComponent components = null,
-        ISticker[] stickers = null, Embed[] embeds = null)
+    public async Task FollowupResponseAsync(string? text = null, bool isTTS = false, Visibility visibility = Visibility.Public, Embed? embed = null,
+        AllowedMentions? allowedMentions = null, RequestOptions? options = null, MessageComponent? components = null,
+        ISticker[]? stickers = null, Embed[]? embeds = null)
     {
         switch (visibility)
         {
@@ -39,8 +39,13 @@ public class SocketTextCommandResponse : ISocketResponse
         }
     }
 
-    public virtual async Task ReactAsync(IEmote emote, RequestOptions options = null)
+    public virtual async Task ReactAsync(IEmote emote, RequestOptions? options = null)
     {
+        if (_response is null)
+        {
+            return;
+        }
+        
         await _response.AddReactionAsync(emote, options);
     }
 

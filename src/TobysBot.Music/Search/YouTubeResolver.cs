@@ -24,8 +24,8 @@ public class YouTubeResolver : ISearchResolver
 
         return uri.Segments[1] switch
         {
-            "watch" => await LoadYouTubeTrackAsync(query["v"]),
-            "playlist" => await LoadYouTubePlaylistAsync(query["list"]),
+            "watch" when query["v"] is not null => await LoadYouTubeTrackAsync(query["v"]!),
+            "playlist" when query["list"] is not null => await LoadYouTubePlaylistAsync(query["list"]!),
             "shorts/" => await LoadYouTubeTrackAsync(uri.Segments.Last()),
             _ => new LoadFailedSearchResult("Could not parse YouTube url.")
         };

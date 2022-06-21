@@ -14,5 +14,5 @@ public class LyricsResult : ILyricsResult
     }
 
     public bool Success { get; }
-    public ILyrics Lyrics { get; }
+    public ILyrics? Lyrics { get; }
 }

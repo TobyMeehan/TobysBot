@@ -19,7 +19,7 @@ public class HelpModule : CommandModuleBase
     [Summary("Get information about the bot or a specific plugin.")]
     public async Task MainAsync(
         [Summary("Plugin.")]
-        string plugin = null)
+        string? plugin = null)
     {
         var builder = plugin is null
             ? Home()

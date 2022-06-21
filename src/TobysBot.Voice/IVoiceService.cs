@@ -8,7 +8,7 @@ public interface IVoiceService
 {
     // Voice channel
     
-    Task JoinAsync(IVoiceChannel channel, ITextChannel textChannel = null);
+    Task JoinAsync(IVoiceChannel channel, ITextChannel? textChannel = null);
 
     Task LeaveAsync(IGuild guild);
 

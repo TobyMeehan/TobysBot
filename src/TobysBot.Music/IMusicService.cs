@@ -18,7 +18,7 @@ public interface IMusicService
     
     // Queue
     
-    Task<ITrack> SkipAsync(IGuild guild);
+    Task<ITrack?> SkipAsync(IGuild guild);
     Task<ITrack> BackAsync(IGuild guild);
     Task<ITrack> JumpAsync(IGuild guild, int track);
 

@@ -34,12 +34,12 @@ public class VictoriaLavalinkNode : ILavalinkNode
         await _node.DisconnectAsync();
     }
 
-    public ILavalinkPlayer GetPlayer(IGuild guild)
+    public ILavalinkPlayer? GetPlayer(IGuild guild)
     {
         return _node.TryGetPlayer(guild, out var lavaPlayer) ? new VictoriaLavalinkPlayer(lavaPlayer, _node) : null;
     }
 
-    public async Task<ILavalinkPlayer> JoinAsync(IVoiceChannel voiceChannel, ITextChannel textChannel = null)
+    public async Task<ILavalinkPlayer> JoinAsync(IVoiceChannel voiceChannel, ITextChannel? textChannel = null)
     {
         var lavaPlayer = await _node.JoinAsync(voiceChannel, textChannel);
 
@@ -66,10 +66,14 @@ public class VictoriaLavalinkNode : ILavalinkNode
         if (arg.Player is not XLavaPlayer player)
         {
             return Task.CompletedTask;
-            ;
         }
 
-        return _events.InvokeAsync(new PlayerUpdatedEventArgs(player.Status, arg.Position, player.VoiceChannel?.Guild));
+        if (player.VoiceChannel?.Guild is null)
+        {
+            return Task.CompletedTask;
+        }
+        
+        return _events.InvokeAsync(new PlayerUpdatedEventArgs(player.Status, arg.Position, player.VoiceChannel.Guild));
     }
 
     private Task OnTrackStuck(TrackStuckEventArgs arg)
