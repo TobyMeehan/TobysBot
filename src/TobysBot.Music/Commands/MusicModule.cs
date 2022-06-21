@@ -436,7 +436,7 @@ public class MusicModule : VoiceCommandModuleBase
     {
         var queue = await _music.GetQueueAsync(Context.Guild!);
 
-        if (queue is null)
+        if (queue is null or {Empty: true})
         {
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithNotPlayingError()
@@ -535,9 +535,10 @@ public class MusicModule : VoiceCommandModuleBase
         await Response.ReactAsync(MoveEmote);
     }
 
-    [Command("remove")]
-    [Alias("rm")]
+    [Command("remove track")]
+    [Alias("remove", "rm")]
     [Summary("Removes the specified track from the queue.")]
+    [Usage("remove", "track")]
     [RequireContext(ContextType.Guild, ErrorMessage = GuildRequiredErrorMessage)]
     [CheckVoice(sameChannel: SameChannel.Required)]
     public async Task RemoveAsync(
@@ -569,8 +570,8 @@ public class MusicModule : VoiceCommandModuleBase
         await Response.ReactAsync(RemoveEmote);
     }
 
-    [Command("removerange")]
-    [Alias("remove range", "rmrange", "rm range")]
+    [Command("remove range")]
+    [Alias("rmrange", "rm range")]
     [Summary("Removes the specified range of tracks from the queue.")]
     [RequireContext(ContextType.Guild, ErrorMessage = GuildRequiredErrorMessage)]
     [CheckVoice(sameChannel: SameChannel.Required)]
