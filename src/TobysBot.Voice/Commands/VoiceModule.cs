@@ -53,7 +53,7 @@ public class VoiceModule : VoiceCommandModuleBase
     [CheckVoice(sameChannel: SameChannel.Required)]
     public async Task RebindAsync(
         [Summary("Channel to rebind to.")] ITextChannel? channel = null,
-        [Name("channelName")] [Summary("Name of channel to rebind to.")]
+        [Name("channelname")] [Summary("Name of channel to rebind to.")]
         string? channelName = null)
     {
         if (channelName is not null)
@@ -338,7 +338,7 @@ public class VoiceModule : VoiceCommandModuleBase
         await Response.ReactAsync(OkEmote);
     }
 
-    [Command("effects list")]
+    [Command("saved effects list")]
     [Summary("Lists all of your saved effect presets.")]
     public async Task ListSavedEffectsAsync()
     {
@@ -359,7 +359,7 @@ public class VoiceModule : VoiceCommandModuleBase
             .Build());
     }
 
-    [Command("effects create")]
+    [Command("saved effects create")]
     [Summary("Saves the current range of effects under the specified name.")]
     [RequireContext(ContextType.Guild)]
     [CheckVoice(sameChannel: SameChannel.Required)]
@@ -376,7 +376,7 @@ public class VoiceModule : VoiceCommandModuleBase
             .Build());
     }
 
-    [Command("effects delete")]
+    [Command("saved effects delete")]
     [Summary("Deletes the specified saved effect preset.")]
     public async Task DeleteSavedEffectAsync(
         [Summary("Name of effect preset to delete.")]
@@ -401,7 +401,7 @@ public class VoiceModule : VoiceCommandModuleBase
             .Build());
     }
 
-    [Command("effects load")]
+    [Command("saved effects load")]
     [Summary("Loads the specified saved effect preset.")]
     [RequireContext(ContextType.Guild)]
     [CheckVoice(sameChannel: SameChannel.Required)]

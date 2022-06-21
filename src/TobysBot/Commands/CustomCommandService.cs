@@ -28,11 +28,9 @@ public class CustomCommandService : ICommandService
 
     private List<ModuleBuilder> _globalModules = new();
     private List<PluginBuilder> _plugins = new();
+    private CommandDictionary _commands = new();
 
-    private CommandDictionary Commands =>
-        _globalModules.SelectMany(x => x.Commands).Concat(_plugins.SelectMany(x => x.Commands)).ToCommandDictionary();
-
-    ICommandDictionary<ICommand> ICommandService.Commands => Commands;
+    ICommandDictionary<ICommand> ICommandService.Commands => _commands;
 
     public IReadOnlyCollection<IModule> GlobalModules => _globalModules;
     public IReadOnlyCollection<IPlugin> Plugins => _plugins;
@@ -51,12 +49,13 @@ public class CustomCommandService : ICommandService
         
         foreach (var module in _commandService.Modules)
         {
-            var builder = new ModuleBuilder()
-                .WithName(module.Name);
+            var builder = ModuleBuilder.Parse(module);
+            _commands.AddRange(builder.Commands);
             
             if (module.Plugin() is null)
             {
                 _globalModules.Add(builder);
+                continue;
             }
 
             var plugin = _plugins.FirstOrDefault(x => x.Id == module.Plugin());
@@ -69,9 +68,11 @@ public class CustomCommandService : ICommandService
             plugin.AddModule(builder);
         }
 
+        var commands = _commands.Select(x => x.Build());
+        
         foreach (var guild in _client.Guilds)
         {
-            await guild.BulkOverwriteApplicationCommandAsync(Commands
+            await guild.BulkOverwriteApplicationCommandAsync(_commands
                 .Select(x => x.Build())
                 .Cast<ApplicationCommandProperties>()
                 .ToArray());
@@ -85,7 +86,7 @@ public class CustomCommandService : ICommandService
 
     public IExecutableCommand Parse(ISlashCommandInteraction interaction)
     {
-        var command = Commands[interaction.Data.Name];
+        var command = _commands[interaction.Data.Name];
         
         return Parse(interaction.Data.Options, command);
     }

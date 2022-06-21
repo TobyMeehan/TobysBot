@@ -8,6 +8,11 @@ public class CommandOptionBuilder : ICommandOption
 {
     public CommandOptionBuilder WithName(string name)
     {
+        if (name.Any(char.IsUpper))
+        {
+            throw new ArgumentException("Name cannot contain uppercase letters.", nameof(name));
+        }
+        
         Name = name;
 
         return this;

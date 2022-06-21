@@ -24,7 +24,7 @@ public class SavedQueueModule : VoiceCommandModuleBase
         _embeds = embeds;
     }
 
-    [Command("queues list")]
+    [Command("saved queues list")]
     [Summary("Lists all of your saved queues.")]
     public async Task ListSavedQueuesAsync()
     {
@@ -45,7 +45,7 @@ public class SavedQueueModule : VoiceCommandModuleBase
             .Build());
     }
 
-    [Command("queues create")]
+    [Command("saved queues create")]
     [Summary("Saves the current queue under the specified name.")]
     [RequireContext(ContextType.Guild, ErrorMessage = "You must be in a guild to save a queue.")]
     [CheckVoice(sameChannel: SameChannel.Required)]
@@ -72,7 +72,7 @@ public class SavedQueueModule : VoiceCommandModuleBase
             .Build());
     }
 
-    [Command("queues delete")]
+    [Command("saved queues delete")]
     [Summary("Deletes the specified saved queue.")]
     public async Task DeleteSavedQueueAsync(
         [Summary("Name of queue to delete.")] string name)
@@ -97,7 +97,7 @@ public class SavedQueueModule : VoiceCommandModuleBase
             .Build());
     }
 
-    [Command("queues share")]
+    [Command("saved queues share")]
     [Summary("Gets a link that anyone can use to play your saved queue.")]
     public async Task ShareSavedQueueAsync(
         [Summary("Name of queue to share.")] string name)
@@ -122,7 +122,7 @@ public class SavedQueueModule : VoiceCommandModuleBase
             .Build());
     }
 
-    [Command("queues load", RunMode = RunMode.Async)]
+    [Command("saved queues load", RunMode = RunMode.Async)]
     [Summary("Loads the specified saved queue.")]
     [RequireContext(ContextType.Guild, ErrorMessage = "You must be in a guild to load a saved queue.")]
     [CheckVoice(sameChannel: SameChannel.IfBotConnected)]

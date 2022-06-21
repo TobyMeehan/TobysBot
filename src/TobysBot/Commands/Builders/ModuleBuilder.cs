@@ -23,7 +23,8 @@ public class ModuleBuilder : IModule
         }
 
         var command = Commands[builder.Name]
-            .WithDescription(builder.Description);
+            .WithDescription(builder.Description)
+            .WithUsages(builder.Usages);
 
         foreach (var subCommand in builder.SubCommands)
         {

@@ -15,6 +15,11 @@ public class CommandBuilder : ICommand
 
     public CommandBuilder WithName(string name)
     {
+        if (name.Any(char.IsUpper))
+        {
+            throw new ArgumentException("Name cannot contain uppercase letters.", nameof(name));
+        }
+        
         Name = name;
 
         return this;
@@ -37,7 +42,8 @@ public class CommandBuilder : ICommand
 
         return this;
     }
-    public IReadOnlyCollection<CommandUsage> Usages { get; set; }
+
+    public IReadOnlyCollection<CommandUsage> Usages { get; set; } = new List<CommandUsage>();
 
     public CommandBuilder AddSubCommand(CommandBuilder builder)
     {
@@ -47,7 +53,8 @@ public class CommandBuilder : ICommand
         }
 
         var command = SubCommands[builder.Name]
-            .WithDescription(builder.Description);
+            .WithDescription(builder.Description)
+            .WithUsages(builder.Usages);
 
         foreach (var subCommand in builder.SubCommands)
         {
@@ -113,7 +120,8 @@ public class CommandBuilder : ICommand
     {
         var builder = new SlashCommandOptionBuilder()
             .WithName(Name)
-            .WithDescription(Description);
+            .WithDescription(Description)
+            .WithType(ApplicationCommandOptionType.SubCommand);
 
         foreach (var subCommand in SubCommands)
         {

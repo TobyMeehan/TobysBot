@@ -20,6 +20,7 @@ public class TobysBotBuilder
 
         services.AddSingleton<DiscordSocketClient>();
         services.AddSingleton<CommandService>();
+        services.AddSingleton<ICommandService, CustomCommandService>();
         services.AddSingleton<CommandHandler>();
         services.AddSingleton<IEventService, EventService>();
 
