@@ -13,13 +13,10 @@ namespace TobysBot.Configuration;
 public class TobysBotBuilder
 {
     public IServiceCollection Services { get; }
-    public CommandCollection Commands { get; } = new();
 
     public TobysBotBuilder(IServiceCollection services)
     {
         Services = services;
-        
-        services.AddSingleton(Commands);
 
         services.AddSingleton<DiscordSocketClient>();
         services.AddSingleton<CommandService>();
@@ -38,9 +35,6 @@ public class TobysBotBuilder
         services.SubscribeEvent<SlashCommandExecutedEventArgs, CommandHandler>();
 
         services.AddHostedService<TobysBotHostedService>();
-        
-        Commands.AddGlobalModule<PingModule>();
-        Commands.AddGlobalModule<HelpModule>();
     }
 
     public TobysBotBuilder(IServiceCollection services, Action<TobysBotOptions> configureOptions) : this(services)
@@ -52,22 +46,6 @@ public class TobysBotBuilder
     {
         Services.Configure<TobysBotOptions>(configuration);
     }
-
-    public TobysBotBuilder AddPlugin(Action<IServiceCollection> configureServices,
-        Action<CommandCollection> configureCommands)
-    {
-        configureServices(Services);
-        configureCommands(Commands);
-
-        return this;
-    }
-
-    public TobysBotBuilder AddTypeReader<TType, TReader>() where TReader : TypeReader, new()
-    {
-        Commands.AddTypeReader<TType, TReader>();
-
-        return this;
-    }
     
     public TobysBotBuilder AddDatabase<TDataAccess>(Action<IServiceCollection> configureServices) where TDataAccess : class, IDataAccess
     {
@@ -76,7 +54,7 @@ public class TobysBotBuilder
         Services.AddTransient<IBaseGuildDataService, BaseGuildDataService>();
         Services.AddTransient<IPrefixDataService, PrefixDataService>();
 
-        Commands.AddGlobalModule<PrefixModule>();
+        Services.AddCommandModule<PrefixModule>();
 
         configureServices(Services);
 

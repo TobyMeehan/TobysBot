@@ -7,9 +7,9 @@ namespace TobysBot.Commands.Modules;
 public class HelpModule : CommandModuleBase
 {
     private readonly EmbedService _embeds;
-    private readonly CommandService _commands;
+    private readonly ICommandService _commands;
 
-    public HelpModule(EmbedService embeds, CommandService commands)
+    public HelpModule(EmbedService embeds, ICommandService commands)
     {
         _embeds = embeds;
         _commands = commands;
@@ -37,12 +37,12 @@ public class HelpModule : CommandModuleBase
             .WithContext(EmbedContext.Information)
             .WithDescription("Toby's Bot is a modular, expandable and open source Discord bot. For more information see [bot.tobymeehan.com](https://bot.tobymeehan.com). View my source code on [Github](https://github.com/TobyMeehan/TobysBot)");
 
-        foreach (var module in _commands.Plugins().Take(25))
+        foreach (var plugin in _commands.Plugins.Take(25))
         {
             embed.AddField(field =>
             {
-                field.Name = module.Name;
-                field.Value = $"`/help {module.Id()}`";
+                field.Name = plugin.Name;
+                field.Value = $"`/help {plugin.Id}`";
                 field.IsInline = true;
             });
         }
@@ -52,7 +52,7 @@ public class HelpModule : CommandModuleBase
 
     private EmbedBuilder Plugin(string plugin)
     {
-        var pluginInfo = _commands.Plugins().FirstOrDefault(x => x.Id() == plugin);
+        var pluginInfo = _commands.Plugins.FirstOrDefault(x => x.Id == plugin);
 
         if (pluginInfo is null)
         {
@@ -64,14 +64,14 @@ public class HelpModule : CommandModuleBase
         var embed = _embeds.Builder()
             .WithContext(EmbedContext.Information)
             .WithAuthor($"{pluginInfo.Name} Plugin")
-            .WithDescription(pluginInfo.Summary);
+            .WithDescription(pluginInfo.Description);
         
-        foreach (var command in pluginInfo.GetAllCommands().Take(25))
+        foreach (var usage in pluginInfo.Commands.SelectMany(x => x.Usages).Take(25))
         {
             embed.AddField(field =>
             {
-                field.Name = $"/{command.Aliases[0]}";
-                field.Value = command.Summary;
+                field.Name = $"/{usage.CommandName} {string.Join(' ', usage.Parameters.Select(x => $"[{x}]"))}";
+                field.Value = usage.Description;
             });
         }
 

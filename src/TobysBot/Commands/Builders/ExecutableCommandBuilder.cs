@@ -15,9 +15,9 @@ public class ExecutableCommandBuilder : IExecutableCommand
 
     public string? Name => _command.Name;
     public string? Description => _command.Description;
+    public IReadOnlyCollection<CommandUsage> Usages => _command.Usages;
     public ICommandDictionary<ICommand> SubCommands => _command.SubCommands;
     public IReadOnlyCollection<ICommandOption> Options => _command.Options;
-
 
     public ExecutableCommandBuilder WithArguments(IEnumerable<KeyValuePair<object, object>> arguments)
     {

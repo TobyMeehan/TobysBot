@@ -1,10 +1,12 @@
 ﻿using Discord;
 using Discord.Commands;
+using TobysBot.Extensions;
 
 namespace TobysBot.Commands.Builders;
 
 public class CommandBuilder : ICommand
 {
+    
     public CommandDictionary SubCommands { get; } = new();
     public List<CommandOptionBuilder> Options { get; } = new();
 
@@ -28,6 +30,14 @@ public class CommandBuilder : ICommand
     }
 
     public string? Description { get; set; }
+
+    public CommandBuilder WithUsages(IEnumerable<CommandUsage> usages)
+    {
+        Usages = usages.ToList();
+
+        return this;
+    }
+    public IReadOnlyCollection<CommandUsage> Usages { get; set; }
 
     public CommandBuilder AddSubCommand(CommandBuilder builder)
     {
@@ -149,6 +159,7 @@ public class CommandBuilder : ICommand
 
         return builder
             .WithDescription(commandInfo.Summary)
+            .WithUsages(commandInfo.Usage())
             .WithCheckPreconditions(async (context, services) => await commandInfo.CheckPreconditionsAsync(context, services))
             .WithExecute(commandInfo.ExecuteAsync);
     }
