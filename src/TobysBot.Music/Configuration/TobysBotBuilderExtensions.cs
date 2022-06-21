@@ -35,11 +35,10 @@ public static class TobysBotBuilderExtensions
 
         return AddModule(builder, options);
     }
-    
+
     private static TobysBotBuilder AddModule(TobysBotBuilder builder, MusicOptions options)
     {
-        return builder.AddPlugin(
-            services =>
+        builder.AddPlugin<MusicPlugin>(services =>
             {
                 if (options.Search is not null)
                 {
@@ -49,54 +48,54 @@ public static class TobysBotBuilderExtensions
                         config.Authorization = options.Search.Authorization;
                         config.Port = options.Search.Port;
                     });
-                    
+
                     services.AddTransient<ISearchResolver, VictoriaResolver>();
                 }
 
                 services.AddTransient<IMusicService, MemoryMusicService>();
                 services.AddSingleton<IMemoryQueueService, MemoryQueueService>();
-                
+
                 services.AddTransient<ISearchService, SearchService>();
                 services.AddTransient<ISearchResolver, YouTubeResolver>();
                 services.AddTransient<ISearchResolver, SavedQueueResolver>();
-                
+
                 services.AddTransient<ILyricsService, LyricsService>();
                 services.AddTransient<ILyricsResolver, GeniusLyricsResolver>();
 
                 services.AddTransient<ISavedQueueDataService, SavedQueueDataService>();
-                
+
                 services.AddTransient<YoutubeClient>();
 
                 if (options.Spotify is not null)
                 {
                     switch (options.Spotify)
                     {
-                        case {ClientId: null}:
+                        case { ClientId: null }:
                             throw new NullReferenceException("Spotify client ID not specified.");
-                        case {ClientSecret: null}:
+                        case { ClientSecret: null }:
                             throw new NullReferenceException("Spotify client secret not specified.");
                     }
-                    
+
                     services.AddSingleton(SpotifyClientConfig
                         .CreateDefault()
                         .WithAuthenticator(new ClientCredentialsAuthenticator(options.Spotify.ClientId,
                             options.Spotify.ClientSecret)));
                     services.AddTransient<ISpotifyClient, SpotifyClient>();
-                    
+
                     services.AddTransient<ISearchResolver, SpotifyResolver>();
                 }
-                
+
                 services.SubscribeEvent<PlayerUpdatedEventArgs, TrackProgressEventHandler>();
                 services.SubscribeEvent<SoundEndedEventArgs, AutoplayEventHandler>();
-                
+
                 services.SubscribeEvent<SoundStartedEventArgs, TrackNotificationEventHandler>();
                 services.SubscribeEvent<SoundExceptionEventArgs, TrackExceptionEventHandler>();
-                
+
                 services.SubscribeEvent<VoiceChannelLeaveEventArgs, VoiceDisconnectedEventHandler>();
-            },
-            commands =>
-            {
-                commands.AddPlugin<MusicPlugin>();
-            });
+            })
+            .AddModule<MusicModule>()
+            .AddModule<SavedQueueModule>();
+
+        return builder;
     }
 }

@@ -28,15 +28,10 @@ public static class TobysBotBuilderExtensions
     
     private static TobysBotBuilder AddModule(TobysBotBuilder builder, StarOptions options)
     {
-        return builder.AddPlugin(
-            _ =>
-            {
+        builder.AddPlugin<MiscPlugin>(_ => { })
+            .AddModule<ClassicModule>()
+            .AddModule<MiscModule>();
 
-            },
-            commands =>
-            {
-                commands.AddGlobalModule<ClassicModule>();
-                commands.AddGlobalModule<MiscModule>();
-            });
+        return builder;
     }
 }

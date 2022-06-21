@@ -35,8 +35,7 @@ public static class TobysBotBuilderExtensions
 
     private static TobysBotBuilder AddModule(TobysBotBuilder builder, VoiceOptions options)
     {
-        builder.AddPlugin(
-            services =>
+        builder.AddPlugin<VoicePlugin>(services =>
             {
                 services.AddLavaNode<XLavaPlayer>(config =>
                 {
@@ -56,16 +55,13 @@ public static class TobysBotBuilderExtensions
                 services.AddTransient<ISavedPresetDataService, SavedPresetDataService>();
 
                 services.AddHostedService<LavalinkHostedService>();
-                
+
                 services.SubscribeEvent<LavalinkLogEventArgs, LavalinkLogger>();
                 services.SubscribeEvent<DiscordClientReadyEventArgs, LavalinkHostedService>();
-                
+
                 services.SubscribeEvent<VoiceStateUpdatedEventArgs, VoiceStateUpdatedEventHandler>();
-            },
-            commands =>
-            {
-               commands.AddPlugin<VoicePlugin>();
-            });
+            })
+            .AddModule<VoiceModule>();
 
         return builder;
     }

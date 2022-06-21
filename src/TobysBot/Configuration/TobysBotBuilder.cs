@@ -46,6 +46,13 @@ public class TobysBotBuilder
     {
         Services.Configure<TobysBotOptions>(configuration);
     }
+
+    public PluginBuilder<T> AddPlugin<T>(Action<IServiceCollection> configureServices) where T : class, IPluginRegistration
+    {
+        configureServices(Services);
+        
+        return Services.AddPlugin<T>();
+    }
     
     public TobysBotBuilder AddDatabase<TDataAccess>(Action<IServiceCollection> configureServices) where TDataAccess : class, IDataAccess
     {
