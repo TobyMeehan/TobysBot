@@ -4,8 +4,8 @@ namespace TobysBot.Commands.Builders;
 
 public class ModuleBuilder : IModule
 {
-    IReadOnlyCollection<ICommand> IModule.Commands => Commands.Values;
-    public Dictionary<string, CommandBuilder> Commands { get; } = new();
+    ICommandDictionary<ICommand> IModule.Commands => Commands;
+    public CommandDictionary Commands { get; } = new();
 
     public ModuleBuilder WithName(string name)
     {
@@ -22,16 +22,10 @@ public class ModuleBuilder : IModule
             throw new NullReferenceException("Command name was null.");
         }
 
-        if (!Commands.TryGetValue(builder.Name, out var command))
-        {
-            command = new CommandBuilder()
-                .WithName(builder.Name)
-                .WithDescription(builder.Description);
+        var command = Commands[builder.Name]
+            .WithDescription(builder.Description);
 
-            Commands[builder.Name] = command;
-        }
-
-        foreach (var subCommand in builder.SubCommands.Values)
+        foreach (var subCommand in builder.SubCommands)
         {
             command.AddSubCommand(subCommand);
         }

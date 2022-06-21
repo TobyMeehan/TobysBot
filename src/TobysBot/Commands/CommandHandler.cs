@@ -13,14 +13,14 @@ namespace TobysBot.Commands;
 public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHandler<SlashCommandExecutedEventArgs>
 {
     private readonly DiscordSocketClient _client;
-    private readonly CommandService _commandService;
+    private readonly ICommandService _commandService;
     private readonly EmbedService _embeds;
     private readonly IBaseGuildDataService _guildData;
     private readonly IServiceProvider _services;
     private readonly TobysBotOptions _options;
     private readonly ILogger<CommandHandler> _logger;
 
-    public CommandHandler(DiscordSocketClient client, CommandService commandService, EmbedService embeds, IBaseGuildDataService guildData,
+    public CommandHandler(DiscordSocketClient client, ICommandService commandService, EmbedService embeds, IBaseGuildDataService guildData,
         IServiceProvider services, IOptions<TobysBotOptions> options, ILogger<CommandHandler> logger)
     {
         _client = client;
@@ -57,7 +57,7 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
 
         var context = new SocketGenericCommandContext(_client, message);
 
-        var result = await _commandService.ExecuteAsync(context, argPos, _services);
+        var result = await _commandService.ExecuteAsync(context, argPos);
 
         _logger.LogInformation("Text command executed \n" +
                                "in guild {GuildId} ({GuildName}) \n" +
@@ -78,39 +78,11 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
 
     async Task IEventHandler<SlashCommandExecutedEventArgs>.HandleAsync(SlashCommandExecutedEventArgs args)
     {
-        string commandName = args.Command.CommandName;
-        var options = args.Command.Data.Options;
+        var command = _commandService.Parse(args.Command);
 
-        foreach (var group in args.Command.Data.Options.Where(x => x.Type is ApplicationCommandOptionType.SubCommandGroup))
-        {
-            commandName += $" {group.Name}";
-
-            foreach (var subcommand in group.Options.Where(x => x.Type is ApplicationCommandOptionType.SubCommand))
-            {
-                commandName += $" {subcommand.Name}";
-                options = subcommand.Options;
-            }
-        }
-
-        foreach (var subcommand in args.Command.Data.Options.Where(x => x.Type is ApplicationCommandOptionType.SubCommand))
-        {
-            commandName += $" {subcommand.Name}";
-            options = subcommand.Options;
-        }
-        
         var context = new SocketGenericCommandContext(_client, args.Command);
-
-        var command = _commandService.Commands.FirstOrDefault(
-            c => c.Aliases.Contains(commandName));
-
-        if (command is null)
-        {
-            _logger.LogError("Slash command not found: {Name}", args.Command.CommandName);
-
-            return;
-        }
-
-        var preconditionResult = await command.CheckPreconditionsAsync(context, _services);
+        
+        var preconditionResult = await command.CheckPreconditionsAsync(context);
 
         if (!preconditionResult.IsSuccess)
         {
@@ -120,31 +92,8 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
 
             return;
         }
-
-        var parameters = command.Parameters.ToDictionary(
-                x => x,
-                x => x.IsOptional ? x.DefaultValue : null);
         
-        foreach (var parameter in parameters.Keys.ToList())
-        {
-            var option = options.FirstOrDefault(x => x.Name == parameter.Name);
-        
-            if (option is null)
-            {
-                continue;
-            }
-        
-            object value = option.Value;
-        
-            if (value is long and <= int.MaxValue && parameter.Type == typeof(int))
-            {
-                value = Convert.ToInt32(value);
-            }
-            
-            parameters[parameter] = value;
-        }
-        
-        var result = await command.ExecuteAsync(context, parameters.Values, parameters.Keys.Select(x => x.Name), _services);
+        var result = await command.ExecuteAsync(context);
 
         _logger.LogInformation("Slash command '{Command}' executed \n" +
                                "in guild {GuildId} ({GuildName}) \n" +

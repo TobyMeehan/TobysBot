@@ -29,10 +29,10 @@ public class CustomCommandService : ICommandService
     private List<ModuleBuilder> _globalModules = new();
     private List<PluginBuilder> _plugins = new();
 
-    private IEnumerable<CommandBuilder> Commands =>
-        _globalModules.SelectMany(x => x.Commands.Values).Concat(_plugins.SelectMany(x => x.Commands));
+    private CommandDictionary Commands =>
+        _globalModules.SelectMany(x => x.Commands).Concat(_plugins.SelectMany(x => x.Commands)).ToCommandDictionary();
 
-    IReadOnlyCollection<ICommand> ICommandService.Commands => Commands.ToList();
+    ICommandDictionary<ICommand> ICommandService.Commands => Commands;
 
     public IReadOnlyCollection<IModule> GlobalModules => _globalModules;
     public IReadOnlyCollection<IPlugin> Plugins => _plugins;
@@ -76,5 +76,57 @@ public class CustomCommandService : ICommandService
                 .Cast<ApplicationCommandProperties>()
                 .ToArray());
         }
+    }
+
+    public async Task<IResult> ExecuteAsync(ICommandContext context, int argPos)
+    {
+        return await _commandService.ExecuteAsync(context, argPos, _services);
+    }
+
+    public IExecutableCommand Parse(ISlashCommandInteraction interaction)
+    {
+        var command = Commands[interaction.Data.Name];
+        
+        return Parse(interaction.Data.Options, command);
+    }
+
+    private IExecutableCommand Parse(IEnumerable<IApplicationCommandInteractionDataOption> data, CommandBuilder command)
+    {
+        var options = data.ToList();
+        
+        var subCommand = options.FirstOrDefault(x =>
+            x.Type is ApplicationCommandOptionType.SubCommand or ApplicationCommandOptionType.SubCommandGroup);
+
+        if (subCommand is not null)
+        {
+            return Parse(subCommand.Options, command.SubCommands[subCommand.Name]);
+        }
+
+        var arguments = command.Options.ToDictionary(
+            x => x,
+            x => x.Required ? null : x.DefaultValue);
+
+        foreach (var argument in arguments.Keys.ToList())
+        {
+            var option = options.FirstOrDefault(x => x.Name == argument.Name);
+
+            if (option is null)
+            {
+                continue;
+            }
+
+            object value = option.Value;
+
+            if (value is long and <= int.MaxValue && argument.Type == typeof(int))
+            {
+                value = Convert.ToInt32(value);
+            }
+
+            arguments[argument] = value;
+        }
+
+        return command
+            .Executable(_services)
+            .WithArguments(arguments.ToDictionary(x => (object)x.Key.Name!, x => x.Value!));
     }
 }

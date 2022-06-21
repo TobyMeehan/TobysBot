@@ -30,6 +30,14 @@ public class CommandOptionBuilder : ICommandOption
     }
     public bool Required { get; set; }
 
+    public CommandOptionBuilder WithDefault(object value)
+    {
+        DefaultValue = value;
+
+        return this;
+    }
+    public object? DefaultValue { get; set; }
+
     public CommandOptionBuilder WithType(Type type)
     {
         Type = type;
@@ -108,6 +116,7 @@ public class CommandOptionBuilder : ICommandOption
             .WithName(parameterInfo.Name)
             .WithDescription(parameterInfo.Summary)
             .WithRequired(!parameterInfo.IsOptional)
+            .WithDefault(parameterInfo.DefaultValue)
             .WithType(parameterInfo.Type);
 
         return builder;

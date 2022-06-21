@@ -3,5 +3,5 @@
 public interface IModule
 {
     string? Name { get; }
-    IReadOnlyCollection<ICommand> Commands { get; }
+    ICommandDictionary<ICommand> Commands { get; }
 }

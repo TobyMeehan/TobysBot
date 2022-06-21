@@ -1,11 +1,13 @@
-﻿namespace TobysBot.Commands.Builders;
+﻿using TobysBot.Extensions;
+
+namespace TobysBot.Commands.Builders;
 
 public class PluginBuilder : IPlugin
 {
     IReadOnlyCollection<IModule> IPlugin.Modules => Modules;
     public List<ModuleBuilder> Modules { get; } = new();
-    IReadOnlyCollection<ICommand> IPlugin.Commands => Commands;
-    public List<CommandBuilder> Commands => Modules.SelectMany(x => x.Commands.Values).ToList();
+    ICommandDictionary<ICommand> IPlugin.Commands => Commands;
+    public CommandDictionary Commands => Modules.SelectMany(x => x.Commands).ToCommandDictionary();
 
     public PluginBuilder WithId(string id)
     {

@@ -3,7 +3,7 @@
 public interface IPlugin
 {
     IReadOnlyCollection<IModule> Modules { get; }
-    IReadOnlyCollection<ICommand> Commands { get; }
+    ICommandDictionary<ICommand> Commands { get; }
     
     string? Id { get; }
     string? Name { get; }
