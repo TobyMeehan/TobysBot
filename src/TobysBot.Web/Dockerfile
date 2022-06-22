@@ -1,4 +1,4 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
@@ -11,9 +11,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_14.x | bash - \
         nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /src/src
-COPY ["TobysBot.Web/TobysBot.Web.csproj", "TobysBot.Web/"]
-RUN dotnet restore "TobysBot.Web/TobysBot.Web.csproj"
+WORKDIR /src
+COPY ["src/TobysBot.Web/TobysBot.Web.csproj", "TobysBot.Web/"]
+RUN dotnet restore "src/TobysBot.Web/TobysBot.Web.csproj"
 COPY . .
 WORKDIR "/src/TobysBot.Web"
 RUN dotnet build "TobysBot.Web.csproj" -c Release -o /app/build
