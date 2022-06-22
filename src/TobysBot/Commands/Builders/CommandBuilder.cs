@@ -43,7 +43,15 @@ public class CommandBuilder : ICommand
         return this;
     }
 
-    public IReadOnlyCollection<CommandUsage> Usages { get; set; } = new List<CommandUsage>();
+    public CommandBuilder AddUsages(IEnumerable<CommandUsage> usages)
+    {
+        Usages.AddRange(usages);
+
+        return this;
+    }
+    public List<CommandUsage> Usages { get; set; } = new();
+
+    IReadOnlyCollection<CommandUsage> ICommand.Usages => Usages;
 
     public CommandBuilder AddSubCommand(CommandBuilder builder)
     {
@@ -52,19 +60,8 @@ public class CommandBuilder : ICommand
             throw new NullReferenceException("Subcommand name was null.");
         }
 
-        var command = SubCommands[builder.Name]
-            .WithDescription(builder.Description)
-            .WithUsages(builder.Usages);
-
-        foreach (var subCommand in builder.SubCommands)
-        {
-            command.AddSubCommand(subCommand);
-        }
-
-        foreach (var option in builder.Options)
-        {
-            command.AddOption(option);
-        }
+        SubCommands[builder.Name]
+            .Join(builder);
 
         return this;
     }
@@ -76,7 +73,7 @@ public class CommandBuilder : ICommand
         return this;
     }
 
-    public CommandBuilder WithExecute(Func<ICommandContext, IEnumerable<object>, IEnumerable<object>, IServiceProvider, Task<IResult>> execute)
+    public CommandBuilder WithExecute(Func<ICommandContext, IEnumerable<object>, IEnumerable<object>, IServiceProvider, Task<IResult>>? execute)
     {
         Execute = execute;
 
@@ -84,7 +81,7 @@ public class CommandBuilder : ICommand
     }
     public Func<ICommandContext, IEnumerable<object>, IEnumerable<object>, IServiceProvider, Task<IResult>>? Execute { get; set; }
     
-    public CommandBuilder WithCheckPreconditions(Func<ICommandContext, IServiceProvider, Task<IResult>> checkPreconditions)
+    public CommandBuilder WithCheckPreconditions(Func<ICommandContext, IServiceProvider, Task<IResult>>? checkPreconditions)
     {
         CheckPreconditions = checkPreconditions;
 
@@ -97,6 +94,26 @@ public class CommandBuilder : ICommand
         return new ExecutableCommandBuilder(this, services);
     }
 
+    public CommandBuilder Join(CommandBuilder command)
+    {
+        WithDescription(command.Description);
+        AddUsages(command.Usages);
+        WithExecute(command.Execute);
+        WithCheckPreconditions(command.CheckPreconditions);
+
+        foreach (var option in command.Options)
+        {
+            AddOption(option);
+        }
+
+        foreach (var subCommand in command.SubCommands)
+        {
+            AddSubCommand(subCommand);
+        }
+
+        return this;
+    }
+    
     public SlashCommandProperties Build()
     {
         var builder = new SlashCommandBuilder()
@@ -149,6 +166,7 @@ public class CommandBuilder : ICommand
     {
         var builder = new CommandBuilder()
             .WithName(segments[0])
+            .WithUsages(commandInfo.Usage())
             .WithDescription("undefined");
 
         if (segments.Length > 1)
@@ -158,16 +176,11 @@ public class CommandBuilder : ICommand
 
         foreach (var parameter in commandInfo.Parameters)
         {
-            builder.AddOption(new CommandOptionBuilder()
-                .WithName(parameter.Name)
-                .WithDescription(parameter.Summary)
-                .WithType(parameter.Type)
-                .WithRequired(!parameter.IsOptional));
+            builder.AddOption(CommandOptionBuilder.Parse(parameter));
         }
 
         return builder
             .WithDescription(commandInfo.Summary)
-            .WithUsages(commandInfo.Usage())
             .WithCheckPreconditions(async (context, services) => await commandInfo.CheckPreconditionsAsync(context, services))
             .WithExecute(commandInfo.ExecuteAsync);
     }

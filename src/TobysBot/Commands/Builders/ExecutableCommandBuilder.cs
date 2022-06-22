@@ -46,6 +46,6 @@ public class ExecutableCommandBuilder : IExecutableCommand
             return ExecuteResult.FromError(CommandError.UnknownCommand, "Execute function not set for this command.");
         }
         
-        return await _command.Execute.Invoke(context, Arguments.Keys, Arguments.Values, _services);
+        return await _command.Execute.Invoke(context, Arguments.Values, Arguments.Keys, _services);
     }
 }

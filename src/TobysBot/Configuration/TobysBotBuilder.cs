@@ -36,6 +36,9 @@ public class TobysBotBuilder
         services.SubscribeEvent<SlashCommandExecutedEventArgs, CommandHandler>();
 
         services.AddHostedService<TobysBotHostedService>();
+
+        services.AddCommandModule<HelpModule>();
+        services.AddCommandModule<PingModule>();
     }
 
     public TobysBotBuilder(IServiceCollection services, Action<TobysBotOptions> configureOptions) : this(services)

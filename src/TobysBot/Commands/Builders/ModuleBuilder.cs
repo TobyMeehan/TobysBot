@@ -22,19 +22,8 @@ public class ModuleBuilder : IModule
             throw new NullReferenceException("Command name was null.");
         }
 
-        var command = Commands[builder.Name]
-            .WithDescription(builder.Description)
-            .WithUsages(builder.Usages);
-
-        foreach (var subCommand in builder.SubCommands)
-        {
-            command.AddSubCommand(subCommand);
-        }
-
-        foreach (var option in builder.Options)
-        {
-            command.AddOption(option);
-        }
+        Commands[builder.Name]
+            .Join(builder);
 
         return this;
     }

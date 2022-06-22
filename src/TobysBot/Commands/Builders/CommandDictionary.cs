@@ -41,19 +41,8 @@ public class CommandDictionary : ICommandDictionary<CommandBuilder>
                 throw new NullReferenceException("Command name was null.");
             }
 
-            var existingCommand = this[command.Name]
-                .WithDescription(command.Description)
-                .WithUsages(command.Usages);
-
-            foreach (var option in command.Options)
-            {
-                existingCommand.AddOption(option);
-            }
-
-            foreach (var subCommand in command.SubCommands)
-            {
-                existingCommand.AddSubCommand(subCommand);
-            }
+            this[command.Name]
+                .Join(command);
         }
     }
     

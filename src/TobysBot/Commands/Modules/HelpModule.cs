@@ -63,14 +63,14 @@ public class HelpModule : CommandModuleBase
 
         var embed = _embeds.Builder()
             .WithContext(EmbedContext.Information)
-            .WithAuthor($"{pluginInfo.Name} Plugin")
+            .WithTitle($"{pluginInfo.Name} Plugin")
             .WithDescription(pluginInfo.Description);
-        
+
         foreach (var usage in pluginInfo.Commands.SelectMany(x => x.Usages).Take(25))
         {
             embed.AddField(field =>
             {
-                field.Name = $"/{usage.CommandName} {string.Join(' ', usage.Parameters.Select(x => $"[{x}]"))}";
+                field.Name = $"/{usage.CommandName} {string.Join(", ", usage.Parameters.Select(x => $"[{x}]"))}";
                 field.Value = usage.Description;
             });
         }
