@@ -11,8 +11,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_14.x | bash - \
         nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /src
-COPY ["src/TobysBot.Web/TobysBot.Web.csproj", "TobysBot.Web/"]
+WORKDIR /src/src
+COPY ["TobysBot.Web/TobysBot.Web.csproj", "TobysBot.Web/"]
 RUN dotnet restore "TobysBot.Web/TobysBot.Web.csproj"
 COPY . .
 WORKDIR "/src/TobysBot.Web"
