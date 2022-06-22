@@ -3,7 +3,9 @@ using Discord.Commands;
 using Fergun.Interactive;
 using Fergun.Interactive.Pagination;
 using Fergun.Interactive.Selection;
+using Microsoft.Extensions.Options;
 using TobysBot.Commands.Response;
+using TobysBot.Configuration;
 using TobysBot.Extensions;
 
 namespace TobysBot.Commands.Modules;
@@ -13,14 +15,16 @@ public class HelpModule : CommandModuleBase
     private readonly EmbedService _embeds;
     private readonly ICommandService _commands;
     private readonly InteractiveService _interactions;
-    
+    private readonly TobysBotEmbedOptions? _options;
+
     private static IEmote OkEmote => new Emoji("👌");
     
-    public HelpModule(EmbedService embeds, ICommandService commands, InteractiveService interactions)
+    public HelpModule(EmbedService embeds, ICommandService commands, InteractiveService interactions, IOptions<TobysBotOptions> options)
     {
         _embeds = embeds;
         _commands = commands;
         _interactions = interactions;
+        _options = options.Value.Embeds;
     }
 
     private bool _responded = false;
@@ -41,7 +45,8 @@ public class HelpModule : CommandModuleBase
                 .WithTitle("Toby's Bot Commands")
                 .WithDescription(
                     "Toby's Bot is a modular, expandable and open source Discord bot. For more information see [bot.tobymeehan.com](https://bot.tobymeehan.com). View my source code on [Github](https://github.com/TobyMeehan/TobysBot)")
-                ;
+                .WithFooter("Use /prefix to change the prefix.")
+                .WithColor(_options?.Colors?.Information ?? Color.LightGrey);
         
         foreach (var plugin in _commands.Plugins.Take(25))
         {
@@ -114,6 +119,7 @@ public class HelpModule : CommandModuleBase
         PageBuilder GeneratePage(int index)
         {
             var page = new PageBuilder()
+                .WithColor(_options?.Colors?.Information ?? Color.LightGrey)
                 .WithTitle($"{pluginInfo.Name} Plugin")
                 .WithDescription(pluginInfo.Description!);
             

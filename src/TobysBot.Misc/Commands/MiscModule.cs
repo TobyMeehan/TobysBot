@@ -5,6 +5,7 @@ using TobysBot.Commands.Response;
 
 namespace TobysBot.Misc.Commands;
 
+[Plugin("misc")]
 public class MiscModule : CommandModuleBase
 {
     private static IEmote OkEmote => new Emoji("👌");

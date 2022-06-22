@@ -8,6 +8,7 @@ using TobysBot.Misc.Extensions;
 
 namespace TobysBot.Misc.Commands;
 
+[Plugin("misc")]
 public class ClassicModule : CommandModuleBase
 {
     private readonly StarOptions _options;
@@ -96,6 +97,7 @@ public class ClassicModule : CommandModuleBase
 
     [Command("summon")]
     [Summary("Summons the user to your activity.")]
+    [Usage("summon", "user or role")]
     public async Task SummonAsync(
         [Summary("User to summon.")]
         IUser? user = null, 
