@@ -1,4 +1,4 @@
 {
   "schemaVersion": 2,
-  "dockerfilePath": "./TobysBot.Discord/Dockerfile"
+  "dockerfilePath": "./src/TobysBot.Web/Dockerfile"
 }
