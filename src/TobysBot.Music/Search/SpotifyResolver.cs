@@ -107,16 +107,25 @@ public class SpotifyResolver : ISearchResolver
 
         var search = _youtube.Search.GetVideosAsync($"{track.Artists[0].Name} {track.Name}");
 
-        var video = await search.FirstAsync();
-
-        if (!video.Duration.HasValue)
+        await foreach (var video in search)
         {
-            return new LoadFailedSearchResult($"Failed to load Spotify track {track.Name}.",
-                new NullReferenceException("YouTube video duration was null."));
+            if (!video.Duration.HasValue)
+            {
+                continue;
+            }
+
+            if ((video.Duration.Value - TimeSpan.FromMilliseconds(track.DurationMs)).Duration() > TimeSpan.FromSeconds(10))
+            {
+                continue;
+            }
+            
+            return new TrackResult(
+                new SpotifyTrack(track, video.Url, video.Duration.Value, requestedBy));
         }
 
-        return new TrackResult(
-            new SpotifyTrack(track, video.Url, video.Duration.Value, requestedBy));
+        return new LoadFailedSearchResult($"Failed to load Spotify track {track.Name}.");
+
+        
     }
 
     public int Priority => 200;
