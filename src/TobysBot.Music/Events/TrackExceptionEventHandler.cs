@@ -36,7 +36,7 @@ public class TrackExceptionEventHandler : IEventHandler<SoundExceptionEventArgs>
             {
                 await status.TextChannel.SendMessageAsync(embed: _embeds.Builder()
                     .WithContext(EmbedContext.Error)
-                    .WithDescription($"Could not play [{track.Title}]({track.Url}), {args.Exception}")
+                    .WithDescription($"Error playing [{track.Title}]({track.Url})")
                     .Build());
             }
             

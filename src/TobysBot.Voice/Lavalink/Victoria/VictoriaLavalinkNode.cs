@@ -83,7 +83,7 @@ public class VictoriaLavalinkNode : ILavalinkNode
             return Task.CompletedTask;
         }
 
-        return _events.InvokeAsync(new SoundStuckEventArgs(player.Sound, player.Status, arg.Threshold));
+        return _events.InvokeAsync(new SoundStuckEventArgs(player.Sound, player.Status, arg.Threshold, player.VoiceChannel.Guild));
     }
 
     private Task OnTrackStarted(TrackStartEventArgs arg)
