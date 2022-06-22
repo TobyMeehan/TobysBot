@@ -15,9 +15,9 @@ public class VaporwaveEqualizer : BaseEqualizer
         -0.05d,
         0.0d,
         0.05d,
-        0.1d,
+        0.09d,
+        0.13d,
         0.15d,
-        0.2d,
-        0.2d
+        0.15d
     };
 }
