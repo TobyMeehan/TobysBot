@@ -49,6 +49,7 @@ public class VoiceModule : VoiceCommandModuleBase
 
     [Command("rebind")]
     [Summary("Rebinds track notifications to the specified text channel.")]
+    [Usage("rebind", "channel mention or name")]
     [RequireContext(ContextType.Guild)]
     [CheckVoice(sameChannel: SameChannel.Required)]
     public async Task RebindAsync(
@@ -161,6 +162,7 @@ public class VoiceModule : VoiceCommandModuleBase
 
     [Command("volume")]
     [Summary("Sets the volume.")]
+    [Usage("volume", "new volume")]
     [RequireContext(ContextType.Guild)]
     [CheckVoice(sameChannel: SameChannel.Required)]
     public async Task VolumeAsync(
@@ -203,6 +205,7 @@ public class VoiceModule : VoiceCommandModuleBase
 
     [Command("speed")]
     [Summary("Sets the playback speed.")]
+    [Usage("speed", "new speed")]
     [RequireContext(ContextType.Guild)]
     [CheckVoice(sameChannel: SameChannel.Required)]
     public async Task SpeedAsync(
@@ -235,6 +238,7 @@ public class VoiceModule : VoiceCommandModuleBase
 
     [Command("pitch")]
     [Summary("Sets the pitch.")]
+    [Usage("pitch", "new pitch")]
     [RequireContext(ContextType.Guild)]
     [CheckVoice(sameChannel: SameChannel.Required)]
     public async Task PitchAsync(
