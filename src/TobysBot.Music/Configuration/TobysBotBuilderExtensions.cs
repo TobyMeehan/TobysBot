@@ -42,12 +42,7 @@ public static class TobysBotBuilderExtensions
             {
                 if (options.Search is not null)
                 {
-                    services.AddLavaNode(config =>
-                    {
-                        config.Hostname = options.Search.Hostname;
-                        config.Authorization = options.Search.Authorization;
-                        config.Port = options.Search.Port;
-                    });
+                    services.AddSingleton<LavaNode>();
 
                     services.AddTransient<ISearchResolver, VictoriaResolver>();
                 }
