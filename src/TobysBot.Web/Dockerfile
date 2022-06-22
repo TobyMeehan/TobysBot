@@ -12,12 +12,12 @@ RUN curl -fsSL https://deb.nodesource.com/setup_14.x | bash - \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
-RUN ls
-COPY ["src/TobysBot.Web/TobysBot.Web.csproj", "TobysBot.Web/"]
+RUN echo $(ls)
+COPY ["src/", "./"]
 RUN dotnet restore "src/TobysBot.Web/TobysBot.Web.csproj"
 COPY . .
 WORKDIR "/src/TobysBot.Web"
-RUN ls
+RUN echo $(ls)
 RUN dotnet build "TobysBot.Web.csproj" -c Release -o /app/build
 
 FROM build AS publish
