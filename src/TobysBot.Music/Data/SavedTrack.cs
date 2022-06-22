@@ -1,4 +1,6 @@
-﻿namespace TobysBot.Music.Data;
+﻿using Discord;
+
+namespace TobysBot.Music.Data;
 
 public class SavedTrack : ITrack
 {
@@ -23,6 +25,8 @@ public class SavedTrack : ITrack
     public string Url { get; set; } = null!;
     public string AudioUrl { get; set; } = null!;
     public TimeSpan Duration { get; set; }
-    
+
     // -- --
+
+    public IUser RequestedBy { get; set; } = null!;
 }

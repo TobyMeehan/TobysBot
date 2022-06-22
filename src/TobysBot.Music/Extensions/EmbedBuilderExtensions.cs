@@ -5,6 +5,7 @@ using TobysBot.Extensions;
 using TobysBot.Music.Configuration;
 using TobysBot.Music.Lyrics;
 using TobysBot.Music.Search.Result;
+using System;
 
 namespace TobysBot.Music.Extensions;
 
@@ -196,7 +197,7 @@ public static class EmbedBuilderExtensions
 
         var sb = new StringBuilder();
 
-        sb.AppendLine($"[{track.Title}]({track.Url})");
+        sb.AppendLine($"[{Format.Sanitize(track.Title)}]({track.Url}) [{track.RequestedBy.Mention}]");
 
         sb.Append($"`{track.Position.ToTimeStamp()}`");
         sb.Append(' ');
@@ -267,7 +268,8 @@ public static class EmbedBuilderExtensions
             }
 
             sb.Append($"{(queue.Loop is TrackLoopSetting ? " 🔂" : "")})** ");
-            sb.Append($"**[{current.Title}]({current.Url})** ");
+            sb.Append($"**[{Format.Sanitize(current.Title)}]({current.Url})** ");
+            sb.Append($"[{current.RequestedBy.Mention}] ");
             sb.Append($"`{current.Position.ToTimeStamp()}`/`{current.Duration.ToTimeStamp()}`");
             sb.AppendLine();
         }
@@ -279,15 +281,17 @@ public static class EmbedBuilderExtensions
             if (previous.TryDequeue(out var previousTrack))
             {
                 sb.PrependLine($"**{currentPosition - i}.** " +
-                               $"[{previousTrack.Title}]({previousTrack.Url})" +
-                               $" `{previousTrack.Duration.ToTimeStamp()}`");
+                               $"[{previousTrack.Title}]({previousTrack.Url}) " +
+                               $"[{previousTrack.RequestedBy.Mention}] " +
+                               $"`{previousTrack.Duration.ToTimeStamp()}`");
             }
 
             if (next.TryDequeue(out var nextTrack))
             {
                 sb.AppendLine($"**{currentPosition + i + 2}.** " +
-                              $"[{nextTrack.Title}]({nextTrack.Url})" +
-                              $" `{nextTrack.Duration.ToTimeStamp()}`");
+                              $"[{nextTrack.Title}]({nextTrack.Url}) " +
+                              $"[{nextTrack.RequestedBy.Mention}] " +
+                              $"`{nextTrack.Duration.ToTimeStamp()}`");
             }
 
             i++;

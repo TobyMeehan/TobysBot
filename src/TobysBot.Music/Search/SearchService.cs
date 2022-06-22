@@ -16,20 +16,20 @@ public class SearchService : ISearchService
         _youtube = youtube;
     }
 
-    private async Task<ISearchResult> ResolveAsync(Uri uri)
+    private async Task<ISearchResult> ResolveAsync(Uri uri, IUser requestedBy)
     {
         foreach (var resolver in _resolvers)
         {
             if (resolver.CanResolve(uri))
             {
-                return await resolver.ResolveAsync(uri);
+                return await resolver.ResolveAsync(uri, requestedBy);
             }
         }
 
         return new LoadFailedSearchResult("Could not resolve url.");
     }
 
-    public async Task<ISearchResult> SearchAsync(string query)
+    public async Task<ISearchResult> SearchAsync(string query, IUser requestedBy)
     {
         if (query is null)
         {
@@ -38,7 +38,7 @@ public class SearchService : ISearchService
         
         if (Uri.TryCreate(query, UriKind.Absolute, out var uri))
         {
-            return await ResolveAsync(uri);
+            return await ResolveAsync(uri, requestedBy);
         }
 
         var result = _youtube.Search.GetVideosAsync(query);
@@ -51,16 +51,16 @@ public class SearchService : ISearchService
         }
 
         return new TrackResult(
-            new YouTubeTrack(video));
+            new YouTubeTrack(video, requestedBy));
     }
 
-    public async Task<ISearchResult> LoadAttachmentsAsync(IMessage message)
+    public async Task<ISearchResult> LoadAttachmentsAsync(IMessage message, IUser requestedBy)
     {
         var tracks = new List<TrackResult>();
 
         foreach (var attachment in message.Attachments)
         {
-            var result = await ResolveAsync(new Uri(attachment.Url));
+            var result = await ResolveAsync(new Uri(attachment.Url), requestedBy);
 
             if (result is TrackResult track)
             {

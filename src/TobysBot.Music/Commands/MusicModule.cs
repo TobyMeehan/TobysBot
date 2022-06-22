@@ -56,8 +56,8 @@ public class MusicModule : VoiceCommandModuleBase
 
         var search = query switch
         {
-            null when Context.Message is not null => await _search.LoadAttachmentsAsync(Context.Message),
-            not null => await _search.SearchAsync(query),
+            null when Context.Message is not null => await _search.LoadAttachmentsAsync(Context.Message, Context.User),
+            not null => await _search.SearchAsync(query, Context.User),
             _ => null
         };
 

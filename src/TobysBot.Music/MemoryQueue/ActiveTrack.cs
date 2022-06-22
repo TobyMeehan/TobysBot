@@ -1,3 +1,5 @@
+using Discord;
+
 namespace TobysBot.Music.MemoryQueue;
 
 public class ActiveTrack : IActiveTrack
@@ -14,6 +16,7 @@ public class ActiveTrack : IActiveTrack
     public string Url => InnerTrack.Url;
     public string AudioUrl => InnerTrack.AudioUrl;
     public TimeSpan Duration => InnerTrack.Duration;
+    public IUser RequestedBy => InnerTrack.RequestedBy;
     public TimeSpan Position { get; }
     
     public ITrack InnerTrack { get; }

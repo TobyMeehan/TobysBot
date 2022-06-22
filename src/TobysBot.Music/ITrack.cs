@@ -1,3 +1,5 @@
+using Discord;
+
 namespace TobysBot.Music;
 
 public interface ITrack
@@ -7,4 +9,5 @@ public interface ITrack
     string Url { get; }
     string AudioUrl { get; }
     TimeSpan Duration { get; }
+    IUser RequestedBy { get; }
 }

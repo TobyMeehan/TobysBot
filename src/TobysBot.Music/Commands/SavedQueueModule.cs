@@ -77,7 +77,7 @@ public class SavedQueueModule : VoiceCommandModuleBase
     public async Task DeleteSavedQueueAsync(
         [Summary("Name of queue to delete.")] string name)
     {
-        var savedQueue = await _savedQueues.GetSavedQueueAsync(Context.User, name);
+        var savedQueue = await _savedQueues.GetSavedQueueAsync(Context.User, name, Context.User);
 
         if (savedQueue is null)
         {
@@ -102,7 +102,7 @@ public class SavedQueueModule : VoiceCommandModuleBase
     public async Task ShareSavedQueueAsync(
         [Summary("Name of queue to share.")] string name)
     {
-        var savedQueue = await _savedQueues.GetSavedQueueAsync(Context.User, name);
+        var savedQueue = await _savedQueues.GetSavedQueueAsync(Context.User, name, Context.User);
 
         if (savedQueue is null)
         {
@@ -131,7 +131,7 @@ public class SavedQueueModule : VoiceCommandModuleBase
     {
         using var response = await Response.DeferAsync();
 
-        var savedQueue = await _savedQueues.GetSavedQueueAsync(Context.User, name);
+        var savedQueue = await _savedQueues.GetSavedQueueAsync(Context.User, name, Context.User);
 
         if (savedQueue is null)
         {

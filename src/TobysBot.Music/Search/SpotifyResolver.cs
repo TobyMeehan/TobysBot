@@ -1,3 +1,4 @@
+using Discord;
 using SpotifyAPI.Web;
 using TobysBot.Music.Search.Result;
 using YoutubeExplode;
@@ -20,18 +21,18 @@ public class SpotifyResolver : ISearchResolver
         return uri.Host is "open.spotify.com";
     }
 
-    public async Task<ISearchResult> ResolveAsync(Uri uri)
+    public async Task<ISearchResult> ResolveAsync(Uri uri, IUser requestedBy)
     {
         return uri.Segments[1] switch
         {
-            "track/" => await LoadSpotifyTrackAsync(uri.Segments[2]),
-            "album/" => await LoadSpotifyAlbumAsync(uri.Segments[2]),
-            "playlist/" => await LoadSpotifyPlaylistAsync(uri.Segments[2]),
+            "track/" => await LoadSpotifyTrackAsync(uri.Segments[2], requestedBy),
+            "album/" => await LoadSpotifyAlbumAsync(uri.Segments[2], requestedBy),
+            "playlist/" => await LoadSpotifyPlaylistAsync(uri.Segments[2], requestedBy),
             _ => throw new Exception("Could not parse Spotify url.")
         };
     }
 
-    private async Task<ISearchResult> LoadSpotifyPlaylistAsync(string id)
+    private async Task<ISearchResult> LoadSpotifyPlaylistAsync(string id, IUser requestedBy)
     {
         var playlist = await _spotify.Playlists.Get(id);
 
@@ -50,7 +51,7 @@ public class SpotifyResolver : ISearchResolver
                 continue;
             }
             
-            var track = await LoadSpotifyTrackAsync(fullTrack.Id);
+            var track = await LoadSpotifyTrackAsync(fullTrack.Id, requestedBy);
 
             if (track is TrackResult spotifyTrack)
             {
@@ -68,7 +69,7 @@ public class SpotifyResolver : ISearchResolver
             new SpotifyPlaylist(playlist, tracks));
     }
 
-    private async Task<ISearchResult> LoadSpotifyAlbumAsync(string id)
+    private async Task<ISearchResult> LoadSpotifyAlbumAsync(string id, IUser requestedBy)
     {
         var album = await _spotify.Albums.Get(id);
 
@@ -82,7 +83,7 @@ public class SpotifyResolver : ISearchResolver
 
         foreach (var item in album.Tracks.Items)
         {
-            var track = await LoadSpotifyTrackAsync(item.Id);
+            var track = await LoadSpotifyTrackAsync(item.Id, requestedBy);
 
             if (track is TrackResult spotifyTrack)
             {
@@ -100,7 +101,7 @@ public class SpotifyResolver : ISearchResolver
             new SpotifyPlaylist(album, tracks));
     }
 
-    private async Task<ISearchResult> LoadSpotifyTrackAsync(string id)
+    private async Task<ISearchResult> LoadSpotifyTrackAsync(string id, IUser requestedBy)
     {
         var track = await _spotify.Tracks.Get(id);
 
@@ -115,7 +116,7 @@ public class SpotifyResolver : ISearchResolver
         }
 
         return new TrackResult(
-            new SpotifyTrack(track, video.Url, video.Duration.Value));
+            new SpotifyTrack(track, video.Url, video.Duration.Value, requestedBy));
     }
 
     public int Priority => 200;

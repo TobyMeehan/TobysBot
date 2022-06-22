@@ -30,17 +30,24 @@ public class SavedQueueDataService : ISavedQueueDataService
         return await _data.GetByUserAsync<SavedQueue>(_options.SavedQueueCollection, user);
     }
 
-    public async Task<ISavedQueue> GetSavedQueueAsync(string id)
+    public async Task<ISavedQueue> GetSavedQueueAsync(string id, IUser requestedBy)
     {
         if (_options.SavedQueueCollection is null)
         {
             throw new NullReferenceException("Saved queue collection name not specified.");
         }
         
-        return await _data.GetAsync<SavedQueue>(_options.SavedQueueCollection, id);
+        var queue = await _data.GetAsync<SavedQueue>(_options.SavedQueueCollection, id);
+
+        foreach (var track in queue.Tracks)
+        {
+            track.RequestedBy = requestedBy;
+        }
+
+        return queue;
     }
 
-    public async Task<ISavedQueue?> GetSavedQueueAsync(IUser user, string name)
+    public async Task<ISavedQueue?> GetSavedQueueAsync(IUser user, string name, IUser requestedBy)
     {
         if (_options.SavedQueueCollection is null)
         {
@@ -49,7 +56,19 @@ public class SavedQueueDataService : ISavedQueueDataService
         
         IReadOnlyCollection<SavedQueue?> result = await _data.GetByUserAsync<SavedQueue>(_options.SavedQueueCollection, user, name);
 
-        return result.FirstOrDefault();
+        var queue = result.FirstOrDefault();
+
+        if (queue is null)
+        {
+            return queue;
+        }
+        
+        foreach (var track in queue.Tracks)
+        {
+            track.RequestedBy = requestedBy;
+        }
+
+        return queue;
     }
 
     public async Task CreateSavedQueueAsync(string name, IUser user, IQueue queue)

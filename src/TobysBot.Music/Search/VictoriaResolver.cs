@@ -1,4 +1,5 @@
-﻿using TobysBot.Music.Search.Result;
+﻿using Discord;
+using TobysBot.Music.Search.Result;
 using Victoria;
 using Victoria.Responses.Search;
 
@@ -18,7 +19,7 @@ public class VictoriaResolver : ISearchResolver
         return true;
     }
 
-    public async Task<ISearchResult> ResolveAsync(Uri uri)
+    public async Task<ISearchResult> ResolveAsync(Uri uri, IUser requestedBy)
     {
         var result = await _lavaNode.SearchAsync(SearchType.Direct, uri.AbsoluteUri);
 
@@ -27,9 +28,9 @@ public class VictoriaResolver : ISearchResolver
         return result.Status switch
         {
             SearchStatus.TrackLoaded when track is not null => new TrackResult(
-                new Track(track.Title, track.Author, track.Url, track.Url, track.Duration)),
+                new Track(track.Title, track.Author, track.Url, track.Duration, requestedBy)),
             SearchStatus.PlaylistLoaded when result.Tracks.Any() => new PlaylistResult(
-                new Playlist(result.Tracks.Select(x => new Track(x.Title, x.Author, x.Url, x.Duration)), result.Playlist.Name, uri.AbsoluteUri, result.Playlist.SelectedTrack)),
+                new Playlist(result.Tracks.Select(x => new Track(x.Title, x.Author, x.Url, x.Duration, requestedBy)), result.Playlist.Name, uri.AbsoluteUri, result.Playlist.SelectedTrack)),
             SearchStatus.NoMatches => new NotFoundSearchResult(),
             _ => new LoadFailedSearchResult("No audio found at that url.")
         };

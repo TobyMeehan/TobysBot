@@ -1,4 +1,5 @@
-﻿using TobysBot.Hosting;
+﻿using Discord;
+using TobysBot.Hosting;
 using TobysBot.Music.Data;
 using TobysBot.Music.Search.Result;
 
@@ -22,10 +23,10 @@ public class SavedQueueResolver : ISearchResolver
                uri.Segments.Length >= 3;
     }
 
-    public async Task<ISearchResult> ResolveAsync(Uri uri)
+    public async Task<ISearchResult> ResolveAsync(Uri uri, IUser requestedBy)
     {
         string id = _data.ParseShareUri(uri);
-        var savedQueue = await _data.GetSavedQueueAsync(id);
+        var savedQueue = await _data.GetSavedQueueAsync(id, requestedBy);
 
         if (savedQueue is null)
         {
