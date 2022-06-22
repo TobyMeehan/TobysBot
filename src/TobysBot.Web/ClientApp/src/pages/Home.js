@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {ConnectionState} from '../components/ConnectionState';
+import {Container} from "reactstrap";
 
 export class Home extends Component {
     static displayName = Home.name;
@@ -13,16 +14,12 @@ export class Home extends Component {
         return (
             <div>
                 <div className="container-fluid discord-banner pb-5 pt-3">
-                    <div className="container">
+                    <Container>
                         <div className="row">
                             <div className="col-md-5">
                                 <h1 className="display-4">Hey!</h1>
 
-                                <p>You've reached the homepage for my discord bot! Besides a range of random stuff
-                                    Toby's
-                                    Bot also has a
-                                    suite of features for playing music and audio from YouTube, Spotify, Soundcloud and
-                                    more.</p>
+                                <p>You've reached the homepage for Toby's Bot! Now on v2.0, this project aims to be a comprehensive open source discord bot with many of the features of other popular bots while having no paywalls or premium services.</p>
 
                                 <p>To get started, use the button to invite the bot to a server, or continue reading for
                                     more
@@ -32,7 +29,7 @@ export class Home extends Component {
                                 <button className="btn btn-primary btn-lg">Add to Server</button>
                             </div>
                         </div>
-                    </div>
+                    </Container>
                 </div>
 
                 <div className="container-fluid bg-600 py-3 mb-3">
@@ -45,21 +42,11 @@ export class Home extends Component {
 
                 <div className="container">
                     <h2>Music</h2>
-                    <p>Toby's Bot has a huge range of features for listening to music. From queue management with
-                        shuffle
-                        and
-                        repeat to integrated lyrics, as well as support for major formats including YouTube, Spotify and
-                        Soundcloud,
-                        your music listening needs are covered.</p>
+                    <p>Toby's Bot has a huge range of features for listening to music. In addition to everything you'd expect from a music bot, Toby's Bot comes with a range of extra features, including queue management, saved queues and audio effects, all for free!</p>
                     <h2>Open Source</h2>
-                    <p>Toby's Bot is completely free and open source software, under the GNU GPLv3. Check out the source
-                        code on
-                        Github for yourself!</p>
+                    <p>Toby's Bot is completely free and open source software, under the GNU GPLv3. Check out the source code on Github for yourself!</p>
                     <h2>New Features Coming</h2>
-                    <p>I am currently working on version 2 of Toby's Bot, adding a bunch of new features, as well as a
-                        new
-                        modular
-                        and extensible design.</p>
+                    <p>I am currently working on version 2 of Toby's Bot, adding a bunch of new features, as well as a new modular and extensible design.</p>
                 </div>
             </div>
         );
