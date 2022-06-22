@@ -606,7 +606,7 @@ public class MusicModule : VoiceCommandModuleBase
         await Response.ReactAsync(RemoveEmote);
     }
 
-    [Command("lyrics")]
+    [Command("lyrics", RunMode = RunMode.Async)]
     [Alias("ly")]
     [Summary("Finds lyrics for the currently playing track.")]
     [RequireContext(ContextType.Guild, ErrorMessage = GuildRequiredErrorMessage)]
@@ -624,11 +624,13 @@ public class MusicModule : VoiceCommandModuleBase
             return;
         }
 
+        using var response = await Response.DeferAsync();
+        
         var result = await _lyrics.GetLyricsAsync(track);
 
         if (!result.Success)
         {
-            await Response.ReplyAsync(embed: _embeds.Builder()
+            await response.ModifyResponseAsync(x => x.Embed = _embeds.Builder()
                 .WithContext(EmbedContext.Error)
                 .WithDescription($"No results for [{track.Title}]({track.Url})")
                 .Build());
@@ -636,7 +638,7 @@ public class MusicModule : VoiceCommandModuleBase
             return;
         }
 
-        await Response.ReplyAsync(embed: _embeds.Builder()
+        await response.ModifyResponseAsync(x => x.Embed = _embeds.Builder()
             .WithLyricsInformation(result.Lyrics)
             .Build());
     }

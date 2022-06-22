@@ -2,23 +2,14 @@
 
 namespace TobysBot.Music.Lyrics;
 
-public class OvhLyricsResolver : ILyricsResolver
+public class OvhLyricsResolver : VictoriaBaseLyricsResolver
 {
-    private readonly Provider _provider = new("OVH", "https://lyrics.ovh");
-    
-    public async Task<ILyricsResult> TryResolveAsync(ITrack track)
+    protected override ValueTask<string> SearchAsync(string artist, string title)
     {
-        string lyricsString = await LyricsResolver.SearchOvhAsync(track.Author, track.Title);
-
-        if (string.IsNullOrWhiteSpace(lyricsString))
-        {
-            return new LyricsResult();
-        }
-
-        var lyrics = VictoriaLyrics.Parse(_provider, track, lyricsString);
-
-        return new LyricsResult(lyrics);
+        return LyricsResolver.SearchOvhAsync(artist, title);
     }
 
-    public int Priority => 50;
+    protected override IProvider Provider => new Provider("OVH", "https://lyrics.ovh");
+
+    public override int Priority => 50;
 }

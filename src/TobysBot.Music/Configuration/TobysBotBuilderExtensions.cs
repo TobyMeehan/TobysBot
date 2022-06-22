@@ -56,6 +56,7 @@ public static class TobysBotBuilderExtensions
 
                 services.AddTransient<ILyricsService, LyricsService>();
                 services.AddTransient<ILyricsResolver, GeniusLyricsResolver>();
+                services.AddTransient<ILyricsResolver, OvhLyricsResolver>();
 
                 services.AddTransient<ISavedQueueDataService, SavedQueueDataService>();
 
