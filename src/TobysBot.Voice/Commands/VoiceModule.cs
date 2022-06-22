@@ -433,6 +433,7 @@ public class VoiceModule : VoiceCommandModuleBase
     }
 
     [Command("reset effects")]
+    [Alias("rsfx")]
     [Summary("Resets all audio effects.")]
     [RequireContext(ContextType.Guild)]
     [CheckVoice(sameChannel: SameChannel.Required)]
