@@ -8,4 +8,9 @@ public static class EnumerableExtensions
     {
         return new CommandDictionary(commands);
     }
+
+    public static IEnumerable<T> ForPage<T>(this IEnumerable<T> collection, int page, int perPage)
+    {
+        return collection.Skip(perPage * page).Take(perPage);
+    }
 }

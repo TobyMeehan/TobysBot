@@ -1,5 +1,6 @@
 using Discord.Commands;
 using Discord.WebSocket;
+using Fergun.Interactive;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TobysBot.Commands;
@@ -25,6 +26,7 @@ public class TobysBotBuilder
         services.AddSingleton<IEventService, EventService>();
 
         services.AddTransient<EmbedService>();
+        services.AddSingleton<InteractiveService>();
 
         services.AddTransient<IBaseGuildDataService, ConfigurationGuildDataService>();
 
