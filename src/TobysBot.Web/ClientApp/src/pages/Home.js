@@ -2,6 +2,8 @@ import React, {Component} from 'react';
 import {ConnectionState} from '../components/ConnectionState';
 import {Container} from "reactstrap";
 
+import './Home.css';
+
 export class Home extends Component {
     static displayName = Home.name;
 

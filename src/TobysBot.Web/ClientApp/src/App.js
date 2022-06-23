@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Route } from 'react-router';
-import { Layout } from './components/Layout';
+import { Layout } from './shared/Layout';
 import { Home } from './pages/Home';
 import { FetchData } from './components/FetchData';
 import { Counter } from './components/Counter';
