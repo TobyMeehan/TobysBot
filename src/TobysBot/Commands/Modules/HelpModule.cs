@@ -43,7 +43,12 @@ public class HelpModule : CommandModuleBase
         var page = new PageBuilder()
                 .WithTitle("Toby's Bot Commands")
                 .WithDescription(
-                    "Toby's Bot is a modular, expandable and open source Discord bot. For more information see [bot.tobymeehan.com](https://bot.tobymeehan.com). View my source code on [Github](https://github.com/TobyMeehan/TobysBot)")
+                    "Toby's Bot is a modular, expandable and open source Discord bot. " +
+                    "For more information see [bot.tobymeehan.com](https://bot.tobymeehan.com). " +
+                    "View my source code on [Github](https://github.com/TobyMeehan/TobysBot)" +
+                    "\n\n" +
+                    "Slash commands are now supported! If you can't see any, try [reinviting](https://bot.tobymeehan.com/invite) " +
+                    "the bot to make sure it has the correct permissions.")
                 .WithFooter("Use /prefix to change the prefix.")
                 .WithColor(_options?.Colors?.Information ?? Color.LightGrey);
         
