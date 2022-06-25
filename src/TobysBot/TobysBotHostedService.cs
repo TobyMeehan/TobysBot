@@ -1,5 +1,4 @@
 using Discord;
-using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -7,7 +6,6 @@ using Microsoft.Extensions.Options;
 using TobysBot.Commands;
 using TobysBot.Configuration;
 using TobysBot.Events;
-using TobysBot.Extensions;
 
 namespace TobysBot;
 
@@ -16,16 +14,14 @@ public class TobysBotHostedService : IHostedService
     private readonly DiscordSocketClient _client;
     private readonly ICommandService _commands;
     private readonly IEventService _events;
-    private readonly IServiceProvider _services;
     private readonly ILogger<TobysBotHostedService> _logger;
     private readonly TobysBotOptions _options;
 
-    public TobysBotHostedService(DiscordSocketClient client, ICommandService commands, IEventService events, IServiceProvider services, IOptions<TobysBotOptions> options, ILogger<TobysBotHostedService> logger)
+    public TobysBotHostedService(DiscordSocketClient client, ICommandService commands, IEventService events, IOptions<TobysBotOptions> options, ILogger<TobysBotHostedService> logger)
     {
         _client = client;
         _commands = commands;
         _events = events;
-        _services = services;
         _logger = logger;
         _options = options.Value;
     }

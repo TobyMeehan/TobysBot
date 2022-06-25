@@ -3,8 +3,7 @@
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 public class UsageAttribute : Attribute
 {
-    public CommandUsage Value => new CommandUsage
-        { CommandName = _commandName, Parameters = _parameters, Description = Summary };
+    public CommandUsage Value => new() { CommandName = _commandName, Parameters = _parameters, Description = Summary };
 
     private readonly string _commandName;
     private readonly string[] _parameters;

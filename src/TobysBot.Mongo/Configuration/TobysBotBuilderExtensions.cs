@@ -11,6 +11,12 @@ namespace TobysBot.Mongo.Configuration;
 
 public static class TobysBotBuilderExtensions
 {
+    /// <summary>
+    /// Adds a MongoDB database to Toby's Bot with the specified <see cref="IConfiguration"/>.
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <param name="configuration"></param>
+    /// <returns></returns>
     public static TobysBotBuilder AddMongoDatabase(this TobysBotBuilder builder, IConfiguration configuration)
     {
         var options = configuration.Get<MongoOptions>();
@@ -20,6 +26,12 @@ public static class TobysBotBuilderExtensions
         return AddDatabase(builder, options);
     }
 
+    /// <summary>
+    /// Adds a MongoDB database to Toby's Bot with the specified <see cref="MongoOptions"/> action.
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <param name="configureOptions"></param>
+    /// <returns></returns>
     public static TobysBotBuilder AddMongoDatabase(this TobysBotBuilder builder, Action<MongoOptions> configureOptions)
     {
         var options = new MongoOptions();

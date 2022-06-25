@@ -53,6 +53,12 @@ public class TobysBotBuilder
         Services.Configure<TobysBotOptions>(configuration);
     }
 
+    /// <summary>
+    /// Adds the specified <see cref="IPluginRegistration"/> to Toby's Bot.
+    /// </summary>
+    /// <param name="configureServices"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     public PluginBuilder<T> AddPlugin<T>(Action<IServiceCollection> configureServices) where T : class, IPluginRegistration
     {
         configureServices(Services);
@@ -60,6 +66,12 @@ public class TobysBotBuilder
         return Services.AddPlugin<T>();
     }
     
+    /// <summary>
+    /// Adds a database implementation to Toby's Bot.
+    /// </summary>
+    /// <param name="configureServices"></param>
+    /// <typeparam name="TDataAccess"></typeparam>
+    /// <returns></returns>
     public TobysBotBuilder AddDatabase<TDataAccess>(Action<IServiceCollection> configureServices) where TDataAccess : class, IDataAccess
     {
         Services.AddTransient<IDataAccess, TDataAccess>();
@@ -74,6 +86,11 @@ public class TobysBotBuilder
         return this;
     }
 
+    /// <summary>
+    /// Adds the specified <see cref="IHostingService"/> to Toby's Bot.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     public TobysBotBuilder AddHostingService<T>() where T : class, IHostingService
     {
         Services.AddTransient<IHostingService, T>();

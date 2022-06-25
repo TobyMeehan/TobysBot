@@ -4,7 +4,6 @@ using Fergun.Interactive;
 using Fergun.Interactive.Pagination;
 using Fergun.Interactive.Selection;
 using Microsoft.Extensions.Options;
-using TobysBot.Commands.Response;
 using TobysBot.Configuration;
 using TobysBot.Extensions;
 

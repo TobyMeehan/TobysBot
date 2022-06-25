@@ -14,7 +14,7 @@ public class BaseGuildDataService : IBaseGuildDataService
         _options = options.Value.Data;
     }
     
-    public virtual async Task<IGuildData?> GetByDiscordIdAsync(ulong id)
+    public async Task<IGuildData?> GetByDiscordIdAsync(ulong id)
     {
         if (_options?.GuildCollection is null)
         {

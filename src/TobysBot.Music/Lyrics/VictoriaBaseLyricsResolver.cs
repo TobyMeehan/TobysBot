@@ -15,6 +15,9 @@ public abstract class VictoriaBaseLyricsResolver : ILyricsResolver
         var parenReg
             = new Regex(@"(\(.*?\))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+        var punctuationReg
+            = new Regex(@"[^0-9A-Za-z._\s]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
         var artistReg
             = new Regex(@"\w+.\w+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -22,6 +25,7 @@ public abstract class VictoriaBaseLyricsResolver : ILyricsResolver
             = new Regex(@"- ([0-9]{4} )?Remaster(ed)?( [0-9]{4})?");
 
         string title = parenReg.Replace(track.Title, string.Empty);
+        title = punctuationReg.Replace(title, string.Empty);
         title = remasteredReg.Replace(title, string.Empty);
         title = title.Replace("&", "and");
         
