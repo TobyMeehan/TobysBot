@@ -5,6 +5,9 @@ using TobysBot.Configuration;
 
 namespace TobysBot.Commands;
 
+/// <summary>
+/// Service for building embeds with dependency injection.
+/// </summary>
 public class EmbedService
 {
     private readonly IServiceProvider _services;
@@ -18,6 +21,10 @@ public class EmbedService
         _options = options.Value;
     }
 
+    /// <summary>
+    /// Gets a builder containing a service provider.
+    /// </summary>
+    /// <returns></returns>
     public EmbedBuilder Builder()
     {
         return new EmbedServiceBuilder(this);
