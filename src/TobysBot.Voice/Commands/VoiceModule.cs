@@ -214,14 +214,14 @@ public class VoiceModule : VoiceCommandModuleBase
     {
         switch (speed)
         {
-            case <= 0:
+            case <= 0.01:
                 await Response.ReplyAsync(embed: _embeds.Builder()
                     .WithContext(EmbedContext.Error)
-                    .WithDescription("Speed must be greater than 0.")
+                    .WithDescription("That speed is too slow!")
                     .Build());
 
                 return;
-            case > 20:
+            case > 10:
                 await Response.ReplyAsync(embed: _embeds.Builder()
                     .WithContext(EmbedContext.Error)
                     .WithDescription("That speed is too fast for me to handle! Twenty's plenty.")
@@ -247,10 +247,10 @@ public class VoiceModule : VoiceCommandModuleBase
     {
         switch (pitch)
         {
-            case <= 0:
+            case < 0.01:
                 await Response.ReplyAsync(embed: _embeds.Builder()
                     .WithContext(EmbedContext.Error)
-                    .WithDescription("Pitch must be greater than 0.")
+                    .WithDescription("That pitch is too low!")
                     .Build());
 
                 return;
