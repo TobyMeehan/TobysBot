@@ -18,21 +18,36 @@ public abstract class VictoriaBaseLyricsResolver : ILyricsResolver
         var artistReg
             = new Regex(@"\w+.\w+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+        var remasteredReg
+            = new Regex(@"- ([0-9]{4} )?Remaster(ed)?( [0-9]{4})?");
+
+        string title = parenReg.Replace(track.Title, string.Empty);
+        title = remasteredReg.Replace(title, string.Empty);
+        title = title.Replace("&", "and");
+        
+        string[] titleSplit = title.Split('-');
+        string[] artistSplit = track.Author.Split('-');
+        
         if (track is SpotifyTrack spotifyTrack)
         {
-            return (spotifyTrack.Author, parenReg.Replace(spotifyTrack.Title, string.Empty).Split('-')[0].Trim());
+            return (spotifyTrack.Author, titleSplit[0].Trim());
         }
         
-        string title = parenReg.Replace(track.Title, string.Empty);
-        title = title.Replace("&", "and");
-        string[] titleSplit = title.Split('-');
-
-        string[] artistSplit = track.Author.Split('-');
-        if (titleSplit.Length == 1 && artistSplit.Length > 1)
+        if (titleSplit.Length == 1 && artistSplit.Any())
         {
             return (artistSplit[0].Trim(), title.Trim());
         }
 
+        if (titleSplit[0].Equals(artistSplit[0], StringComparison.OrdinalIgnoreCase))
+        {
+            return (artistSplit[0].Trim(), titleSplit[1].Trim());
+        }
+
+        if (titleSplit[1].Equals(artistSplit[0], StringComparison.OrdinalIgnoreCase))
+        {
+            return (artistSplit[0].Trim(), titleSplit[0].Trim());
+        }
+        
         string artist = artistReg.Match(titleSplit[0]).Value;
         if (artist.Equals(titleSplit[0], StringComparison.OrdinalIgnoreCase) ||
             artist.Equals(track.Author, StringComparison.OrdinalIgnoreCase))
