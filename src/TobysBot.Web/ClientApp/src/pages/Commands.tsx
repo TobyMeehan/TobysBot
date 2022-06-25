@@ -1,16 +1,10 @@
-﻿import React, {Component, FormEvent} from 'react';
+﻿import React, {Component} from 'react';
 import {
     Button,
-    ButtonProps,
     Card,
-    CardBody,
-    CardHeader, CardText, CardTitle,
-    Collapse,
+    CardBody, CardText, CardTitle,
     Container,
-    Input,
-    Nav,
-    NavItem,
-    NavLink
+    Input
 } from "reactstrap";
 import {Command} from "../models/Command";
 import {Plugin} from "../models/Plugin";
@@ -30,8 +24,8 @@ export class Commands extends Component<{}, State> {
         }
     }
 
-    componentDidMount() {
-        this.loadCommands();
+    async componentDidMount() {
+        await this.loadCommands();
     }
 
     render() {
@@ -107,7 +101,7 @@ export class Commands extends Component<{}, State> {
     }
 
     filterCommands(search: string) {
-        this.setState(x => ({
+        this.setState(({
             commandFilter: search
         }));
     }

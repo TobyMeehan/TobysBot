@@ -10,8 +10,8 @@ export class ConnectionState extends Component<{}, ConnectionStatus> {
         this.state = {connectionState: "", numberOfGuilds: 0, loading: true}
     }
 
-    componentDidMount() {
-        this.getDiscordStatus();
+    async componentDidMount() {
+        await this.getDiscordStatus();
     }
 
     renderConnectionState(connectionState: string, numberOfGuilds: number) {
