@@ -67,7 +67,7 @@ public abstract class VictoriaBaseLyricsResolver : ILyricsResolver
         {
             lyricsString = await SearchAsync(artist, title);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return new LyricsResult();
         }
