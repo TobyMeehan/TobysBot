@@ -67,6 +67,13 @@ export class Commands extends Component<{}, State> {
                             </Card>
                         </div>
                         <div className='col-md-8'>
+                            <Card className='bg-600 mb-3'>
+                                <CardBody>
+                                    <CardTitle className='fw-light'>Slash Commands now Supported!</CardTitle>
+                                    <CardText>Toby's Bot now supports slash commands, so you can now use / as a universal prefix to get helpful descriptions and autocomplete.</CardText>
+                                </CardBody>
+                            </Card>
+                            
                             {
                                 this.getCommands().map(command =>
                                     <>
