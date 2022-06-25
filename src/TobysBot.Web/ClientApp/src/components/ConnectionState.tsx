@@ -1,19 +1,20 @@
 ﻿import React, {Component} from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {ConnectionStatus} from "../models/ConnectionStatus";
 
-export class ConnectionState extends Component {
+export class ConnectionState extends Component<{}, ConnectionStatus> {
     static displayName = ConnectionState.name;
 
-    constructor(props) {
+    constructor(props: any) {
         super(props);
-        this.state = {connectionState: {}, numberOfGuilds: {}, loading: true}
+        this.state = {connectionState: "", numberOfGuilds: 0, loading: true}
     }
 
     componentDidMount() {
         this.getDiscordStatus();
     }
 
-    renderConnectionState(connectionState, numberOfGuilds) {
+    renderConnectionState(connectionState: string, numberOfGuilds: number) {
         switch (connectionState.toLowerCase()) {
             case "connected":
                 return (
@@ -74,10 +75,8 @@ export class ConnectionState extends Component {
     }
 
     async getDiscordStatus() {
-        const response = await fetch('status');
-        console.log(response);
+        const response = await fetch('data/status');
         const data = await response.json();
-        console.log(`${data.connectionState}, ${data.numberOfGuilds}`);
         this.setState({connectionState: data.connectionState, numberOfGuilds: data.numberOfGuilds, loading: false})
     }
 }
