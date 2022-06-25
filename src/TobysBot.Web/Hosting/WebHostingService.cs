@@ -9,8 +9,17 @@ public class WebHostingService : IHostingService
     public WebHostingService(IServer server)
     {
         var address = server.Features.Get<IServerAddressesFeature>();
+        var defaultUri = new Uri("https://bot.tobymeehan.com");
 
-        Uri = new Uri(address?.Addresses.FirstOrDefault(addr => addr.Any(char.IsLetter)) ?? "https://bot.tobymeehan.com");
+        if (address is null)
+        {
+            Uri = defaultUri;
+            return;
+        }
+
+        var uris = address.Addresses.Select(x => new Uri(x));
+
+        Uri = uris.FirstOrDefault(x => x.Host.All(c => char.IsLetter(c) || c is '.')) ?? defaultUri;
     }
 
     public Uri Uri { get; }
