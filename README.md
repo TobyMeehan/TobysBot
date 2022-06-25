@@ -1,6 +1,6 @@
 # Toby's Bot
 
-Toby's Bot is a free and open source discord bot. Currently it mainly offers music functionality, however further extension is planned into custom commands, moderation and economy. Being open source, there is no premium so every feature (including many which would have required it previously) is available free of charge for all users.
+Toby's Bot is a modular, extensible, free and open source discord bot. Currently it mainly offers music functionality, however further extension is planned into custom commands, moderation and economy. Being open source, there is no premium so every feature (including many which would have required it previously) is available free of charge for all users.
 
 ## Features
 
