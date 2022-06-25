@@ -52,6 +52,16 @@ public class SavedQueueModule : VoiceCommandModuleBase
     public async Task CreateSavedQueueAsync(
         [Summary("Name of saved queue.")] string name)
     {
+        if (name.HasSpecialCharacters())
+        {
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithContext(EmbedContext.Error)
+                .WithDescription("Saved queue name cannot contain special characters.")
+                .Build());
+            
+            return;
+        }
+        
         var queue = await _music.GetQueueAsync(Context.Guild!);
 
         if (queue.Empty)

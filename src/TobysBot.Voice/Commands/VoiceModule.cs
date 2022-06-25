@@ -390,6 +390,16 @@ public class VoiceModule : VoiceCommandModuleBase
     public async Task CreateSavedEffectAsync(
         [Summary("Name of effect preset.")] string name)
     {
+        if (name.HasSpecialCharacters())
+        {
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithContext(EmbedContext.Error)
+                .WithDescription("Preset name cannot contain special characters.")
+                .Build());
+            
+            return;
+        }
+        
         var active = await _voiceService.GetActivePresetAsync(Context.Guild!);
 
         await _savedPresets.CreateSavedPresetAsync(name, Context.User, active);
