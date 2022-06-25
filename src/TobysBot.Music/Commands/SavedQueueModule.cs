@@ -52,6 +52,7 @@ public class SavedQueueModule : VoiceCommandModuleBase
     [RequireContext(ContextType.Guild, ErrorMessage = "You must be in a guild to save a queue.")]
     [CheckVoice(sameChannel: SameChannel.Required)]
     public async Task CreateSavedQueueAsync(
+        [Remainder]
         [Summary("Name of saved queue.")] string name)
     {
         if (name.HasSpecialCharacters())
@@ -89,6 +90,7 @@ public class SavedQueueModule : VoiceCommandModuleBase
     [Command("saved queues delete", RunMode = RunMode.Async)]
     [Summary("Deletes the specified saved queue.")]
     public async Task DeleteSavedQueueAsync(
+        [Remainder]
         [Summary("Name of queue to delete.")] string name)
     {
         using var response = await Response.DeferAsync();
@@ -116,6 +118,7 @@ public class SavedQueueModule : VoiceCommandModuleBase
     [Command("saved queues share", RunMode = RunMode.Async)]
     [Summary("Gets a link that anyone can use to play your saved queue.")]
     public async Task ShareSavedQueueAsync(
+        [Remainder]
         [Summary("Name of queue to share.")] string name)
     {
         using var response = await Response.DeferAsync();
@@ -145,6 +148,7 @@ public class SavedQueueModule : VoiceCommandModuleBase
     [RequireContext(ContextType.Guild, ErrorMessage = "You must be in a guild to load a saved queue.")]
     [CheckVoice(sameChannel: SameChannel.IfBotConnected)]
     public async Task LoadSavedQueueAsync(
+        [Remainder]
         [Summary("Name of queue to load.")] string name)
     {
         using var response = await Response.DeferAsync();
