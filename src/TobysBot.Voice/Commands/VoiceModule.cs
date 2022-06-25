@@ -362,15 +362,17 @@ public class VoiceModule : VoiceCommandModuleBase
         await Response.ReactAsync(OkEmote);
     }
 
-    [Command("saved effects list")]
+    [Command("saved effects list", RunMode = RunMode.Async)]
     [Summary("Lists all of your saved effect presets.")]
     public async Task ListSavedEffectsAsync()
     {
+        using var response = await Response.DeferAsync();
+        
         var presets = await _savedPresets.ListSavedPresetsAsync(Context.User);
 
         if (!presets.Any())
         {
-            await Response.ReplyAsync(embed: _embeds.Builder()
+            await response.ModifyResponseAsync(x => x.Embed = _embeds.Builder()
                 .WithContext(EmbedContext.Information)
                 .WithDescription("You do not have any saved effects. Use **/saved effects create** to create one.")
                 .Build());
@@ -378,12 +380,12 @@ public class VoiceModule : VoiceCommandModuleBase
             return;
         }
 
-        await Response.ReplyAsync(embed: _embeds.Builder()
+        await response.ModifyResponseAsync(x => x.Embed = _embeds.Builder()
             .WithSavedEffectListInformation(Context.User, presets)
             .Build());
     }
 
-    [Command("saved effects create")]
+    [Command("saved effects create", RunMode = RunMode.Async)]
     [Summary("Saves the current range of effects under the specified name.")]
     [RequireContext(ContextType.Guild)]
     [CheckVoice(sameChannel: SameChannel.Required)]
@@ -399,28 +401,32 @@ public class VoiceModule : VoiceCommandModuleBase
             
             return;
         }
+
+        using var response = await Response.DeferAsync();
         
         var active = await _voiceService.GetActivePresetAsync(Context.Guild!);
 
         await _savedPresets.CreateSavedPresetAsync(name, Context.User, active);
 
-        await Response.ReplyAsync(embed: _embeds.Builder()
+        await response.ModifyResponseAsync(x => x.Embed = _embeds.Builder()
             .WithContext(EmbedContext.Action)
             .WithDescription($"Current preset saved to **{Format.Sanitize(name)}**")
             .Build());
     }
 
-    [Command("saved effects delete")]
+    [Command("saved effects delete", RunMode = RunMode.Async)]
     [Summary("Deletes the specified saved effect preset.")]
     public async Task DeleteSavedEffectAsync(
         [Summary("Name of effect preset to delete.")]
         string name)
     {
+        using var response = await Response.DeferAsync();
+        
         var savedPreset = await _savedPresets.GetSavedPresetAsync(Context.User, name);
 
         if (savedPreset is null)
         {
-            await Response.ReplyAsync(embed: _embeds.Builder()
+            await response.ModifyResponseAsync(x => x.Embed = _embeds.Builder()
                 .WithSavedPresetNotFoundError()
                 .Build());
 
@@ -429,13 +435,13 @@ public class VoiceModule : VoiceCommandModuleBase
 
         await _savedPresets.DeleteSavedPresetAsync(Context.User, name);
 
-        await Response.ReplyAsync(embed: _embeds.Builder()
+        await response.ModifyResponseAsync(x => x.Embed = _embeds.Builder()
             .WithContext(EmbedContext.Action)
             .WithDescription($"Saved effect preset **{savedPreset.Name}** deleted.")
             .Build());
     }
 
-    [Command("saved effects load")]
+    [Command("saved effects load", RunMode = RunMode.Async)]
     [Summary("Loads the specified saved effect preset.")]
     [RequireContext(ContextType.Guild)]
     [CheckVoice(sameChannel: SameChannel.Required)]
@@ -443,11 +449,13 @@ public class VoiceModule : VoiceCommandModuleBase
         [Summary("Name of effect preset to load.")]
         string name)
     {
+        using var response = await Response.DeferAsync();
+        
         var savedPreset = await _savedPresets.GetSavedPresetAsync(Context.User, name);
 
         if (savedPreset is null)
         {
-            await Response.ReplyAsync(embed: _embeds.Builder()
+            await response.ModifyResponseAsync(x => x.Embed = _embeds.Builder()
                 .WithSavedPresetNotFoundError()
                 .Build());
 
@@ -456,7 +464,7 @@ public class VoiceModule : VoiceCommandModuleBase
 
         await _voiceService.SetActivePresetAsync(Context.Guild!, savedPreset);
 
-        await Response.ReplyAsync(embed: _embeds.Builder()
+        await response.ModifyResponseAsync(x => x.Embed = _embeds.Builder()
             .WithContext(EmbedContext.Action)
             .WithDescription($"Loaded saved effect preset **{savedPreset.Name}**")
             .Build());
