@@ -58,7 +58,7 @@ export class NavMenu extends Component {
                   </NavLink>
                 </NavItem>
                 <NavItem>
-                  <NavLink href='https://github.com/TobyMeehan/TobysBot'>
+                  <NavLink tag={Link} to="/github">
                     <FontAwesomeIcon icon={['fab', 'github']} />
                     {' '}
                     Github
