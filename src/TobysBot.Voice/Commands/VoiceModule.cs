@@ -390,6 +390,7 @@ public class VoiceModule : VoiceCommandModuleBase
     [RequireContext(ContextType.Guild)]
     [CheckVoice(sameChannel: SameChannel.Required)]
     public async Task CreateSavedEffectAsync(
+        [Remainder]
         [Summary("Name of effect preset.")] string name)
     {
         if (name.HasSpecialCharacters())
@@ -417,6 +418,7 @@ public class VoiceModule : VoiceCommandModuleBase
     [Command("saved effects delete", RunMode = RunMode.Async)]
     [Summary("Deletes the specified saved effect preset.")]
     public async Task DeleteSavedEffectAsync(
+        [Remainder]
         [Summary("Name of effect preset to delete.")]
         string name)
     {
@@ -446,6 +448,7 @@ public class VoiceModule : VoiceCommandModuleBase
     [RequireContext(ContextType.Guild)]
     [CheckVoice(sameChannel: SameChannel.Required)]
     public async Task LoadSavedEffectAsync(
+        [Remainder]
         [Summary("Name of effect preset to load.")]
         string name)
     {
