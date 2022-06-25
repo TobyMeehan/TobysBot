@@ -29,7 +29,7 @@ A database is only required to use custom prefixes and saved queues and effect p
 ### Configuration
 Some configuration is required before running the bot, this can be done with environment variables, or appsettings.json file. An example appsettings is shown below.
 
-```json
+```yaml
 "Authorization": {
   "Token": "token" // Discord bot token
 },
