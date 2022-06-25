@@ -1,0 +1,30 @@
+﻿using Discord;
+using TobysBot.Data;
+
+namespace TobysBot.Music.Data;
+
+public class SavedQueue : Entity, ISavedQueue, IUserRelation, INamedEntity
+{
+    public SavedQueue()
+    {
+        
+    }
+
+    public SavedQueue(string name, IUser user, IQueue queue)
+    {
+        Name = name;
+        UserId = user.Id;
+        Tracks = queue.Select(x => new SavedTrack(x)).ToList();
+    }
+
+    // -- Data to write --
+    
+    public string Name { get; set; } = null!;
+    public ulong UserId { get; set; }
+    public List<SavedTrack> Tracks { get; set; } = new();
+
+    // -- --
+
+    IEnumerable<ITrack> ISavedQueue.Tracks => Tracks;
+    
+}
