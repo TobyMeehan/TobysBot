@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {ConnectionState} from '../components/ConnectionState';
 import {Container} from "reactstrap";
+import {Link} from "react-router-dom";
 
 import './Home.css';
 
@@ -28,7 +29,7 @@ export class Home extends Component {
                                     information. Make sure you check out some of my other projects over at <a
                                         href="https://tobymeehan.com">tobymeehan.com</a></p>
 
-                                <button className="btn btn-primary btn-lg">Add to Server</button>
+                                <a href="/invite" className="btn btn-primary btn-lg">Add to Server</a>
                             </div>
                         </div>
                     </Container>

@@ -51,14 +51,14 @@ export class NavMenu extends Component {
                   </NavLink>
                 </NavItem>
                 <NavItem>
-                  <NavLink tag={Link} to="/invite">
+                  <NavLink href="/invite">
                     <FontAwesomeIcon icon={['fab', 'discord']} />
                     {' '}
                     Invite
                   </NavLink>
                 </NavItem>
                 <NavItem>
-                  <NavLink tag={Link} to="/github">
+                  <NavLink href="/github">
                     <FontAwesomeIcon icon={['fab', 'github']} />
                     {' '}
                     Github
