@@ -224,7 +224,7 @@ public class VoiceModule : VoiceCommandModuleBase
             case > 10:
                 await Response.ReplyAsync(embed: _embeds.Builder()
                     .WithContext(EmbedContext.Error)
-                    .WithDescription("That speed is too fast for me to handle! Twenty's plenty.")
+                    .WithDescription("That speed is too fast for me to handle! x10 should be fast enough.")
                     .Build());
 
                 return;
