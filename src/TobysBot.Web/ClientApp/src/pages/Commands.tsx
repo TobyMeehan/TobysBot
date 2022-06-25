@@ -14,6 +14,7 @@ import {
 } from "reactstrap";
 import {Command} from "../models/Command";
 import {Plugin} from "../models/Plugin";
+import {Helmet} from "react-helmet";
 
 export class Commands extends Component<{}, State> {
     static displayName = Commands.name;
@@ -35,61 +36,66 @@ export class Commands extends Component<{}, State> {
 
     render() {
         return (
-            <Container className='pt-3'>
-                <div className='row'>
-                    <div className='col-12 text-center'>
-                        <h2>Command List</h2>
-                        <p>A list of all of Toby's Bot's commands.</p>
+            <>
+                <Helmet>
+                    <title>Commands</title>
+                </Helmet>
+                <Container className='pt-3'>
+                    <div className='row'>
+                        <div className='col-12 text-center'>
+                            <h2>Command List</h2>
+                            <p>A list of all of Toby's Bot's commands.</p>
+                        </div>
                     </div>
-                </div>
-                <div className='row mb-3'>
-                    <div className='col-md-2'></div>
-                    <div className='col-md-8'>
-                        <Input type='search' name='search' id='search' placeholder='Search'
-                               bsSize='lg' className='bg-dark border-dark text-light'
-                               onChange={e => this.filterCommands(e.target.value)}
-                        />
+                    <div className='row mb-3'>
+                        <div className='col-md-2'></div>
+                        <div className='col-md-8'>
+                            <Input type='search' name='search' id='search' placeholder='Search'
+                                   bsSize='lg' className='bg-dark border-dark text-light'
+                                   onChange={e => this.filterCommands(e.target.value)}
+                            />
+                        </div>
+                        <div className='col-md-2'></div>
                     </div>
-                    <div className='col-md-2'></div>
-                </div>
-                <div className='row'>
-                    <div className='col-md-4'>
-                        <Card className='bg-600'>
-                            <CardBody>
-                                {
-                                    this.state.plugins.map(x =>
-                                        <Button outline={!x.selected} color='primary' className='w-100 mb-2'
-                                                onClick={() => this.filterPlugins(x.id)}>
-                                            {x.name}
-                                        </Button>
-                                    )
-                                }
-                            </CardBody>
-                        </Card>
+                    <div className='row'>
+                        <div className='col-md-4'>
+                            <Card className='bg-600'>
+                                <CardBody>
+                                    {
+                                        this.state.plugins.map(x =>
+                                            <Button outline={!x.selected} color='primary' className='w-100 mb-2'
+                                                    onClick={() => this.filterPlugins(x.id)}>
+                                                {x.name}
+                                            </Button>
+                                        )
+                                    }
+                                </CardBody>
+                            </Card>
+                        </div>
+                        <div className='col-md-8'>
+                            {
+                                this.getCommands().map(command =>
+                                    <>
+                                        <Card className='bg-600 mb-3'>
+                                            <CardBody>
+                                                <CardTitle>
+                                                    <span className='fw-bold'>{`/${command.name}`}</span>
+                                                    <span className='text-muted'>{
+                                                        command.parameters.map(x =>
+                                                            <>
+                                                                {' '}[{x}]
+                                                            </>)
+                                                    }</span>
+                                                </CardTitle>
+                                                <CardText>{command.description}</CardText>
+                                            </CardBody>
+                                        </Card>
+                                    </>)
+                            }
+                        </div>
                     </div>
-                    <div className='col-md-8'>
-                        {
-                            this.getCommands().map(command =>
-                                <>
-                                    <Card className='bg-600 mb-3'>
-                                        <CardBody>
-                                            <CardTitle>
-                                                <span className='fw-bold'>{`/${command.name}`}</span>
-                                                <span className='text-muted'>{
-                                                    command.parameters.map(x =>
-                                                        <>
-                                                            {' '}[{x}]
-                                                        </>)
-                                                }</span>
-                                            </CardTitle>
-                                            <CardText>{command.description}</CardText>
-                                        </CardBody>
-                                    </Card>
-                                </>)
-                        }
-                    </div>
-                </div>
-            </Container>
+                </Container>
+            </>
         );
     }
 

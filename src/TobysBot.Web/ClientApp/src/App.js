@@ -7,10 +7,9 @@ import {FetchData} from './components/FetchData';
 import {library} from '@fortawesome/fontawesome-svg-core'
 import {fab} from '@fortawesome/free-brands-svg-icons'
 import {fas} from '@fortawesome/free-solid-svg-icons'
-
-import './custom.css'
 import {Helmet} from "react-helmet";
 
+import './custom.css'
 
 library.add(fab, fas)
 
@@ -20,7 +19,7 @@ export default class App extends Component {
     render() {
         return (
             <>
-                <Helmet>
+                <Helmet defaultTitle="Toby's Bot" titleTemplate="%s · Toby's Bot">
                     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
                     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/>
                     <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png"/>
