@@ -1,6 +1,4 @@
-﻿using Discord.Commands;
-
-namespace TobysBot.Commands;
+﻿namespace TobysBot.Commands;
 
 public interface ICommand
 {

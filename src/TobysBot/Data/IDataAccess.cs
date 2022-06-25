@@ -17,9 +17,9 @@ public interface IDataAccess
 
     Task<IReadOnlyCollection<T>> GetAsync<T>(string collectionName) where T : IEntity;
 
-    Task<T> GetAsync<T>(string collectionName, string id) where T : IEntity;
+    Task<T?> GetAsync<T>(string collectionName, string id) where T : IEntity;
 
-    Task<T> GetAsync<T>(string collectionName, ulong id) where T : IDiscordEntity;
+    Task<T?> GetAsync<T>(string collectionName, ulong id) where T : IDiscordEntity;
 
     Task<IReadOnlyCollection<T>> GetByNameAsync<T>(string collectionName, string name) where T : INamedEntity;
     

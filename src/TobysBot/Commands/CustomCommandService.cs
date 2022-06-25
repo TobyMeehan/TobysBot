@@ -2,7 +2,6 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using TobysBot.Commands.Builders;
-using TobysBot.Events;
 using TobysBot.Extensions;
 
 namespace TobysBot.Commands;
@@ -26,9 +25,9 @@ public class CustomCommandService : ICommandService
         _services = services;
     }
 
-    private List<ModuleBuilder> _globalModules = new();
-    private List<PluginBuilder> _plugins = new();
-    private CommandDictionary _commands = new();
+    private readonly List<ModuleBuilder> _globalModules = new();
+    private readonly List<PluginBuilder> _plugins = new();
+    private readonly CommandDictionary _commands = new();
 
     ICommandDictionary<ICommand> ICommandService.Commands => _commands;
 
@@ -67,8 +66,6 @@ public class CustomCommandService : ICommandService
 
             plugin.AddModule(builder);
         }
-
-        var commands = _commands.Select(x => x.Build());
         
         foreach (var guild in _client.Guilds)
         {

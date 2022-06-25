@@ -1,6 +1,5 @@
 ﻿using Discord.Commands;
 using Microsoft.Extensions.DependencyInjection;
-using TobysBot.Commands;
 
 namespace TobysBot.Configuration;
 

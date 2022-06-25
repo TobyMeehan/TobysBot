@@ -16,18 +16,15 @@ public class CommandHandler : IEventHandler<MessageReceivedEventArgs>, IEventHan
     private readonly ICommandService _commandService;
     private readonly EmbedService _embeds;
     private readonly IBaseGuildDataService _guildData;
-    private readonly IServiceProvider _services;
     private readonly TobysBotOptions _options;
     private readonly ILogger<CommandHandler> _logger;
 
-    public CommandHandler(DiscordSocketClient client, ICommandService commandService, EmbedService embeds, IBaseGuildDataService guildData,
-        IServiceProvider services, IOptions<TobysBotOptions> options, ILogger<CommandHandler> logger)
+    public CommandHandler(DiscordSocketClient client, ICommandService commandService, EmbedService embeds, IBaseGuildDataService guildData, IOptions<TobysBotOptions> options, ILogger<CommandHandler> logger)
     {
         _client = client;
         _commandService = commandService;
         _embeds = embeds;
         _guildData = guildData;
-        _services = services;
         _options = options.Value;
         _logger = logger;
     }
