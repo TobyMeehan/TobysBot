@@ -67,6 +67,14 @@ public class XLavaPlayer : LavaPlayer
         await ApplyFiltersAsync();
     }
 
+    public async Task UpdateChannelMixAsync(IChannelMix channelMix)
+    {
+        _playerPreset.ChannelMix = channelMix;
+        ActivePreset = _playerPreset;
+
+        await ApplyFiltersAsync();
+    }
+    
     public async Task UpdateEqualizerAsync(IEqualizer equalizer)
     {
         _playerPreset.Equalizer = new PlayerEqualizer(equalizer);

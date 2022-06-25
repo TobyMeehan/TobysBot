@@ -21,6 +21,7 @@ public class PlayerPreset : IPreset
     public double Speed { get; set; } = 1;
     public double Pitch { get; set; } = 1;
     public double Rotation { get; set; }
+    public IChannelMix ChannelMix { get; set; } = new ChannelMix();
 
     IEqualizer IPreset.Equalizer => Equalizer;
 }

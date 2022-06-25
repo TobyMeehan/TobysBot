@@ -104,6 +104,13 @@ public interface ILavalinkPlayer
     Task UpdateRotationAsync(double hertz);
 
     /// <summary>
+    /// Update the current channel mix.
+    /// </summary>
+    /// <param name="channelMix"></param>
+    /// <returns></returns>
+    Task UpdateChannelMixAsync(IChannelMix channelMix);
+    
+    /// <summary>
     /// Updates the current equalizer.
     /// </summary>
     /// <param name="equalizer"></param>

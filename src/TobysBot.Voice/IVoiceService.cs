@@ -34,6 +34,8 @@ public interface IVoiceService
     Task UpdatePitchAsync(IGuild guild, double pitch);
     Task UpdateRotationAsync(IGuild guild, double hertz);
 
+    Task UpdateChannelMixAsync(IGuild guild, IChannelMix channelMix);
+
     Task UpdateEqualizerAsync(IGuild guild, IEqualizer equalizer);
 
     Task<IPreset> GetActivePresetAsync(IGuild guild);

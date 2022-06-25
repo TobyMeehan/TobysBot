@@ -10,7 +10,14 @@ public static class PresetExtensions
         return new List<IFilter>
         {
             new TimescaleFilter { Speed = preset.Speed, Pitch = preset.Pitch, Rate = 1 },
-            new RotationFilter { Hertz = preset.Rotation }
+            new RotationFilter { Hertz = preset.Rotation },
+            new ChannelMixFilter
+            {
+                LeftToLeft = preset.ChannelMix.LeftToLeft, 
+                LeftToRight = preset.ChannelMix.LeftToRight,
+                RightToLeft = preset.ChannelMix.RightToLeft, 
+                RightToRight = preset.ChannelMix.RightToRight
+            }
         };
     }
 

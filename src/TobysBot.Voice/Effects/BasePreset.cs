@@ -6,4 +6,5 @@ public abstract class BasePreset : IPreset
     public virtual double Speed => 1;
     public virtual double Pitch => 1;
     public virtual double Rotation => 0;
+    public IChannelMix ChannelMix => new ChannelMix();
 }

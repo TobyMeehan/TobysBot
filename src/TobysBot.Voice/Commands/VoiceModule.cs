@@ -302,6 +302,26 @@ public class VoiceModule : VoiceCommandModuleBase
         await Response.ReactAsync(OkEmote);
     }
 
+    [Command("mono")]
+    [Summary("Toggles mono (equal left and right channels).")]
+    [RequireContext(ContextType.Guild)]
+    [CheckVoice(sameChannel: SameChannel.Required)]
+    public async Task MonoAsync()
+    {
+        var preset = await _voiceService.GetActivePresetAsync(Context.Guild!);
+
+        if (preset.ChannelMix is MonoChannelMix)
+        {
+            await _voiceService.UpdateChannelMixAsync(Context.Guild!, new ChannelMix());
+        }
+        else
+        {
+            await _voiceService.UpdateChannelMixAsync(Context.Guild!, new MonoChannelMix());
+        }
+
+        await Response.ReactAsync(OkEmote);
+    }
+
     [Command("nightcore")]
     [Summary("Toggles nightcore mode.")]
     [RequireContext(ContextType.Guild)]
