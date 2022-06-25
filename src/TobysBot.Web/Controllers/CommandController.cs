@@ -23,10 +23,10 @@ public class CommandController : ControllerBase
                 command.Usages.Select(usage =>
                     new Command
                     {
-                        Name = command.Name,
+                        Name = usage.CommandName,
                         PluginId = plugin.Id,
                         Parameters = usage.Parameters,
-                        Description = command.Description
+                        Description = usage.Description ?? command.Description
                     })));
     }
 
