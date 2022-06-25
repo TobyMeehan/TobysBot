@@ -177,9 +177,16 @@ public class MemoryMusicService : IMusicService
     {
         ThrowIfNotConnected(guild);
 
-        if (_queues[guild.Id].Remove(track - 1))
+        var queue = _queues[guild.Id];
+
+        if (queue.Remove(track - 1))
         {
-            await _voice.PlayAsync(guild, _queues[guild.Id].CurrentTrack?.ToSound(), TimeSpan.Zero);
+            if (queue.CurrentTrack is null)
+            {
+                return;
+            }
+            
+            await _voice.PlayAsync(guild, queue.CurrentTrack.ToSound(), TimeSpan.Zero);
         }
     }
 
@@ -187,9 +194,16 @@ public class MemoryMusicService : IMusicService
     {
         ThrowIfNotConnected(guild);
 
-        if (_queues[guild.Id].RemoveRange(startTrack - 1, endTrack - 1))
+        var queue = _queues[guild.Id];
+
+        if (queue.RemoveRange(startTrack - 1, endTrack - 1))
         {
-            await _voice.PlayAsync(guild, _queues[guild.Id].CurrentTrack?.ToSound(), TimeSpan.Zero);
+            if (queue.CurrentTrack is null)
+            {
+                return;
+            }
+            
+            await _voice.PlayAsync(guild, queue.CurrentTrack.ToSound(), TimeSpan.Zero);
         }
     }
 

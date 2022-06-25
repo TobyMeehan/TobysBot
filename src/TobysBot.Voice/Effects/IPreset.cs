@@ -8,4 +8,6 @@ public interface IPreset
     double Pitch { get; }
     
     double Rotation { get; }
+    
+    IChannelMix ChannelMix { get; }
 }

@@ -25,6 +25,7 @@ public class SavedPreset : Entity, ISavedPreset
     public double Speed { get; set; }
     public double Pitch { get; set; }
     public double Rotation { get; set; }
+    public IChannelMix ChannelMix { get; set; } = new ChannelMix();
     public List<Band> Equalizer { get; set; } = new();
     
     IEqualizer IPreset.Equalizer => new Equalizer(Equalizer);

@@ -30,13 +30,13 @@ public class TrackExceptionEventHandler : IEventHandler<SoundExceptionEventArgs>
             return;
         }
         
-        if (track.Position == TimeSpan.Zero)
+        if (track.Position < TimeSpan.FromSeconds(1))
         {
             if (args.Status is IConnectedStatus status)
             {
                 await status.TextChannel.SendMessageAsync(embed: _embeds.Builder()
                     .WithContext(EmbedContext.Error)
-                    .WithDescription($"Error playing [{track.Title}]({track.Url})")
+                    .WithDescription(args.Exception)
                     .Build());
             }
             

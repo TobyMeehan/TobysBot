@@ -129,6 +129,13 @@ public class LavalinkVoiceService : IVoiceService
         await player.UpdateRotationAsync(hertz);
     }
 
+    public async Task UpdateChannelMixAsync(IGuild guild, IChannelMix channelMix)
+    {
+        var player = ThrowIfNoPlayer(guild);
+
+        await player.UpdateChannelMixAsync(channelMix);
+    }
+
     public async Task UpdateEqualizerAsync(IGuild guild, IEqualizer equalizer)
     {
         var player = ThrowIfNoPlayer(guild);

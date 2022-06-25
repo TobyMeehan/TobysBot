@@ -75,6 +75,11 @@ public class VictoriaLavalinkPlayer : ILavalinkPlayer
         await _player.UpdateRotationAsync(hertz);
     }
 
+    public async Task UpdateChannelMixAsync(IChannelMix channelMix)
+    {
+        await _player.UpdateChannelMixAsync(channelMix);
+    }
+
     public async Task UpdateEqualizerAsync(IEqualizer equalizer)
     {
         await _player.UpdateEqualizerAsync(equalizer);

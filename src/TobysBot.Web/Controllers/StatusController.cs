@@ -5,7 +5,7 @@ using TobysBot.Web.Models;
 namespace TobysBot.Web.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("/data/[controller]")]
 public class StatusController : ControllerBase
 {
     private readonly DiscordSocketClient _client;
@@ -16,7 +16,7 @@ public class StatusController : ControllerBase
     }
     
     [HttpGet]
-    public DiscordStatus GetAsync()
+    public DiscordStatus Get()
     {
         return new DiscordStatus
         {
