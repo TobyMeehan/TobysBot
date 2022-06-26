@@ -11,6 +11,11 @@ public class TobysBotOptions
     /// The status the bot should use on startup.
     /// </summary>
     public string? StartupStatus { get; set; }
+
+    /// <summary>
+    /// Whether the bot should register slash commands on startup.
+    /// </summary>
+    public bool SlashCommands { get; set; }
     
     /// <summary>
     /// The authorization options for the bot.
