@@ -50,16 +50,6 @@ public class PrefixModule : CommandModuleBase
             return;
         }
 
-        if (prefix.HasSpecialCharacters())
-        {
-            await Response.ReplyAsync(embed: _embeds.Builder()
-                .WithContext(EmbedContext.Error)
-                .WithDescription("Prefix cannot contain special characters.")
-                .Build());
-            
-            return;
-        }
-
         if (prefix.Any(char.IsWhiteSpace))
         {
             await Response.ReplyAsync(embed: _embeds.Builder()
