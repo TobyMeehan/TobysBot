@@ -30,7 +30,7 @@ public class SavedQueueDataService : ISavedQueueDataService
         return await _data.GetByUserAsync<SavedQueue>(_options.SavedQueueCollection, user);
     }
 
-    public async Task<ISavedQueue> GetSavedQueueAsync(string id, IUser requestedBy)
+    public async Task<ISavedQueue?> GetSavedQueueAsync(string id, IUser requestedBy)
     {
         if (_options.SavedQueueCollection is null)
         {
@@ -38,6 +38,11 @@ public class SavedQueueDataService : ISavedQueueDataService
         }
         
         var queue = await _data.GetAsync<SavedQueue>(_options.SavedQueueCollection, id);
+
+        if (queue is null)
+        {
+            return queue;
+        }
 
         foreach (var track in queue.Tracks)
         {
