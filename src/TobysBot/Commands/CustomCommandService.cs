@@ -1,7 +1,9 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.Options;
 using TobysBot.Commands.Builders;
+using TobysBot.Configuration;
 using TobysBot.Extensions;
 
 namespace TobysBot.Commands;
@@ -13,16 +15,18 @@ public class CustomCommandService : ICommandService
     private readonly IEnumerable<IPluginRegistration> _registeredPlugins;
     private readonly IEnumerable<IModuleRegistration> _registeredModules;
     private readonly IServiceProvider _services;
+    private readonly TobysBotOptions _options;
 
     public CustomCommandService(CommandService commandService, DiscordSocketClient client, 
         IEnumerable<IPluginRegistration> registeredPlugins, 
-        IEnumerable<IModuleRegistration> registeredModules, IServiceProvider services)
+        IEnumerable<IModuleRegistration> registeredModules, IServiceProvider services, IOptions<TobysBotOptions> options)
     {
         _commandService = commandService;
         _client = client;
         _registeredPlugins = registeredPlugins;
         _registeredModules = registeredModules;
         _services = services;
+        _options = options.Value;
     }
 
     private readonly List<ModuleBuilder> _globalModules = new();
@@ -69,6 +73,12 @@ public class CustomCommandService : ICommandService
         
         foreach (var guild in _client.Guilds)
         {
+            if (!_options.SlashCommands)
+            {
+                await guild.BulkOverwriteApplicationCommandAsync(Array.Empty<ApplicationCommandProperties>());
+                continue;
+            }
+            
             await guild.BulkOverwriteApplicationCommandAsync(_commands
                 .Select(x => x.Build())
                 .Cast<ApplicationCommandProperties>()
