@@ -16,7 +16,7 @@ public abstract class VictoriaBaseLyricsResolver : ILyricsResolver
             = new Regex(@"(\(.*?\))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         var punctuationReg
-            = new Regex(@"[^0-9A-Za-z._\-\s]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            = new Regex(@"[^0-9A-Za-z._\s]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         var artistReg
             = new Regex(@"\w+.\w+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
