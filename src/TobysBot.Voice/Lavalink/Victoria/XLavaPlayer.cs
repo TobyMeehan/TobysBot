@@ -4,6 +4,7 @@ using TobysBot.Voice.Extensions;
 using TobysBot.Voice.Status;
 using Victoria;
 using Victoria.Enums;
+using Victoria.Filters;
 
 namespace TobysBot.Voice.Lavalink.Victoria;
 
@@ -40,7 +41,47 @@ public class XLavaPlayer : LavaPlayer
 
     private async Task ApplyFiltersAsync()
     {
-        await ApplyFiltersAsync(ActivePreset.GetLavaFilters(), Volume, ActivePreset.GetLavaEqualizer());
+        await ApplyFiltersAsync(GetLavaFilters(), Volume, GetLavaEqualizer());
+    }
+
+    private IEnumerable<IFilter> GetLavaFilters()
+    {
+        var result = new List<IFilter>();
+
+        if (ActivePreset is not { Speed: 1, Pitch: 1 })
+        {
+            result.Add(new TimescaleFilter { Speed = ActivePreset.Speed, Pitch = ActivePreset.Pitch, Rate = 1 });
+        }
+
+        if (ActivePreset is not { Rotation: 0 })
+        {
+            result.Add(new RotationFilter { Hertz = ActivePreset.Rotation });
+        }
+
+        if (ActivePreset.ChannelMix is not { LeftToLeft: 1, LeftToRight: 0, RightToRight: 1, RightToLeft: 0 })
+        {
+            result.Add(new ChannelMixFilter
+            {
+                LeftToLeft = ActivePreset.ChannelMix.LeftToLeft, 
+                LeftToRight = ActivePreset.ChannelMix.LeftToRight,
+                RightToLeft = ActivePreset.ChannelMix.RightToLeft, 
+                RightToRight = ActivePreset.ChannelMix.RightToRight
+            });
+        }
+
+        return result;
+    }
+
+    private EqualizerBand[] GetLavaEqualizer()
+    {
+        if (ActivePreset.Equalizer.All(x => x.Gain == 0))
+        {
+            return Array.Empty<EqualizerBand>();
+        }
+        
+        int i = 0;
+
+        return ActivePreset.Equalizer.Select(x => new EqualizerBand(i++, x.Gain)).ToArray();
     }
 
     public async Task UpdateSpeedAsync(double speed)
