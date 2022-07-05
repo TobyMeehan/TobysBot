@@ -2,6 +2,8 @@ using System.Web;
 using Discord;
 using TobysBot.Music.Search.Result;
 using YoutubeExplode;
+using YoutubeExplode.Exceptions;
+using YoutubeExplode.Videos;
 
 namespace TobysBot.Music.Search;
 
@@ -34,16 +36,51 @@ public class YouTubeResolver : ISearchResolver
 
     private async Task<ISearchResult> LoadYouTubePlaylistAsync(string id, IUser requestedBy)
     {
-        var playlist = await _youtube.Playlists.GetAsync(id);
-        var videos = _youtube.Playlists.GetVideosAsync(playlist.Id).ToEnumerable();
+        YoutubeExplode.Playlists.IPlaylist playlist;
 
+        try
+        {
+            playlist = await _youtube.Playlists.GetAsync(id);
+        }
+        catch (ArgumentException)
+        {
+            return new LoadFailedSearchResult("Invalid playlist URL.");
+        }
+        catch (PlaylistUnavailableException)
+        {
+            return new NotFoundSearchResult();
+        }
+        catch (Exception)
+        {
+            return new LoadFailedSearchResult();
+        }
+
+        var videos = _youtube.Playlists.GetVideosAsync(playlist.Id).ToEnumerable();
+        
         return new PlaylistResult(
             new YouTubePlaylist(playlist, videos, requestedBy));
     }
 
     private async Task<ISearchResult> LoadYouTubeTrackAsync(string id, IUser requestedBy)
     {
-        var video = await _youtube.Videos.GetAsync(id);
+        IVideo video;
+
+        try
+        {
+            video = await _youtube.Videos.GetAsync(id);
+        }
+        catch (ArgumentException)
+        {
+            return new LoadFailedSearchResult("Invalid video URL.");
+        }
+        catch (VideoUnavailableException)
+        {
+            return new NotFoundSearchResult();
+        }
+        catch (Exception)
+        {
+            return new LoadFailedSearchResult();
+        }
 
         return new TrackResult(
             new YouTubeTrack(video, requestedBy));
