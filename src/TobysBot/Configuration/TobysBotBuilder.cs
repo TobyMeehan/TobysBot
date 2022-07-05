@@ -1,6 +1,7 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using Fergun.Interactive;
+using Hangfire;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TobysBot.Commands;
@@ -65,14 +66,15 @@ public class TobysBotBuilder
         
         return Services.AddPlugin<T>();
     }
-    
+
     /// <summary>
     /// Adds a database implementation to Toby's Bot.
     /// </summary>
     /// <param name="configureServices"></param>
+    /// <param name="configureHangfire"></param>
     /// <typeparam name="TDataAccess"></typeparam>
     /// <returns></returns>
-    public TobysBotBuilder AddDatabase<TDataAccess>(Action<IServiceCollection> configureServices) where TDataAccess : class, IDataAccess
+    public TobysBotBuilder AddDatabase<TDataAccess>(Action<IServiceCollection> configureServices, Action<IGlobalConfiguration> configureHangfire) where TDataAccess : class, IDataAccess
     {
         Services.AddTransient<IDataAccess, TDataAccess>();
         
@@ -80,6 +82,9 @@ public class TobysBotBuilder
         Services.AddTransient<IPrefixDataService, PrefixDataService>();
 
         Services.AddCommandModule<PrefixModule>();
+
+        Services.AddHangfire(configureHangfire);
+        Services.AddHangfireServer();
 
         configureServices(Services);
 

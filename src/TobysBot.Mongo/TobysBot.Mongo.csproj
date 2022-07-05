@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Hangfire.Mongo" Version="1.7.2" />
       <PackageReference Include="MongoDB.Driver" Version="2.16.0" />
     </ItemGroup>
 

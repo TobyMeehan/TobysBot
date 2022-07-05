@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Hangfire.Mongo;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -50,9 +51,12 @@ public static class TobysBotBuilderExtensions
             cm.MapIdProperty(x => x.Id).SetIgnoreIfNull(true).SetDefaultValue(new ObjectId());
         });
         
-        return builder.AddDatabase<MongoDataAccess>(services =>
-        {
-            services.AddSingleton<IMongoService, MongoService>();
-        });
+        return builder.AddDatabase<MongoDataAccess>(
+            services =>
+            {
+                services.AddSingleton<IMongoService, MongoService>();
+            },
+            hangfire => hangfire
+                .UseMongoStorage(options.ConnectionString, options.HangfireDatabaseName));
     }
 }
