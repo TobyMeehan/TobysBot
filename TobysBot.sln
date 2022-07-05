@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{A8805221
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TobysBot.Tests", "tests\TobysBot.Tests\TobysBot.Tests.csproj", "{394EFF5C-4CCC-44D5-A280-704CBFAB8EB6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TobysBot.Util", "src\TobysBot.Util\TobysBot.Util.csproj", "{4EE5F300-4B12-440D-B2D7-6F97407783D2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{394EFF5C-4CCC-44D5-A280-704CBFAB8EB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{394EFF5C-4CCC-44D5-A280-704CBFAB8EB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{394EFF5C-4CCC-44D5-A280-704CBFAB8EB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4EE5F300-4B12-440D-B2D7-6F97407783D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EE5F300-4B12-440D-B2D7-6F97407783D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EE5F300-4B12-440D-B2D7-6F97407783D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EE5F300-4B12-440D-B2D7-6F97407783D2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -70,5 +76,6 @@ Global
 		{5E907A02-40B3-4E51-9BC8-E818F68B5F30} = {DF5805DF-04F4-44DD-86FC-D89262E6DC71}
 		{CD0BDA9E-3EA3-491B-AC6F-63879222BFDE} = {DF5805DF-04F4-44DD-86FC-D89262E6DC71}
 		{394EFF5C-4CCC-44D5-A280-704CBFAB8EB6} = {A8805221-AF9A-4567-953A-9B900A2061FF}
+		{4EE5F300-4B12-440D-B2D7-6F97407783D2} = {DF5805DF-04F4-44DD-86FC-D89262E6DC71}
 	EndGlobalSection
 EndGlobal
