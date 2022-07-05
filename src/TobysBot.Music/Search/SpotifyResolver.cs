@@ -34,7 +34,16 @@ public class SpotifyResolver : ISearchResolver
 
     private async Task<ISearchResult> LoadSpotifyPlaylistAsync(string id, IUser requestedBy)
     {
-        var playlist = await _spotify.Playlists.Get(id);
+        FullPlaylist playlist;
+
+        try
+        {
+            playlist = await _spotify.Playlists.Get(id);
+        }
+        catch (Exception)
+        {
+            return new NotFoundSearchResult();
+        }
 
         if (playlist.Tracks?.Items is null)
         {
@@ -71,7 +80,16 @@ public class SpotifyResolver : ISearchResolver
 
     private async Task<ISearchResult> LoadSpotifyAlbumAsync(string id, IUser requestedBy)
     {
-        var album = await _spotify.Albums.Get(id);
+        FullAlbum album;
+        
+        try
+        {
+            album = await _spotify.Albums.Get(id);
+        }
+        catch (Exception)
+        {
+            return new NotFoundSearchResult();
+        }
 
         if (album.Tracks?.Items is null)
         {
@@ -103,7 +121,16 @@ public class SpotifyResolver : ISearchResolver
 
     private async Task<ISearchResult> LoadSpotifyTrackAsync(string id, IUser requestedBy)
     {
-        var track = await _spotify.Tracks.Get(id);
+        FullTrack track;
+
+        try
+        {
+            track = await _spotify.Tracks.Get(id);
+        }
+        catch (Exception)
+        {
+            return new NotFoundSearchResult();
+        }
 
         var search = _youtube.Search.GetVideosAsync($"{track.Artists[0].Name} {track.Name}");
 
