@@ -4,7 +4,8 @@ namespace TobysBot.Util.Data;
 
 public interface IReminderService
 {
-    Task<IReadOnlyCollection<IReminder>> GetRemindersAsync();
+    Task CreateReminderAsync(IUser user, DateTimeOffset triggerAt, string name);
+    Task<IReadOnlyCollection<IReminder>> ListRemindersAsync();
 
     Task<IReadOnlyCollection<IReminder>> ListRemindersAsync(IUser user);
 
