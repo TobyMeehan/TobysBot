@@ -11,7 +11,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Configuration" />
+      <PackageReference Include="Humanizer" Version="2.14.1" />
+      <PackageReference Include="Microsoft.Recognizers.Text" Version="1.8.4" />
+      <PackageReference Include="Microsoft.Recognizers.Text.DateTime" Version="1.8.4" />
     </ItemGroup>
 
 </Project>

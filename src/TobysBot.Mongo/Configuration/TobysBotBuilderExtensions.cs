@@ -1,4 +1,5 @@
 ﻿using Hangfire.Mongo;
+using Hangfire.Mongo.Migration.Strategies;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
@@ -57,6 +58,12 @@ public static class TobysBotBuilderExtensions
                 services.AddSingleton<IMongoService, MongoService>();
             },
             hangfire => hangfire
-                .UseMongoStorage(options.ConnectionString, options.HangfireDatabaseName));
+                .UseMongoStorage(options.ConnectionString, options.HangfireDatabaseName, new MongoStorageOptions
+                {
+                    MigrationOptions = new MongoMigrationOptions
+                    {
+                        MigrationStrategy = new MigrateMongoMigrationStrategy()
+                    }
+                }));
     }
 }
