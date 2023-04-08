@@ -9,6 +9,7 @@ using TobysBot.Music.Events;
 using TobysBot.Music.Lyrics;
 using TobysBot.Music.MemoryQueue;
 using TobysBot.Music.Search;
+using TobysBot.Music.Voice;
 using TobysBot.Voice.Events;
 using Victoria;
 using YoutubeExplode;
@@ -54,6 +55,9 @@ public static class TobysBotBuilderExtensions
                 services.AddTransient<ISearchResolver, YouTubeResolver>();
                 services.AddTransient<ISearchResolver, SavedQueueResolver>();
 
+                services.AddTransient<IAudioService, AudioService>();
+                services.AddHostedService<SoundCacheBackgroundService>();
+
                 services.AddTransient<ILyricsService, LyricsService>();
                 services.AddTransient<ILyricsResolver, GeniusLyricsResolver>();
                 services.AddTransient<ILyricsResolver, OvhLyricsResolver>();
@@ -88,6 +92,8 @@ public static class TobysBotBuilderExtensions
                 services.SubscribeEvent<SoundExceptionEventArgs, TrackExceptionEventHandler>();
 
                 services.SubscribeEvent<VoiceChannelLeaveEventArgs, VoiceDisconnectedEventHandler>();
+                
+                services.SubscribeEvent<TrackAddedEventArgs, SoundCacheBackgroundService>(x => x.GetRequiredService<SoundCacheBackgroundService>());
             })
             .AddModule<MusicModule>()
             .AddModule<SavedQueueModule>();

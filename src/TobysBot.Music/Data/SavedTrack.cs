@@ -14,7 +14,6 @@ public class SavedTrack : ITrack
         Title = track.Title;
         Author = track.Author;
         Url = track.Url;
-        AudioUrl = track.AudioUrl;
         Duration = track.Duration;
     }
     
@@ -23,7 +22,6 @@ public class SavedTrack : ITrack
     public string Title { get; set; } = null!;
     public string Author { get; set; } = null!;
     public string Url { get; set; } = null!;
-    public string AudioUrl { get; set; } = null!;
     public TimeSpan Duration { get; set; }
 
     // -- --

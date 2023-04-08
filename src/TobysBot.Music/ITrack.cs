@@ -21,12 +21,7 @@ public interface ITrack
     /// Url of the track.
     /// </summary>
     string Url { get; }
-    
-    /// <summary>
-    /// Url of the track's audio.
-    /// </summary>
-    string AudioUrl { get; }
-    
+
     /// <summary>
     /// Duration of the track.
     /// </summary>

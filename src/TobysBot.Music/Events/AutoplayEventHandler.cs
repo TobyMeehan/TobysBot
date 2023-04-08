@@ -10,11 +10,13 @@ public class AutoplayEventHandler : IEventHandler<SoundEndedEventArgs>
 {
     private readonly IMemoryQueueService _queues;
     private readonly IVoiceService _voice;
+    private readonly IAudioService _audio;
 
-    public AutoplayEventHandler(IMemoryQueueService queues, IVoiceService voice)
+    public AutoplayEventHandler(IMemoryQueueService queues, IVoiceService voice, IAudioService audio)
     {
         _queues = queues;
         _voice = voice;
+        _audio = audio;
     }
     
     public async Task HandleAsync(SoundEndedEventArgs args)
@@ -31,6 +33,6 @@ public class AutoplayEventHandler : IEventHandler<SoundEndedEventArgs>
             return;
         }
 
-        await _voice.PlayAsync(args.Guild, track.ToSound(), TimeSpan.Zero);
+        await _voice.PlayAsync(args.Guild, await _audio.LoadAudioAsync(track), TimeSpan.Zero);
     }
 }

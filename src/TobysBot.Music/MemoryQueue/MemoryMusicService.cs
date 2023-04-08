@@ -1,4 +1,6 @@
 using Discord;
+using TobysBot.Events;
+using TobysBot.Music.Events;
 using TobysBot.Music.Extensions;
 using TobysBot.Voice;
 using TobysBot.Voice.Status;
@@ -9,11 +11,15 @@ public class MemoryMusicService : IMusicService
 {
     private readonly IVoiceService _voice;
     private readonly IMemoryQueueService _queues;
+    private readonly IEventService _events;
+    private readonly IAudioService _audio;
 
-    public MemoryMusicService(IVoiceService voice, IMemoryQueueService queues)
+    public MemoryMusicService(IVoiceService voice, IMemoryQueueService queues, IEventService events, IAudioService audio)
     {
         _voice = voice;
         _queues = queues;
+        _events = events;
+        _audio = audio;
     }
 
     private IPlayerStatus ThrowIfNotConnected(IGuild guild)
@@ -43,7 +49,7 @@ public class MemoryMusicService : IMusicService
         
         if (isStopped)
         {
-            await _voice.PlayAsync(guild, tracks.First().ToSound(), TimeSpan.Zero);
+            await _voice.PlayAsync(guild, await _audio.LoadAudioAsync(tracks.First()), TimeSpan.Zero);
         }
 
         var queue = _queues.GetOrAdd(guild.Id);
@@ -54,6 +60,8 @@ public class MemoryMusicService : IMusicService
         {
             throw new NullReferenceException("Current track is null.");
         }
+
+        await _events.InvokeAsync(new TrackAddedEventArgs(tracks));
         
         return queue.CurrentTrack.InnerTrack;
     }
@@ -89,7 +97,7 @@ public class MemoryMusicService : IMusicService
                 return;
             }
 
-            await _voice.PlayAsync(guild, track.ToSound(), TimeSpan.Zero);
+            await _voice.PlayAsync(guild, await _audio.LoadAudioAsync(track), TimeSpan.Zero);
         }
     }
 
@@ -112,7 +120,7 @@ public class MemoryMusicService : IMusicService
         }
         else
         {
-            await _voice.PlayAsync(guild, nextTrack.ToSound(), TimeSpan.Zero);
+            await _voice.PlayAsync(guild, await _audio.LoadAudioAsync(nextTrack), TimeSpan.Zero);
         }
 
         return nextTrack;
@@ -129,7 +137,7 @@ public class MemoryMusicService : IMusicService
             throw new Exception("No previous track to play.");
         }
 
-        await _voice.PlayAsync(guild, previousTrack.ToSound(), TimeSpan.Zero);
+        await _voice.PlayAsync(guild, await _audio.LoadAudioAsync(previousTrack), TimeSpan.Zero);
 
         return previousTrack;
     }
@@ -150,7 +158,7 @@ public class MemoryMusicService : IMusicService
             throw new Exception("Invalid track or index.");
         }
 
-        await _voice.PlayAsync(guild, track.ToSound(), TimeSpan.Zero);
+        await _voice.PlayAsync(guild, await _audio.LoadAudioAsync(track), TimeSpan.Zero);
 
         return track;
     }
@@ -186,7 +194,7 @@ public class MemoryMusicService : IMusicService
                 return;
             }
             
-            await _voice.PlayAsync(guild, queue.CurrentTrack.ToSound(), TimeSpan.Zero);
+            await _voice.PlayAsync(guild, await _audio.LoadAudioAsync(queue.CurrentTrack), TimeSpan.Zero);
         }
     }
 
@@ -203,7 +211,7 @@ public class MemoryMusicService : IMusicService
                 return;
             }
             
-            await _voice.PlayAsync(guild, queue.CurrentTrack.ToSound(), TimeSpan.Zero);
+            await _voice.PlayAsync(guild, await _audio.LoadAudioAsync(queue.CurrentTrack), TimeSpan.Zero);
         }
     }
 
