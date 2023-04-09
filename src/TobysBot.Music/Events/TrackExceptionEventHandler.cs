@@ -13,12 +13,14 @@ public class TrackExceptionEventHandler : IEventHandler<SoundExceptionEventArgs>
     private readonly IMusicService _music;
     private readonly IVoiceService _voice;
     private readonly EmbedService _embeds;
+    private readonly IAudioService _audio;
 
-    public TrackExceptionEventHandler(IMusicService music, IVoiceService voice, EmbedService embeds)
+    public TrackExceptionEventHandler(IMusicService music, IVoiceService voice, EmbedService embeds, IAudioService audio)
     {
         _music = music;
         _voice = voice;
         _embeds = embeds;
+        _audio = audio;
     }
     
     public async Task HandleAsync(SoundExceptionEventArgs args)
@@ -45,6 +47,6 @@ public class TrackExceptionEventHandler : IEventHandler<SoundExceptionEventArgs>
             return;
         }
 
-        await _voice.PlayAsync(args.Guild, track.ToSound(), track.Position);
+        await _voice.PlayAsync(args.Guild, await _audio.LoadAudioAsync(track), track.Position);
     }
 }

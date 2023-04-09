@@ -1,7 +1,7 @@
 using Discord;
 using YoutubeExplode.Videos;
 
-namespace TobysBot.Music.Search;
+namespace TobysBot.Music.YouTube;
 
 public class YouTubePlaylist : IPlaylist
 {
@@ -9,7 +9,7 @@ public class YouTubePlaylist : IPlaylist
     {
         Title = playlist.Title;
         Url = playlist.Url;
-        Tracks = from video in videos select new YouTubeTrack(video, requestedBy);
+        Tracks = videos.Select(x => new YouTubeTrack(x, requestedBy));
     }
     
     public string Title { get; }

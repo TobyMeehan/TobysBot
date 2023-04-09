@@ -1,6 +1,7 @@
 using Discord;
 using TobysBot.Music.Exceptions;
 using TobysBot.Music.Search.Result;
+using TobysBot.Music.YouTube;
 using YoutubeExplode;
 
 namespace TobysBot.Music.Search;

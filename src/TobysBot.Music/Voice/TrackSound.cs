@@ -7,7 +7,7 @@ public class TrackSound : ISound
     public TrackSound(ITrack track)
     {
         Title = track.Title;
-        Url = track.AudioUrl;
+        Url = track.Url;
         Duration = track.Duration;
     }
     

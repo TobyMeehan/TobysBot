@@ -9,11 +9,13 @@ public class TrackStuckEventHandler : IEventHandler<SoundStuckEventArgs>
 {
     private readonly IMusicService _music;
     private readonly IVoiceService _voice;
+    private readonly IAudioService _audio;
 
-    public TrackStuckEventHandler(IMusicService music, IVoiceService voice)
+    public TrackStuckEventHandler(IMusicService music, IVoiceService voice, IAudioService audio)
     {
         _music = music;
         _voice = voice;
+        _audio = audio;
     }
     
     public async Task HandleAsync(SoundStuckEventArgs args)
@@ -25,6 +27,6 @@ public class TrackStuckEventHandler : IEventHandler<SoundStuckEventArgs>
             return;
         }
 
-        await _voice.PlayAsync(args.Guild, track.ToSound(), track.Position);
+        await _voice.PlayAsync(args.Guild, await _audio.LoadAudioAsync(track), track.Position);
     }
 }
