@@ -106,7 +106,7 @@ public class MongoDataAccess : IDataAccess
         return result.ToList();
     }
 
-    public async Task<T> GetAsync<T>(string collectionName, string id) where T : IEntity
+    public async Task<T?> GetAsync<T>(string collectionName, string id) where T : IEntity
     {
         var collection = _service.Connect<T>(collectionName);
 
@@ -115,7 +115,7 @@ public class MongoDataAccess : IDataAccess
         return result.FirstOrDefault();
     }
 
-    public async Task<T> GetAsync<T>(string collectionName, ulong id) where T : IDiscordEntity
+    public async Task<T?> GetAsync<T>(string collectionName, ulong id) where T : IDiscordEntity
     {
         var collection = _service.Connect<T>(collectionName);
 
