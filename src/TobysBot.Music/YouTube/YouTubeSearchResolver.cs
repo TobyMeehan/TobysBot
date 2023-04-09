@@ -2,6 +2,8 @@ using System.Web;
 using Discord;
 using TobysBot.Music.Search.Result;
 using YoutubeExplode;
+using YoutubeExplode.Exceptions;
+using YoutubeExplode.Videos;
 
 namespace TobysBot.Music.YouTube;
 
@@ -34,7 +36,24 @@ public class YouTubeSearchResolver : ISearchResolver
 
     private async Task<ISearchResult> LoadTrackAsync(string id, IUser requestedBy)
     {
-        var video = await _youtube.Videos.GetAsync(id);
+        IVideo video;
+
+        try
+        {
+            video = await _youtube.Videos.GetAsync(id);
+        }
+        catch (ArgumentException)
+        {
+            return new LoadFailedSearchResult("Invalid video URL.");
+        }
+        catch (VideoUnavailableException)
+        {
+            return new NotFoundSearchResult();
+        }
+        catch
+        {
+            return new LoadFailedSearchResult();
+        }
 
         return new TrackResult(new YouTubeTrack(video, requestedBy));
     }

@@ -31,14 +31,32 @@ public class SpotifySearchResolver : ISearchResolver
 
     private async Task<ISearchResult> LoadTrackAsync(string id, IUser requestedBy)
     {
-        var track = await _spotify.Tracks.Get(id);
+        FullTrack track;
+
+        try
+        {
+            track = await _spotify.Tracks.Get(id);
+        }
+        catch
+        {
+            return new NotFoundSearchResult();
+        }
 
         return new TrackResult(new SpotifyTrack(track, requestedBy));
     }
 
     private async Task<ISearchResult> LoadPlaylistAsync(string id, IUser requestedBy)
     {
-        var playlist = await _spotify.Playlists.Get(id);
+        FullPlaylist playlist;
+
+        try
+        {
+            playlist = await _spotify.Playlists.Get(id);
+        }
+        catch
+        {
+            return new NotFoundSearchResult();
+        }
 
         if (playlist.Tracks?.Items is null)
         {
@@ -51,7 +69,16 @@ public class SpotifySearchResolver : ISearchResolver
 
     private async Task<ISearchResult> LoadAlbumAsync(string id, IUser requestedBy)
     {
-        var album = await _spotify.Albums.Get(id);
+        FullAlbum album;
+
+        try
+        {
+            album = await _spotify.Albums.Get(id);
+        }
+        catch
+        {
+            return new NotFoundSearchResult();
+        }
 
         if (album.Tracks?.Items is null)
         {
