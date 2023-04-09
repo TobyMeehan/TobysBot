@@ -9,7 +9,9 @@ using TobysBot.Music.Events;
 using TobysBot.Music.Lyrics;
 using TobysBot.Music.MemoryQueue;
 using TobysBot.Music.Search;
+using TobysBot.Music.Spotify;
 using TobysBot.Music.Voice;
+using TobysBot.Music.YouTube;
 using TobysBot.Voice.Events;
 using Victoria;
 using YoutubeExplode;
@@ -52,11 +54,12 @@ public static class TobysBotBuilderExtensions
                 services.AddSingleton<IMemoryQueueService, MemoryQueueService>();
 
                 services.AddTransient<ISearchService, SearchService>();
-                services.AddTransient<ISearchResolver, YouTubeResolver>();
+                services.AddTransient<ISearchResolver, YouTubeSearchResolver>();
                 services.AddTransient<ISearchResolver, SavedQueueResolver>();
 
                 services.AddTransient<IAudioService, AudioService>();
-                services.AddHostedService<SoundCacheBackgroundService>();
+                services.AddSingleton<SoundCacheBackgroundService>();
+                services.AddHostedService(x => x.GetRequiredService<SoundCacheBackgroundService>());
 
                 services.AddTransient<ILyricsService, LyricsService>();
                 services.AddTransient<ILyricsResolver, GeniusLyricsResolver>();
@@ -82,7 +85,8 @@ public static class TobysBotBuilderExtensions
                             options.Spotify.ClientSecret)));
                     services.AddTransient<ISpotifyClient, SpotifyClient>();
 
-                    services.AddTransient<ISearchResolver, SpotifyResolver>();
+                    services.AddTransient<ISearchResolver, SpotifySearchResolver>();
+                    services.AddTransient<ISoundResolver, SpotifyAudioResolver>();
                 }
 
                 services.SubscribeEvent<PlayerUpdatedEventArgs, TrackProgressEventHandler>();

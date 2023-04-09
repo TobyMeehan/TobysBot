@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using TobysBot.Music.Search;
+using TobysBot.Music.Spotify;
 
 namespace TobysBot.Music.Lyrics;
 
