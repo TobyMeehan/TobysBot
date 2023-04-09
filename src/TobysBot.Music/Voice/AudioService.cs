@@ -23,6 +23,11 @@ public class AudioService : IAudioService
     
     private async Task<ISound> ResolveAsync(ITrack track)
     {
+        if (track is IActiveTrack activeTrack)
+        {
+            track = activeTrack.InnerTrack;
+        }
+        
         foreach (var resolver in _resolvers)
         {
             if (resolver.CanResolve(track))
