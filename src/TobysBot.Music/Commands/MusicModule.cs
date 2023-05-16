@@ -206,7 +206,7 @@ public class MusicModule : VoiceCommandModuleBase
     [CheckVoice(sameChannel: SameChannel.Required)]
     public async Task SeekAsync(
         [Summary("Timestamp in the current track to skip to.")]
-        string timestamp)
+        TimeSpan timestamp)
     {
         var track = await _music.GetTrackAsync(Context.Guild!);
 
@@ -219,18 +219,7 @@ public class MusicModule : VoiceCommandModuleBase
             return;
         }
 
-        string[] formats = { @"%h\:%m\:%s", @"%m\:%s" };
-
-        if (!TimeSpan.TryParseExact(timestamp, formats, null, TimeSpanStyles.None, out var timeSpan))
-        {
-            await Response.ReplyAsync(embed: _embeds.Builder()
-                .WithCannotParseTimestampError()
-                .Build());
-
-            return;
-        }
-
-        if (timeSpan > track.Duration)
+        if (timestamp > track.Duration)
         {
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithTimestampTooLongError()
@@ -239,7 +228,7 @@ public class MusicModule : VoiceCommandModuleBase
             return;
         }
 
-        await _music.SeekAsync(Context.Guild!, timeSpan);
+        await _music.SeekAsync(Context.Guild!, timestamp);
 
         await Response.ReactAsync(FastForwardEmote);
     }
