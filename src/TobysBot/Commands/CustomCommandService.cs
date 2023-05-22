@@ -3,6 +3,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Options;
 using TobysBot.Commands.Builders;
+using TobysBot.Commands.TypeReaders;
 using TobysBot.Configuration;
 using TobysBot.Extensions;
 
@@ -40,6 +41,8 @@ public class CustomCommandService : ICommandService
     
     public async Task InstallCommandsAsync()
     {
+        _commandService.AddTypeReader<TimeSpan>(new TimeSpanTypeReader());
+        
         foreach (var module in _registeredModules)
         {
             await _commandService.AddModuleAsync(module.ModuleType, _services);
