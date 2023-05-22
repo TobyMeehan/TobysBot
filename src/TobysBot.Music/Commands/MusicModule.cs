@@ -400,7 +400,7 @@ public class MusicModule : VoiceCommandModuleBase
     [Summary("Toggles looping the current track.")]
     [RequireContext(ContextType.Guild, ErrorMessage = GuildRequiredErrorMessage)]
     [CheckVoice(sameChannel: SameChannel.Required)]
-    public Task LoopTrackAsync() => LoopAsync(new TrackLoopSetting());
+    public Task LoopTrackAsync(TimeSpan? start = null, TimeSpan? end = null) => LoopAsync(new TrackLoopSetting(start, end));
 
     [Command("loop queue")]
     [Summary("Toggles looping the queue.")]
@@ -419,7 +419,8 @@ public class MusicModule : VoiceCommandModuleBase
     [Summary("Toggles looping.")]
     [RequireContext(ContextType.Guild, ErrorMessage = GuildRequiredErrorMessage)]
     [CheckVoice(sameChannel: SameChannel.Required)]
-    public Task LoopToggleAsync() => LoopAsync();
+    public Task LoopToggleAsync(TimeSpan? start = null, TimeSpan? end = null) => 
+        start.HasValue || end.HasValue ? LoopTrackAsync(start, end) : LoopAsync();
 
     private async Task LoopAsync(ILoopSetting? setting = null)
     {
@@ -445,12 +446,12 @@ public class MusicModule : VoiceCommandModuleBase
 
             case TrackLoopSetting:
             case null when queue.CurrentTrack is not null && !queue.Next.Any():
-                setting = new TrackLoopSetting();
+                setting ??= new TrackLoopSetting();
                 break;
 
             case QueueLoopSetting:
             case null:
-                setting = new QueueLoopSetting();
+                setting ??= new QueueLoopSetting();
                 break;
 
             default:
