@@ -224,11 +224,17 @@ public class MemoryMusicService : IMusicService
         return Task.CompletedTask;
     }
 
-    public Task SetLoopAsync(IGuild guild, ILoopSetting setting)
+    public async Task SetLoopAsync(IGuild guild, ILoopSetting setting)
     {
-        _queues[guild.Id].LoopEnabled = setting;
+        var queue = _queues[guild.Id];
         
-        return Task.CompletedTask;
+        queue.LoopEnabled = setting;
+
+        if (setting is TrackLoopSetting track &&
+            (queue.CurrentTrack?.Position < track.Start || queue.CurrentTrack?.Position > track.End))
+        {
+            await _voice.SeekAsync(guild, track.Start ?? TimeSpan.Zero);
+        }
     }
 
     public Task SetShuffleAsync(IGuild guild, bool shuffle)
