@@ -41,16 +41,41 @@ public static class EmbedBuilderExtensions
 
     public static EmbedBuilder WithLoopAction(this EmbedBuilder embed, ILoopSetting setting)
     {
-        string description = setting switch
+        var sb = new StringBuilder();
+
+        switch (setting)
         {
-            DisabledLoopSetting => "Looping is **disabled**.",
-            EnabledLoopSetting => $"Looping the **{(setting is TrackLoopSetting ? "current track" : "")}{(setting is QueueLoopSetting ? "queue" : "")}**.",
-            _ => throw new ArgumentOutOfRangeException(nameof(setting), "Unexpected loop setting.")
-        };
+            case DisabledLoopSetting:
+                sb.AppendLine("Looping is **disabled**.");
+                break;
+            
+            case EnabledLoopSetting:
+                sb.Append("Looping the ");
+
+                sb.Append(setting switch
+                {
+                    TrackLoopSetting => "**current track**",
+                    QueueLoopSetting => "**queue**",
+                    _ => throw new ArgumentOutOfRangeException(nameof(setting), "Unexpected loop setting.")
+                });
+
+                if (setting is TrackLoopSetting {Start: not null} start)
+                {
+                    sb.Append($" from **{start.Start.Value.ToTimeStamp()}**");
+                }
+
+                if (setting is TrackLoopSetting {End: not null} end)
+                {
+                    sb.Append($" to **{end.End.Value.ToTimeStamp()}**");
+                }
+
+                sb.AppendLine(".");
+                break;
+        }
 
         return embed
             .WithContext(EmbedContext.Action)
-            .WithDescription(description);
+            .WithDescription(sb.ToString());
     }
 
     public static EmbedBuilder WithShuffleAction(this EmbedBuilder embed, bool shuffle)
@@ -175,17 +200,35 @@ public static class EmbedBuilderExtensions
             .WithContext(EmbedContext.Information);
     }
     
-    private static string GetProgressBar(TimeSpan position, TimeSpan duration)
+    private static string GetProgressBar(TimeSpan position, TimeSpan duration, ILoopSetting loopSetting)
     {
-        double fraction = position.Ticks / (double)duration.Ticks;
-        fraction *= 100d;
-
-        int percent = (int)fraction;
-        percent /= 4;
+        double percentPosition = 100d * (position.Ticks / (double)duration.Ticks);
+        double percentLoopStart =
+            loopSetting is TrackLoopSetting {Start.TotalSeconds: > 0} s 
+                ? 100d * (s.Start.Value.Ticks / (double)duration.Ticks) : -1;
+        double percentLoopEnd = 
+            loopSetting is TrackLoopSetting {End.TotalSeconds: > 0} e 
+                ? 100d * (e.End.Value.Ticks / (double) duration.Ticks) : -1;
 
         string progress = new('▬', 25);
 
-        return progress.Remove(percent, 1).Insert(percent, "⬤");
+        int positionIndex = (int) (percentPosition / 4);
+        int loopStartIndex = percentLoopStart > 0 ? Math.Min((int) (percentLoopStart / 4), positionIndex) : -1;
+        int loopEndIndex = percentLoopEnd > 0 ? Math.Max((int) (percentLoopEnd / 4), loopStartIndex + 2) : -1;
+
+        progress = progress.Remove(positionIndex, 1).Insert(positionIndex, "⬤");
+
+        if (percentLoopStart > 0)
+        {
+            progress = progress.Insert(loopStartIndex > positionIndex ? positionIndex-1 : loopStartIndex, "|");
+        }
+
+        if (percentLoopEnd > 0)
+        {
+            progress = progress.Insert(loopEndIndex <= positionIndex ? positionIndex+1 : loopEndIndex, "|");
+        }
+
+        return progress;
     }
     
     public static EmbedBuilder WithTrackStatusInformation(this EmbedBuilder embed, IQueue queue)
@@ -201,7 +244,7 @@ public static class EmbedBuilderExtensions
 
         sb.Append($"`{track.Position.ToTimeStamp()}`");
         sb.Append(' ');
-        sb.Append(GetProgressBar(track.Position, track.Duration));
+        sb.Append(GetProgressBar(track.Position, track.Duration, queue.Loop));
         sb.Append(' ');
         sb.Append($"`{track.Duration.ToTimeStamp()}`");
 
@@ -219,8 +262,10 @@ public static class EmbedBuilderExtensions
         
         sb.Append(queue.Loop switch
         {
+            TrackLoopSetting { Start: not null, End: not null } t => $"{t.Start.Value.ToTimeStamp()} 🔂 {t.End.Value.ToTimeStamp()}",
+            TrackLoopSetting { Start: not null } s => $"{s.Start.Value.ToTimeStamp()} 🔂 {track.Duration.ToTimeStamp()}",
             TrackLoopSetting => "🔂",
-            QueueLoopSetting => "🔁",
+            EnabledLoopSetting => "🔁",
             _ => ""
         });
 
