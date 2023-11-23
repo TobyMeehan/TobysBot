@@ -1,22 +1,24 @@
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TobysBot.Music.MemoryQueue;
 
 public class TrackCollection : IEnumerable<ITrack>
 {
     private readonly List<ITrack> _tracks = new();
+    private readonly List<int> _played = new();
 
     private int _currentIndex;
     private TimeSpan _currentPosition = TimeSpan.Zero;
     private bool _paused;
     private bool _stopped = true;
-    private readonly Random _rng = new();
+    private Random? _rng;
 
     public IEnumerable<ITrack> Previous => _tracks.Take(_currentIndex);
     public IEnumerable<ITrack> Next => _tracks.Skip(_currentIndex + 1);
     
     public IActiveTrack? CurrentTrack => _currentIndex < _tracks.Count
-        ? new ActiveTrack(_tracks[_currentIndex], _currentPosition, CurrentStatus())
+        ? new ActiveTrack(_tracks.ElementAt(_currentIndex), _currentPosition, CurrentStatus())
         : null;
 
     private ActiveTrackStatus CurrentStatus()
@@ -30,7 +32,19 @@ public class TrackCollection : IEnumerable<ITrack>
     }
     
     public ILoopSetting LoopEnabled { get; set; } = new DisabledLoopSetting();
-    public bool Shuffle { get; set; }
+    
+    [MemberNotNullWhen(true, nameof(_rng))]
+    public bool Shuffle => _rng is not null;
+
+    public void EnableShuffle(int? seed)
+    {
+        _rng = seed.HasValue ? new Random(seed.Value) : new Random();
+    }
+
+    public void DisableShuffle()
+    {
+        _rng = null;
+    }
 
     public void Update(TimeSpan position, bool isPaused)
     {
@@ -46,28 +60,34 @@ public class TrackCollection : IEnumerable<ITrack>
             return CurrentTrack;
         }
 
-        if (!Next.Any())
+        if (Shuffle && _played.Count == _tracks.Count || !Next.Any())
         {
             if (LoopEnabled is QueueLoopSetting)
             {
                 _currentIndex = 0;
 
+                _played.Clear();
+
                 return CurrentTrack;
             }
-
+            
             _currentIndex++;
+            _played.Clear();
             return null;
         }
-
+        
+        _played.Add(_currentIndex);
         _currentIndex++;
 
         if (Shuffle)
         {
-            int nextIndex = _rng.Next(_currentIndex, _tracks.Count);
-            var nextTrack = _tracks[nextIndex];
-            
-            _tracks.RemoveAt(nextIndex);
-            _tracks.Insert(_currentIndex, nextTrack);
+            var unplayed = _tracks.Where(x => !_played.Contains(_tracks.IndexOf(x))).ToList();
+
+            int index = _rng.Next(0, unplayed.Count);
+
+            var track = unplayed[index];
+
+            _currentIndex = _tracks.IndexOf(track);
         }
 
         return CurrentTrack;
