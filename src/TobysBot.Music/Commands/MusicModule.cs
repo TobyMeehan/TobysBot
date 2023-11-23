@@ -482,11 +482,22 @@ public class MusicModule : VoiceCommandModuleBase
     [Summary("Toggle shuffle mode.")]
     [RequireContext(ContextType.Guild, ErrorMessage = GuildRequiredErrorMessage)]
     [CheckVoice(sameChannel: SameChannel.Required)]
-    public async Task ShuffleAsync()
+    public async Task ShuffleAsync(
+        [Summary("Random seed to use when shuffling.")]
+        int? seed = null)
     {
         var queue = await _music.GetQueueAsync(Context.Guild!);
 
-        await _music.SetShuffleAsync(Context.Guild!, !queue.Shuffle);
+        switch (queue.Shuffle)
+        {
+            case false:
+            case true when seed is not null:
+                await _music.EnableShuffleAsync(Context.Guild!, seed);
+                break;
+            case true:
+                await _music.DisableShuffleAsync(Context.Guild!);
+                break;
+        }
 
         await Response.ReplyAsync(embed: _embeds.Builder()
             .WithShuffleAction(!queue.Shuffle)

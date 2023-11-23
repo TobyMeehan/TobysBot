@@ -237,9 +237,16 @@ public class MemoryMusicService : IMusicService
         }
     }
 
-    public Task SetShuffleAsync(IGuild guild, bool shuffle)
+    public Task EnableShuffleAsync(IGuild guild, int? seed)
     {
-        _queues[guild.Id].Shuffle = shuffle;
+        _queues[guild.Id].EnableShuffle(seed);
+        
+        return Task.CompletedTask;
+    }
+
+    public Task DisableShuffleAsync(IGuild guild)
+    {
+        _queues[guild.Id].DisableShuffle();
         
         return Task.CompletedTask;
     }
