@@ -206,7 +206,7 @@ public class MusicModule : VoiceCommandModuleBase
     [CheckVoice(sameChannel: SameChannel.Required)]
     public async Task SeekAsync(
         [Summary("Timestamp in the current track to skip to.")]
-        string timestamp)
+        TimeSpan timestamp)
     {
         var track = await _music.GetTrackAsync(Context.Guild!);
 
@@ -219,18 +219,7 @@ public class MusicModule : VoiceCommandModuleBase
             return;
         }
 
-        string[] formats = { @"%h\:%m\:%s", @"%m\:%s" };
-
-        if (!TimeSpan.TryParseExact(timestamp, formats, null, TimeSpanStyles.None, out var timeSpan))
-        {
-            await Response.ReplyAsync(embed: _embeds.Builder()
-                .WithCannotParseTimestampError()
-                .Build());
-
-            return;
-        }
-
-        if (timeSpan > track.Duration)
+        if (timestamp > track.Duration)
         {
             await Response.ReplyAsync(embed: _embeds.Builder()
                 .WithTimestampTooLongError()
@@ -239,7 +228,7 @@ public class MusicModule : VoiceCommandModuleBase
             return;
         }
 
-        await _music.SeekAsync(Context.Guild!, timeSpan);
+        await _music.SeekAsync(Context.Guild!, timestamp);
 
         await Response.ReactAsync(FastForwardEmote);
     }
@@ -411,7 +400,7 @@ public class MusicModule : VoiceCommandModuleBase
     [Summary("Toggles looping the current track.")]
     [RequireContext(ContextType.Guild, ErrorMessage = GuildRequiredErrorMessage)]
     [CheckVoice(sameChannel: SameChannel.Required)]
-    public Task LoopTrackAsync() => LoopAsync(new TrackLoopSetting());
+    public Task LoopTrackAsync(TimeSpan? start = null, TimeSpan? end = null) => LoopAsync(new TrackLoopSetting(start, end));
 
     [Command("loop queue")]
     [Summary("Toggles looping the queue.")]
@@ -430,7 +419,21 @@ public class MusicModule : VoiceCommandModuleBase
     [Summary("Toggles looping.")]
     [RequireContext(ContextType.Guild, ErrorMessage = GuildRequiredErrorMessage)]
     [CheckVoice(sameChannel: SameChannel.Required)]
-    public Task LoopToggleAsync() => LoopAsync();
+    public async Task LoopToggleAsync(TimeSpan? start = null, TimeSpan? end = null)
+    {
+        var queue = await _music.GetQueueAsync(Context.Guild!);
+
+        if (end > queue.CurrentTrack?.Duration)
+        {
+            await Response.ReplyAsync(embed: _embeds.Builder()
+                .WithTimestampTooLongError()
+                .Build());
+            
+            return;
+        }
+        
+        await (start.HasValue || end.HasValue ? LoopTrackAsync(start, end) : LoopAsync());
+    }
 
     private async Task LoopAsync(ILoopSetting? setting = null)
     {
@@ -449,19 +452,19 @@ public class MusicModule : VoiceCommandModuleBase
         {
             case DisabledLoopSetting:
             case null when queue.Loop is EnabledLoopSetting:
-            case TrackLoopSetting when queue.Loop is TrackLoopSetting:
+            case TrackLoopSetting { Start: null, End: null } when queue.Loop is TrackLoopSetting:
             case QueueLoopSetting when queue.Loop is QueueLoopSetting:
                 setting = new DisabledLoopSetting();
                 break;
 
             case TrackLoopSetting:
             case null when queue.CurrentTrack is not null && !queue.Next.Any():
-                setting = new TrackLoopSetting();
+                setting ??= new TrackLoopSetting();
                 break;
 
             case QueueLoopSetting:
             case null:
-                setting = new QueueLoopSetting();
+                setting ??= new QueueLoopSetting();
                 break;
 
             default:

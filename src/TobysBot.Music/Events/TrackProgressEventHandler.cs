@@ -8,19 +8,32 @@ namespace TobysBot.Music.Events;
 public class TrackProgressEventHandler : IEventHandler<PlayerUpdatedEventArgs>
 {
     private readonly IMemoryQueueService _queues;
+    private readonly IMusicService _music;
 
-    public TrackProgressEventHandler(IMemoryQueueService queues)
+    public TrackProgressEventHandler(IMemoryQueueService queues, IMusicService music)
     {
         _queues = queues;
+        _music = music;
     }
     
-    public Task HandleAsync(PlayerUpdatedEventArgs args)
+    public async Task HandleAsync(PlayerUpdatedEventArgs args)
     {
-        if (args.Position.HasValue)
+        if (!args.Position.HasValue)
         {
-            _queues[args.Guild.Id].Update(args.Position.Value, args.Status is PlayingStatus {IsPaused: true});
+            return;
+        }
+
+        var queue = _queues[args.Guild.Id];
+
+        var position = args.Position.Value;
+
+        if (queue.LoopEnabled is TrackLoopSetting {End: not null} loop && position > loop.End)
+        {
+            position = loop.Start ?? TimeSpan.Zero;
+            
+            await _music.SeekAsync(args.Guild, position);
         }
         
-        return Task.CompletedTask;
+        queue.Update(position, args.Status is PlayingStatus {IsPaused: true});
     }
 }

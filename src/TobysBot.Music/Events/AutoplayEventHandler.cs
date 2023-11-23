@@ -26,13 +26,19 @@ public class AutoplayEventHandler : IEventHandler<SoundEndedEventArgs>
             return;
         }
 
-        var track = _queues[args.Guild.Id].Advance(false);
+        var queue = _queues[args.Guild.Id];
+        
+        var track = queue.Advance(false);
 
         if (track is null)
         {
             return;
         }
 
-        await _voice.PlayAsync(args.Guild, await _audio.LoadAudioAsync(track), TimeSpan.Zero);
+        var startTime = queue.LoopEnabled is TrackLoopSetting { Start: not null } loop
+            ? loop.Start.Value
+            : TimeSpan.Zero;
+        
+        await _voice.PlayAsync(args.Guild, await _audio.LoadAudioAsync(track), startTime);
     }
 }
