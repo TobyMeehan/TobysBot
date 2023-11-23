@@ -126,15 +126,22 @@ public interface IMusicService
     /// <param name="setting"></param>
     /// <returns></returns>
     Task SetLoopAsync(IGuild guild, ILoopSetting setting);
-    
+
     /// <summary>
-    /// Sets shuffle mode to the specified value.
+    /// Enables shuffle mode with the specified optional random seed.
     /// </summary>
     /// <param name="guild"></param>
-    /// <param name="shuffle"></param>
+    /// <param name="seed"></param>
     /// <returns></returns>
-    Task SetShuffleAsync(IGuild guild, bool shuffle);
+    Task EnableShuffleAsync(IGuild guild, int? seed);
 
+    /// <summary>
+    /// Disables shuffle mode.
+    /// </summary>
+    /// <param name="guild"></param>
+    /// <returns></returns>
+    Task DisableShuffleAsync(IGuild guild);
+    
     /// <summary>
     /// Gets the queue for the specified guild.
     /// </summary>
