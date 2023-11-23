@@ -27,8 +27,18 @@ public class SpotifyAudioResolver : ISoundResolver
             {
                 continue;
             }
-
+            
             if (video.Duration.Value - track.Duration > TimeSpan.FromSeconds(2))
+            {
+                continue;
+            }
+
+            if (video.Title != track.Title)
+            {
+                continue;
+            }
+
+            if (video.Author.ChannelTitle != track.Author)
             {
                 continue;
             }
