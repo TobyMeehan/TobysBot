@@ -72,7 +72,7 @@ public class CommandOptionBuilder : ICommandOption
 
     private static ApplicationCommandOptionType GetSlashCommandType(Type type)
     {
-        if (type == typeof(bool))
+        if (type == typeof(bool) || type == typeof(bool?))
         {
             return ApplicationCommandOptionType.Boolean;
         }
@@ -82,14 +82,22 @@ public class CommandOptionBuilder : ICommandOption
             return ApplicationCommandOptionType.String;
         }
 
-        if (type == typeof(int) || type == typeof(long))
+        if (type == typeof(int) || type == typeof(int?) || 
+            type == typeof(long) || type == typeof(long?))
         {
             return ApplicationCommandOptionType.Integer;
         }
 
-        if (type == typeof(float) || type == typeof(double) || type == typeof(decimal))
+        if (type == typeof(float) || type == typeof(float?) || 
+            type == typeof(double) || type == typeof(double?) || 
+            type == typeof(decimal) || type == typeof(decimal?))
         {
             return ApplicationCommandOptionType.Number;
+        }
+
+        if (type == typeof(TimeSpan) || type == typeof(TimeSpan?))
+        {
+            return ApplicationCommandOptionType.String;
         }
 
         if (type.IsAssignableTo<IChannel>())
@@ -111,8 +119,8 @@ public class CommandOptionBuilder : ICommandOption
         {
             return ApplicationCommandOptionType.Mentionable;
         }
-
-        throw new ArgumentOutOfRangeException(nameof(type), "Could not parse slash command type.");
+        
+        throw new ArgumentOutOfRangeException(nameof(type), $"Could not parse {type.Name} slash command type.");
     }
 
     public static CommandOptionBuilder Parse(ParameterInfo parameterInfo)
